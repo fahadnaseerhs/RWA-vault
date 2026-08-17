@@ -38,13 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
-
-      - name: Enable corepack
-        run: corepack enable
 
       # --frozen-lockfile ensures CI never silently updates the lockfile.
       # If pnpm-lock.yaml is out of date, the install fails — the developer
