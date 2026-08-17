@@ -1,0 +1,18 @@
+# Adds the `workspace` service on top of infra/docker-compose.yml. That file
+# defines anvil/postgres/redis and is unchanged here — devcontainer.json
+# merges both files, so this one's only job is the container the editor
+# attaches to and its bind mount of the repo.
+services:
+  workspace:
+    image: mcr.microsoft.com/devcontainers/base:jammy
+    volumes:
+      # ".." is the repo root relative to this file's own directory
+      # (.devcontainer/), not two levels up — see CONTRIBUTING.md if this
+      # trips someone up, it's the single most common devcontainer mistake.
+      - ..:/workspaces/rwa-vault:cached
+    working_dir: /workspaces/rwa-vault
+    command: sleep infinity
+    depends_on:
+      - anvil
+      - postgres
+      - redis

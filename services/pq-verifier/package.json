@@ -1,0 +1,22 @@
+{
+  "name": "@rwa-vault/pq-verifier",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M2 - Stateless NestJS verification service running the seven-condition envelope check. Holds no authority: it writes the envelope hash to the current epoch's leaf list and nothing else.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/pq-verifier] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/envelope-codec": "workspace:*",
+    "@rwa-vault/pq-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

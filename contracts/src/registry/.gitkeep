@@ -1,0 +1,1 @@
+# M3 — AssetRegistry.sol lives here: asset state machine (UNREGISTERED -> LIVE -> FROZEN), reserve/sequence/freshness invariants.

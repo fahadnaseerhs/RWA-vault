@@ -1,0 +1,80 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Foundry configuration for the RWA-Vault Solidity project.
+#
+# This file controls `forge build`, `forge test` and `forge script`. It lives
+# inside contracts/ because the Foundry project is deliberately outside the
+# pnpm workspace — Foundry has its own toolchain (forge, anvil, cast) and does
+# not participate in npm/pnpm workspace resolution.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[profile.default]
+# Standard Foundry project layout — matches the directory structure:
+#   contracts/src/      → production Solidity (src/)
+#   contracts/test/     → Forge test files (test/)
+#   contracts/script/   → deployment/migration scripts (script/)
+#   contracts/out/      → compiled artifacts (gitignored)
+#   contracts/lib/      → git submodule dependencies (e.g. forge-std, openzeppelin)
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+
+# Pin the Solidity compiler version. Using 0.8.26 for:
+# - Native overflow checks (Solidity 0.8+)
+# - Custom errors (0.8.4+)
+# - User-defined value types (0.8.8+)
+# - transient storage opcodes (0.8.24+) if needed for gas optimisation
+solc_version = "0.8.26"
+
+# Enable the Solidity optimizer. 200 runs balances deployment cost against
+# call-site gas for functions that are called frequently (e.g. deposit,
+# redeem, borrow, repay). Lower runs = cheaper deploy, higher runs = cheaper
+# per-call. 200 is the community default and a reasonable starting point;
+# adjust per-contract after gas profiling in M11 (evaluation phase).
+optimizer = true
+optimizer_runs = 200
+
+# Allow read access to the project root for deployment scripts that need to
+# load ABI files, constructor arguments, or other artefacts from the filesystem.
+fs_permissions = [{ access = "read", path = "./" }]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fuzz testing configuration
+#
+# Default profile: 1,000 runs — fast enough for the inner development loop
+# (< 30 seconds per property). The CI profile below ramps this up to 1,000,000
+# runs for merge gates; the split keeps `forge test` responsive locally while
+# still giving high-confidence coverage before code reaches main.
+# ─────────────────────────────────────────────────────────────────────────────
+[profile.default.fuzz]
+runs = 1000
+
+# CI-only fuzz profile: activated by setting FOUNDRY_PROFILE=ci in the GitHub
+# Actions workflow (see .github/workflows/ci.yml → contracts-invariants job).
+# 1M runs catches edge cases that 1K misses — especially around rounding in
+# the ERC-4626 virtual-share offset and health-factor boundary transitions.
+[profile.ci.fuzz]
+runs = 1000000
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RPC endpoints
+#
+# These are referenced by `forge script --rpc-url <name>`. Values come from
+# environment variables defined in .env (never committed).
+# ─────────────────────────────────────────────────────────────────────────────
+[rpc_endpoints]
+# Arbitrum Sepolia testnet — the target L2 for the deployed protocol.
+arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
+# Local Anvil instance started by `pnpm devnet:up` (infra/docker-compose.yml).
+local = "http://127.0.0.1:8545"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Block explorer verification
+#
+# `forge verify-contract` uses these keys to submit source code for on-chain
+# verification. Only Arbitrum Sepolia for now; mainnet keys are added when the
+# deployment target is finalised.
+# ─────────────────────────────────────────────────────────────────────────────
+[etherscan]
+arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}" }

@@ -1,0 +1,15 @@
+# Force LF for every text file, regardless of the developer's platform or git
+# config. Without this, a Windows checkout can silently convert LF to CRLF —
+# harmless for .ts/.json, but a CRLF shebang line breaks .devcontainer/post-create.sh
+# and any shell script the moment it runs inside the (Linux) Dev Container or CI.
+* text=auto eol=lf
+
+*.sh text eol=lf
+
+# Binary — never touch line endings.
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.woff binary
+*.woff2 binary

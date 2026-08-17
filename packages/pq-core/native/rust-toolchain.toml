@@ -1,0 +1,14 @@
+# Pins the exact Rust toolchain for pq-core (M1).
+#
+# rustup reads this file automatically whenever `cargo` or `rustc` is invoked
+# from this directory or any subdirectory — no flag, no manual `rustup default`
+# needed. If the pinned toolchain/target isn't installed yet, rustup installs it
+# on first use rather than failing, as long as `rustup` itself is present.
+#
+# wasm32-unknown-unknown is required because pq-core ships as a WASM build for
+# the browser signer (Falcon-512 key never leaves the device) in addition to
+# the native build used by services.
+[toolchain]
+channel = "1.81.0"
+targets = ["wasm32-unknown-unknown"]
+components = ["clippy", "rustfmt"]

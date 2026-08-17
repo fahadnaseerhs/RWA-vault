@@ -1,0 +1,21 @@
+{
+  "name": "@rwa-vault/anchor-batcher",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M9 - Redis Streams consumer that appends verified envelope hashes as leaves, builds one sorted-pair Keccak-256 tree per 60-second epoch, and writes a single anchor record on-chain.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/anchor-batcher] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/envelope-codec": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

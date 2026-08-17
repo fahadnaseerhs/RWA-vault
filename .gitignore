@@ -1,0 +1,93 @@
+
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — RWA-Vault monorepo
+#
+# Organised by category. Each section explains WHY the pattern is here, not
+# just WHAT it excludes — this matters when three developers share a repo and
+# need to understand which files are safe to force-add.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─── Node.js dependencies ─────────────────────────────────────────────────
+# Never commit node_modules. pnpm-lock.yaml is the source of truth;
+# `pnpm install --frozen-lockfile` in CI recreates an identical tree.
+node_modules/
+# pnpm's content-addressable store lives here when using `--store-dir .pnpm-store`.
+# Committed stores defeat the purpose of a lockfile and bloat the repo.
+.pnpm-store/
+
+# ─── Build output ─────────────────────────────────────────────────────────
+# TypeScript emits .js, .d.ts, .js.map, .d.ts.map into dist/.
+# These are derived artefacts — always regenerable from source.
+dist/
+# Some tools (e.g. Vite, CRA) use build/ instead of dist/.
+build/
+# TypeScript incremental build info — speeds up local builds but has no
+# place in version control (it contains absolute paths, machine-specific).
+*.tsbuildinfo
+
+# ─── Environment ──────────────────────────────────────────────────────────
+# .env files contain secrets (private keys, API keys, database passwords).
+# .env.example is committed with dummy values as a template; .env is not.
+# This pattern was added IN THE SAME COMMIT as .env.example — not as an
+# afterthought — per production-level guidance.
+.env
+.env.local
+.env.*.local
+
+# ─── Logs ─────────────────────────────────────────────────────────────────
+# Runtime logs are machine-generated and unbounded in size.
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ─── Foundry (Solidity) ──────────────────────────────────────────────────
+# Compiled contract artefacts — regenerable via `forge build`.
+contracts/out/
+# Forge compilation cache — speeds up rebuilds but is machine-specific.
+contracts/cache/
+# LOCAL Anvil (chain ID 31337) deployment artefacts are development noise.
+# Testnet and mainnet broadcast logs (any chain ID ≠ 31337) are deliberately
+# KEPT in version control as an immutable deployment audit trail.
+contracts/broadcast/*/31337/
+
+# ─── Rust / WASM ──────────────────────────────────────────────────────────
+# Cargo build output for the pq-core native and WASM builds.
+target/
+# wasm-pack output directory for the browser signer build.
+packages/pq-core/pkg/
+
+# ─── Python (eval/, M11) ───────────────────────────────────────────────────
+# The venv itself is machine-specific and can be huge (jupyter alone pulls in
+# 150+ packages) — eval/requirements.txt is the source of truth, regenerated
+# via `pip freeze` and reproduced with `pip install -r requirements.txt`.
+eval/.venv/
+eval/.venv_verify/
+__pycache__/
+*.pyc
+# Jupyter checkpoint snapshots — noise, not the notebook itself.
+.ipynb_checkpoints/
+
+# ─── Docker ───────────────────────────────────────────────────────────────
+# Bind-mounted Docker volumes used by infra/docker-compose.yml (if any).
+# Named Docker volumes (pgdata, redisdata) live inside the Docker engine
+# and are not on disk here, but bind-mount patterns are excluded just in case.
+infra/volumes/
+
+# ─── OS-generated ─────────────────────────────────────────────────────────
+# macOS directory metadata.
+.DS_Store
+# Windows thumbnail cache.
+Thumbs.db
+
+# ─── Editor/IDE ───────────────────────────────────────────────────────────
+# VS Code workspace settings — each developer's settings are personal.
+# Shared recommendations (extensions, debug configs) should go in
+# .vscode/extensions.json and .vscode/launch.json and be force-added.
+.vscode/
+# JetBrains (IntelliJ, WebStorm) project files.
+.idea/
+
+# ─── Microsoft Office ─────────────────────────────────────────────────────
+# Office creates ~$ lock files when a document is open. These are transient
+# and should never be committed. (Relevant because docs/ contains .docx files.)
+~$*

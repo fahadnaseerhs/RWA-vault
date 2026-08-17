@@ -1,0 +1,136 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RWA-Vault CI pipeline
+#
+# Three independent jobs, designed to be selected as required status checks
+# in GitHub Settings → Branches → Branch protection for `main`:
+#
+#   1. node           — lint, typecheck, build and test all TS/JS workspace
+#                       packages (apps/*, services/*, packages/*).
+#   2. contracts      — fast Foundry checks: build, format, unit + fuzz tests
+#                       at the default 1K-run fuzz depth.
+#   3. contracts-invariants — slow Foundry invariant fuzzing at 1M runs,
+#                       gating contract changes without blocking fast feedback.
+#
+# Branch protection should require ALL THREE to pass before merging. Combined
+# with the two-approval merge rule in CONTRIBUTING.md, this ensures:
+#   - Every merge is reviewed by ≥2 developers
+#   - Every merge passes the same lint/type/build/test standard everywhere
+#   - Contract changes pass both unit tests AND high-run invariant fuzzing
+# ─────────────────────────────────────────────────────────────────────────────
+name: CI
+
+on:
+  push:
+    branches: [main]      # Run on direct pushes to main (should be rare with branch protection)
+  pull_request:
+    branches: [main]      # Run on every PR targeting main
+
+# Job names below are the required status checks to select in
+# Settings -> Branches -> Branch protection for `main`.
+jobs:
+  # ─── Job 1: Node.js workspace ────────────────────────────────────────────
+  # Runs all recursive pnpm scripts across the 11 workspace packages.
+  # Uses the .nvmrc file to pin the Node version, and corepack to enforce
+  # the exact pnpm version from package.json's "packageManager" field.
+  node:
+    name: node (lint, typecheck, build, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Enable corepack so that the "packageManager" field in package.json
+      # is honoured — this ensures CI uses the same pnpm version as every
+      # developer's machine, preventing lockfile drift.
+      - name: Enable corepack
+        run: corepack enable
+
+      # setup-node reads .nvmrc for the Node version and caches pnpm's
+      # global store to speed up `pnpm install` on subsequent runs.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc    # → 20.14.0
+          cache: pnpm                  # caches ~/.local/share/pnpm/store
+
+      # --frozen-lockfile ensures CI never silently updates the lockfile.
+      # If pnpm-lock.yaml is out of date, the install fails — the developer
+      # must run `pnpm install` locally and commit the updated lockfile.
+      - run: pnpm install --frozen-lockfile
+
+      # These four commands are the "clean-clone bar" from CONTRIBUTING.md.
+      # If any fails, Step 1 isn't finished and the PR can't merge.
+      - run: pnpm lint           # → pnpm -r run lint (recursive ESLint)
+      - run: pnpm typecheck      # → pnpm -r run typecheck (tsc --noEmit)
+      - run: pnpm build          # → pnpm -r run build (tsc emit)
+      - run: pnpm test           # → pnpm -r run test (currently echo stubs)
+
+      # Formatting is checked separately from lint because Prettier and
+      # ESLint serve different purposes: Prettier handles whitespace/style,
+      # ESLint handles correctness/patterns. eslint-config-prettier disables
+      # the rules that would conflict.
+      - run: pnpm format:check   # → prettier --check across the repo
+
+  # ─── Job 2: Contracts (fast) ─────────────────────────────────────────────
+  # Fast-feedback Foundry checks: compile, format enforcement, and unit +
+  # fuzz tests at the default 1K-run depth. Typically completes in < 60s.
+  contracts:
+    name: contracts (build, test, fmt)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts   # All commands run from contracts/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive   # Pull forge-std, openzeppelin, etc.
+
+      # Install Foundry toolchain (forge, anvil, cast, chisel).
+      #
+      # `version: stable` pins to Foundry's stable release channel rather than
+      # whatever nightly happened to be current on the runner that day — this
+      # is what makes "it passed in CI last week, why does it fail today"
+      # bugs traceable to an actual Foundry changelog instead of silent drift.
+      # Foundry ships dated nightly builds rather than semver tags; once the
+      # team wants byte-for-byte reproducibility, replace `stable` with an
+      # exact nightly tag from https://github.com/foundry-rs/foundry/releases
+      # (e.g. "nightly-de33b6af..."), and mirror the same tag in every
+      # developer's local `foundryup -v <tag>` (see CONTRIBUTING.md).
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - run: forge build          # Compile all Solidity sources
+      - run: forge fmt --check    # Enforce `forge fmt` formatting
+      - run: forge test -vvv      # Unit + fuzz tests (1K runs, default profile)
+
+  # ─── Job 3: Contracts (invariants, slow) ─────────────────────────────────
+  # Contract changes must additionally pass the invariant suite before merge.
+  # Split from the unit job because 1e6-run fuzzing is slow and should not
+  # block fast feedback on the cheap checks above.
+  #
+  # This job uses FOUNDRY_PROFILE=ci, which activates the [profile.ci.fuzz]
+  # section in foundry.toml (runs = 1,000,000). The extra depth is critical
+  # for catching rounding edge cases in:
+  #   - ERC-4626 virtual-share offset (AssetVault, M4)
+  #   - Health-factor boundary transitions (LendingPool, M7)
+  #   - Reserve-buffer solvency invariants (M7)
+  contracts-invariants:
+    name: contracts (invariants)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      # Only run tests under test/invariant/ — these are the property-based
+      # and invariant tests, not the unit tests (already covered above).
+      - name: Invariant and property fuzzing
+        run: forge test --match-path "test/invariant/**" -vvv
+        env:
+          FOUNDRY_PROFILE: ci   # → 1,000,000 fuzz runs (foundry.toml)

@@ -1,0 +1,21 @@
+{
+  "name": "@rwa-vault/pq-core",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M1 - Post-quantum signing and verification (Falcon-512, ML-DSA-65/44, SLH-DSA-SHA2-128s) over liboqs. Rust core compiled to WASM for the browser signer and native for services. This TS package is the typed wrapper around both builds.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:wasm": "wasm-pack build native --target web --out-dir ../pkg",
+    "build:native": "cargo build --release --manifest-path native/Cargo.toml",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/pq-core] no tests yet\"",
+    "test:cavp": "cargo test --manifest-path native/Cargo.toml -- --nocapture"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@rwa-vault/ops-console",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M10 - Provider and operations consoles: asset onboarding and attestation submission, plus risk and liquidation monitoring.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/ops-console] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

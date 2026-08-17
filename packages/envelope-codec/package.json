@@ -1,0 +1,21 @@
+{
+  "name": "@rwa-vault/envelope-codec",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M2 - Canonical PQEnvelope byte layout. The TypeScript codec here and the Rust codec in pq-core must serialise byte-identically; a divergence is a signature-verification failure, so the layout is defined once and tested against shared vectors.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/envelope-codec] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/pq-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

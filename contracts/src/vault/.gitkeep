@@ -1,0 +1,1 @@
+# M4 — AssetVault.sol lives here: ERC-4626 subclass with virtual-share offset (sigma = 1e6) and explicit rounding overrides.

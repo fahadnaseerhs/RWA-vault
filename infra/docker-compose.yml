@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RWA-Vault local development network
+#
+# Provides the three infrastructure dependencies every service needs:
+#   1. Anvil   — local Ethereum-compatible chain (chain ID 31337)
+#   2. Postgres — relational store for off-chain state (attestations, ledger)
+#   3. Redis   — pub/sub and Streams backbone for event-driven services
+#
+# Usage:
+#   pnpm devnet:up       # start all three in the background
+#   pnpm devnet:down     # stop and remove containers (volumes persist)
+#
+# The ports below match the URLs in .env.example. If you change a port here,
+# update .env.example (and your local .env) to match.
+#
+# Data is persisted in named Docker volumes (pgdata, redisdata) so a
+# `docker compose down` does NOT wipe your local state. To fully reset:
+#   docker compose -f infra/docker-compose.yml down -v
+# ─────────────────────────────────────────────────────────────────────────────
+name: rwa-vault
+
+services:
+  # ─── Anvil ───────────────────────────────────────────────────────────────
+  # Local Ethereum chain for contract development. Uses the official Foundry
+  # image. Chain ID 31337 is Anvil's default and is the chain ID excluded
+  # from git in .gitignore (contracts/broadcast/*/31337/) — local deployment
+  # artefacts are noise, testnet/mainnet ones are audit trail.
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    entrypoint: ["anvil"]
+    command: ["--host", "0.0.0.0", "--chain-id", "31337"]
+    ports:
+      - "8545:8545"   # JSON-RPC — matches ANVIL_RPC_URL in .env.example
+
+  # ─── PostgreSQL ──────────────────────────────────────────────────────────
+  # Relational store for:
+  #   - Settlement-rail double-entry ledger (M8)
+  #   - Asset registration metadata (M3)
+  #   - Attestation history (M3)
+  #
+  # Credentials here are for local development only — production uses managed
+  # Postgres with secrets injected via environment. The DATABASE_URL in
+  # .env.example matches these values.
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: rwa          # dev-only credential
+      POSTGRES_PASSWORD: rwa      # dev-only credential
+      POSTGRES_DB: rwa_vault
+    ports:
+      - "5432:5432"   # matches DATABASE_URL in .env.example
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # persist data across restarts
+
+  # ─── Redis ───────────────────────────────────────────────────────────────
+  # Used for two distinct patterns:
+  #   1. Redis Streams — the event bus between services. The oracle publishes
+  #      accepted price rounds; the risk engine and anchor batcher consume
+  #      them via consumer groups, each at their own pace.
+  #   2. Pub/Sub — real-time notifications to the client PWA (M10).
+  #
+  # No authentication for local development. Production Redis uses TLS +
+  # AUTH via environment variables.
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"   # matches REDIS_URL in .env.example
+    volumes:
+      - redisdata:/data   # persist AOF/RDB across restarts
+
+# ─── Named volumes ───────────────────────────────────────────────────────────
+# Docker-managed volumes survive `docker compose down` but are removed by
+# `docker compose down -v`. This is the right behaviour for development:
+# stopping the devnet shouldn't lose your test data, but you can nuke it
+# intentionally when you need a clean slate.
+volumes:
+  pgdata:
+  redisdata:

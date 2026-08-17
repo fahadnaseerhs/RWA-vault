@@ -1,0 +1,14 @@
+# Node.js version for the RWA-Vault project.
+#
+# This file is read by:
+#   - nvm (Node Version Manager): `nvm use` auto-switches to this version
+#   - GitHub Actions: `actions/setup-node@v4` with `node-version-file: .nvmrc`
+#   - fnm, volta, and other Node version managers
+#
+# Pinned to 20.14.0 (LTS) because:
+#   - ES2022 target in tsconfig.base.json requires Node 18+ (we use 20 for
+#     the longer LTS support window extending into 2026)
+#   - The engines.node field in package.json says >=20.0.0
+#   - WASM compilation for pq-core requires a Node version that supports
+#     the WebAssembly.compileStreaming API without flags
+20.14.0

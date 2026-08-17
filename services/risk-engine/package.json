@@ -1,0 +1,21 @@
+{
+  "name": "@rwa-vault/risk-engine",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M6 - Redis Streams consumer groups recomputing the health factor on every accepted price tick, emitting notifications and liquidation proposals. It proposes; the chain decides.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/risk-engine] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

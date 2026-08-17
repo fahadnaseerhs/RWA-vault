@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# pnpm workspace configuration — RWA-Vault monorepo
+#
+# This file tells pnpm which directories contain workspace packages. Any
+# package listed here can depend on any other via the `workspace:*` protocol
+# in its package.json (e.g. `"@rwa-vault/types": "workspace:*"`), and pnpm
+# will resolve it to the local source instead of fetching from npm.
+#
+# LAYOUT CONVENTION (Turborepo / Nx style):
+#
+#   packages/*  → shared libraries, consumed by apps and services.
+#                 Dependency direction: packages are consumed, never consume
+#                 apps or services. This is enforced by code review.
+#
+#   services/*  → backend services (NestJS / Node workers). May depend on
+#                 packages/* but never on apps/* or other services/*.
+#
+#   apps/*      → user-facing clients. May depend on packages/* but never on
+#                 services/* (they communicate over the network, not via imports).
+#
+# WHY contracts/ IS ABSENT:
+#   contracts/ is a Foundry project with its own toolchain (forge, anvil, cast).
+#   It does not produce an npm package, has no package.json, and does not
+#   participate in JavaScript module resolution. It is driven from root-level
+#   scripts (`pnpm contracts:build`, `pnpm contracts:test`, etc.) rather than
+#   through pnpm workspace dependency edges.
+# ─────────────────────────────────────────────────────────────────────────────
+packages:
+  - "apps/*"
+  - "services/*"
+  - "packages/*"

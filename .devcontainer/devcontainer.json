@@ -1,0 +1,62 @@
+{
+  "name": "RWA-Vault",
+
+  // Two compose files are merged: infra/docker-compose.yml (anvil, postgres,
+  // redis — unchanged, same file `pnpm devnet:up` uses outside the container)
+  // plus this directory's docker-compose.yml, which adds the `workspace`
+  // service the editor actually attaches to. Anvil/Postgres/Redis become
+  // sibling containers reachable by service name (see README below).
+  "dockerComposeFile": ["../infra/docker-compose.yml", "docker-compose.yml"],
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/rwa-vault",
+  "shutdownAction": "stopCompose",
+
+  // Official, versioned installers maintained by the Dev Container spec team
+  // (ghcr.io/devcontainers/features/*) rather than hand-rolled Dockerfile
+  // RUN steps — the whole point of this file is to not introduce a new
+  // source of "works on my machine," so runtime installation is delegated
+  // to installers other than us that are already tested across platforms.
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      // Matches .nvmrc exactly — see that file for why 20.14.0.
+      "version": "20.14.0"
+    },
+    "ghcr.io/devcontainers/features/rust:1": {
+      // Matches packages/pq-core/native/rust-toolchain.toml.
+      "version": "1.81.0",
+      "profile": "default"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+
+  // Foundry and wasm-pack have no official feature (see post-create.sh for
+  // why, and note they run the SAME install commands documented for a local,
+  // non-container setup in CONTRIBUTING.md — one code path, not two).
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "forwardPorts": [8545, 5432, 6379],
+  "portsAttributes": {
+    "8545": { "label": "Anvil (chain 31337)" },
+    "5432": { "label": "PostgreSQL" },
+    "6379": { "label": "Redis" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "rust-lang.rust-analyzer",
+        "NomicFoundation.hardhat-solidity",
+        "ms-python.python",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@rwa-vault/client",
+  "version": "0.0.1",
+  "private": true,
+  "description": "M10 - React 18 investor PWA. viem + TanStack Query, typed against the contract ABIs, with the WASM Falcon signer holding a device key that never leaves IndexedDB.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "echo \"[@rwa-vault/client] no tests yet\""
+  },
+  "dependencies": {
+    "@rwa-vault/envelope-codec": "workspace:*",
+    "@rwa-vault/pq-core": "workspace:*",
+    "@rwa-vault/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@rwa-vault/config": "workspace:*"
+  }
+}

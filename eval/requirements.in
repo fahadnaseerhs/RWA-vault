@@ -1,0 +1,17 @@
+# Loose, human-edited dependency list for the M11 evaluation harness.
+#
+# This is NOT the lockfile — see requirements.txt for that. Add a new package
+# here when you need one, then regenerate the pin with:
+#
+#   pip install -r requirements.in
+#   pip freeze > requirements.txt
+#
+# This is the Python equivalent of pnpm-lock.yaml / Cargo.lock: the exact,
+# reproducible versions in requirements.txt are GENERATED from a real install,
+# never hand-typed, so they always describe a set of versions that actually
+# resolve together.
+
+pandas          # RQ2/RQ4 dataset processing (proposal SVII)
+numpy
+matplotlib      # Figures for the thesis (gas curves, Monte Carlo paths)
+jupyter         # Notebooks in eval/notebooks/ for exploratory analysis

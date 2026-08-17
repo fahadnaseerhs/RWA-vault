@@ -1,0 +1,56 @@
+{
+  // Shared TypeScript compiler options for every package in the monorepo.
+  // Each package's own tsconfig.json extends this file and adds only outDir/rootDir/include.
+  //
+  // WHY EACH OPTION:
+  // - strict: true is NON-NEGOTIABLE for this project. The envelope codec must produce
+  //   the same canonical byte layout whether it runs in the NestJS backend or the WASM
+  //   signer. A loosely-typed envelope schema is exactly the kind of drift that breaks
+  //   signature verification between client and server.
+  "compilerOptions": {
+    // ES2022 gives us top-level await, Object.hasOwn, Array.at, structuredClone, etc.
+    // without requiring a polyfill layer — Node 20 and all modern browsers support it.
+    "target": "ES2022",
+
+    // NodeNext + NodeNext: mandatory for ESM-first packages (every package has
+    // "type": "module"). This pair requires explicit .js extensions in relative imports,
+    // which is annoying but prevents the ambiguous-resolution bugs that plague mixed
+    // CJS/ESM monorepos.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    // Strict mode family — all five sub-flags are enabled by this single toggle:
+    //   strictNullChecks, strictFunctionTypes, strictBindCallApply,
+    //   strictPropertyInitialization, noImplicitAny.
+    // The envelope codec and key registry types are the critical path here: a nullable
+    // field that slips through becomes a zeroed byte in the signed envelope, which is
+    // a signature-verification failure that only surfaces at runtime.
+    "strict": true,
+
+    // Allow default-importing from CommonJS modules (e.g. `import express from "express"`)
+    // without needing `import * as express`. Most third-party libraries still ship CJS.
+    "esModuleInterop": true,
+
+    // Skip type-checking of node_modules .d.ts files. Without this, a single broken
+    // declaration file in any transitive dependency stalls the entire workspace build.
+    "skipLibCheck": true,
+
+    // Case-sensitivity enforcement. macOS/Windows filesystems are case-insensitive by
+    // default, so a developer can import "./Utils" when the file is "./utils" and it
+    // works locally but fails in CI (Linux). This flag catches it at compile time.
+    "forceConsistentCasingInFileNames": true,
+
+    // Emit .d.ts declaration files so that workspace packages can type-check against
+    // each other through the pnpm workspace:* protocol. Without this, `@rwa-vault/types`
+    // consumers would see the package as untyped.
+    "declaration": true,
+
+    // Emit .d.ts.map files alongside declarations. This lets "Go to Definition" in the
+    // IDE jump to the actual .ts source in the sibling package, not the generated .d.ts.
+    "declarationMap": true,
+
+    // Emit .js.map files for debugger source mapping. Pairs with declarationMap to give
+    // full IDE navigation across the monorepo.
+    "sourceMap": true
+  }
+}

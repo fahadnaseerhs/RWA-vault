@@ -1,0 +1,29 @@
+{
+  "name": "@rwa-vault/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared ESLint, Prettier and TypeScript configuration. Every package consumes this rather than defining its own, so the two-approval merge rule checks one standard everywhere.",
+  "type": "module",
+  "exports": {
+    "./eslint": "./eslint.config.js",
+    "./prettier": "./prettier.config.js",
+    "./tsconfig": "./tsconfig.json"
+  },
+  "files": [
+    "eslint.config.js",
+    "prettier.config.js",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "lint": "echo \"[config] no sources to lint\"",
+    "typecheck": "echo \"[config] no sources to typecheck\"",
+    "build": "echo \"[config] nothing to build\"",
+    "test": "echo \"[config] no tests\""
+  },
+  "dependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "typescript-eslint": "^8.8.0"
+  }
+}
