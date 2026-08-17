@@ -1,9 +1,8 @@
 # RWA-Vault
 
-A post-quantum anchored protocol for tokenised real-world assets with collateralised
-micro-liquidity.
+"A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Assets
 
-Final Year Project — Fahad Naseer (403897) · Hassan Attique (482073) · Fawaz Asif (473423)
+
 
 - Full technical proposal: [`docs/RWA-Vault_proposal_v2.pdf`](docs/RWA-Vault_proposal_v2.pdf)
 - Module build plan and per-phase tasks: [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
