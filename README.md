@@ -1,8 +1,6 @@
 # RWA-Vault
 
-"A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Assets
-
-
+A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Assets
 
 - Full technical proposal: [`docs/RWA-Vault_proposal_v2.pdf`](docs/RWA-Vault_proposal_v2.pdf)
 - Module build plan and per-phase tasks: [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
