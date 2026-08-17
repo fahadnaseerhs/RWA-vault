@@ -7,10 +7,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc --build tsconfig.json",
     "build:wasm": "wasm-pack build native --target web --out-dir ../pkg",
     "build:native": "cargo build --release --manifest-path native/Cargo.toml",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
     "test": "echo \"[@rwa-vault/pq-core] no tests yet\"",
     "test:cavp": "cargo test --manifest-path native/Cargo.toml -- --nocapture"

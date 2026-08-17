@@ -4,5 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Mirrors the workspace:* dependencies in package.json.
+  "references": [{ "path": "../../packages/types" }]
 }

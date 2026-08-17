@@ -35,7 +35,7 @@ committed to git, so `pip install -r requirements.txt` reproduces the identical
 dependency set on any machine, the same guarantee `pnpm install --frozen-lockfile`
 gives on the Node side.
 
-`requirements.in` is the human-edited *intent* file. Add a package there, then
+`requirements.in` is the human-edited _intent_ file. Add a package there, then
 regenerate the lock:
 
 ```bash

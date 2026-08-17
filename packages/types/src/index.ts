@@ -72,8 +72,4 @@ export type AssetType = "GOLD" | "TBILL" | "SUKUK" | "REIT";
  * liquidations but cannot cause an incorrect one.
  */
 export type HealthBand =
-  | "HEALTHY"
-  | "BORROW_FROZEN"
-  | "BUFFER_BAND"
-  | "LIQUIDATABLE"
-  | "FULL_CLOSURE";
+  "HEALTHY" | "BORROW_FROZEN" | "BUFFER_BAND" | "LIQUIDATABLE" | "FULL_CLOSURE";
