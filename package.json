@@ -5,7 +5,7 @@
   "description": "RWA-Vault: A Post-Quantum Anchored Protocol for Tokenised Real-World Assets with Collateralised Micro-Liquidity",
   "packageManager": "pnpm@9.12.0",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "devnet:up": "docker compose -f infra/docker-compose.yml up -d",

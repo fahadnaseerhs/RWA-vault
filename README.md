@@ -37,7 +37,7 @@ cross-machine "works on my machine" issues.
 | Tool | Version | Why |
 |------|---------|-----|
 | **Git** | latest | Version control; submodules required for Foundry deps |
-| **Node.js** | 20.14.0 (LTS) | Runtime for all TS/JS services and apps |
+| **Node.js** | 22.16.0 (LTS) | Runtime for all TS/JS services and apps |
 | **pnpm** | 9.12.0 | Monorepo package manager (auto-managed via `corepack`) |
 | **Docker + Compose** | latest | Local devnet: Anvil chain, PostgreSQL, Redis |
 | **Foundry** (forge, anvil, cast) | stable | Solidity compiler, local chain, contract interaction |
@@ -57,29 +57,29 @@ manager. On Windows, install **Git for Windows** (includes Git Bash).
 git --version
 ```
 
-### Step 2 — Node.js 20.14.0
+### Step 2 — Node.js 22.16.0
 
 Use a version manager so you can switch Node versions per project:
 
 **Using nvm** (macOS / Linux / Git Bash on Windows):
 
 ```bash
-nvm install 20.14.0
-nvm use 20.14.0
+nvm install 22.16.0
+nvm use 22.16.0
 ```
 
 **Using fnm** (cross-platform):
 
 ```bash
-fnm install 20.14.0
-fnm use 20.14.0
+fnm install 22.16.0
+fnm use 22.16.0
 ```
 
 Verify:
 
 ```bash
 node --version
-# v20.14.0
+# v22.16.0
 ```
 
 ### Step 3 — Enable pnpm via Corepack
@@ -444,7 +444,7 @@ rwa-vault/
 ├── .env.example             # Environment variable template
 ├── .github/workflows/ci.yml # CI pipeline (3 parallel jobs)
 ├── .gitignore
-├── .nvmrc                   # Pins Node.js to 20.14.0
+├── .nvmrc                   # Pins Node.js to 22.16.0
 ├── package.json             # Root workspace config
 ├── pnpm-lock.yaml           # Dependency lockfile
 └── pnpm-workspace.yaml      # Workspace package definitions

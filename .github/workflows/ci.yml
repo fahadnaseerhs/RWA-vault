@@ -38,18 +38,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Enable corepack so that the "packageManager" field in package.json
-      # is honoured — this ensures CI uses the same pnpm version as every
-      # developer's machine, preventing lockfile drift.
-      - name: Enable corepack
-        run: corepack enable
-
-      # setup-node reads .nvmrc for the Node version and caches pnpm's
-      # global store to speed up `pnpm install` on subsequent runs.
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc    # → 20.14.0
-          cache: pnpm                  # caches ~/.local/share/pnpm/store
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
 
       # --frozen-lockfile ensures CI never silently updates the lockfile.
       # If pnpm-lock.yaml is out of date, the install fails — the developer
