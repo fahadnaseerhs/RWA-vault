@@ -30,7 +30,7 @@ services:
     entrypoint: ["anvil"]
     command: ["--host", "0.0.0.0", "--chain-id", "31337"]
     ports:
-      - "8545:8545"   # JSON-RPC — matches ANVIL_RPC_URL in .env.example
+      - "8545:8545" # JSON-RPC — matches ANVIL_RPC_URL in .env.example
 
   # ─── PostgreSQL ──────────────────────────────────────────────────────────
   # Relational store for:
@@ -44,13 +44,13 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_USER: rwa          # dev-only credential
-      POSTGRES_PASSWORD: rwa      # dev-only credential
+      POSTGRES_USER: rwa # dev-only credential
+      POSTGRES_PASSWORD: rwa # dev-only credential
       POSTGRES_DB: rwa_vault
     ports:
-      - "5432:5432"   # matches DATABASE_URL in .env.example
+      - "5432:5432" # matches DATABASE_URL in .env.example
     volumes:
-      - pgdata:/var/lib/postgresql/data   # persist data across restarts
+      - pgdata:/var/lib/postgresql/data # persist data across restarts
 
   # ─── Redis ───────────────────────────────────────────────────────────────
   # Used for two distinct patterns:
@@ -64,9 +64,9 @@ services:
   redis:
     image: redis:7
     ports:
-      - "6379:6379"   # matches REDIS_URL in .env.example
+      - "6379:6379" # matches REDIS_URL in .env.example
     volumes:
-      - redisdata:/data   # persist AOF/RDB across restarts
+      - redisdata:/data # persist AOF/RDB across restarts
 
 # ─── Named volumes ───────────────────────────────────────────────────────────
 # Docker-managed volumes survive `docker compose down` but are removed by

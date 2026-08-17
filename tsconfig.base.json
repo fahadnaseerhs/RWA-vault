@@ -51,6 +51,21 @@
 
     // Emit .js.map files for debugger source mapping. Pairs with declarationMap to give
     // full IDE navigation across the monorepo.
-    "sourceMap": true
+    "sourceMap": true,
+
+    // Mark every package as a composite project so it can participate in TypeScript
+    // project references (the "references" array in each package's tsconfig.json).
+    //
+    // WHY THIS IS REQUIRED:
+    // Each package.json points "types" at ./dist/index.d.ts, which only exists after
+    // `pnpm build`. Without project references, type-checking a package before building
+    // its workspace dependencies fails with TS2307 ("Cannot find module
+    // '@rwa-vault/pq-core' or its corresponding type declarations") — which is exactly
+    // what CI hits, because it runs `pnpm typecheck` before `pnpm build`.
+    //
+    // With composite + references, `tsc --build` resolves an imported workspace package
+    // to its SOURCE via the reference graph and builds dependencies in topological order
+    // first, so a clean clone type-checks with no prior build step.
+    "composite": true
   }
 }

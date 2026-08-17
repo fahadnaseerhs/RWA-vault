@@ -34,16 +34,16 @@ Final Year Project — Fahad Naseer (403897) · Hassan Attique (482073) · Fawaz
 Install these tools **before** cloning. The pinned versions matter — they prevent
 cross-machine "works on my machine" issues.
 
-| Tool | Version | Why |
-|------|---------|-----|
-| **Git** | latest | Version control; submodules required for Foundry deps |
-| **Node.js** | 22.16.0 (LTS) | Runtime for all TS/JS services and apps |
-| **pnpm** | 9.12.0 | Monorepo package manager (auto-managed via `corepack`) |
-| **Docker + Compose** | latest | Local devnet: Anvil chain, PostgreSQL, Redis |
-| **Foundry** (forge, anvil, cast) | stable | Solidity compiler, local chain, contract interaction |
-| **Rust** | 1.81.0 | Post-quantum cryptography native library (pq-core) |
-| **wasm-pack** | latest | Builds pq-core to WASM for the browser signer |
-| **Python** | 3.12+ | Evaluation harness only (thesis data processing) |
+| Tool                             | Version       | Why                                                    |
+| -------------------------------- | ------------- | ------------------------------------------------------ |
+| **Git**                          | latest        | Version control; submodules required for Foundry deps  |
+| **Node.js**                      | 22.16.0 (LTS) | Runtime for all TS/JS services and apps                |
+| **pnpm**                         | 9.12.0        | Monorepo package manager (auto-managed via `corepack`) |
+| **Docker + Compose**             | latest        | Local devnet: Anvil chain, PostgreSQL, Redis           |
+| **Foundry** (forge, anvil, cast) | stable        | Solidity compiler, local chain, contract interaction   |
+| **Rust**                         | 1.81.0        | Post-quantum cryptography native library (pq-core)     |
+| **wasm-pack**                    | latest        | Builds pq-core to WASM for the browser signer          |
+| **Python**                       | 3.12+         | Evaluation harness only (thesis data processing)       |
 
 > **Shortcut:** If you use VS Code, the [Dev Container](#dev-container-zero-install-alternative)
 > installs everything automatically — skip straight to that section.
@@ -203,16 +203,16 @@ For **local development only**, the defaults already work — Anvil, PostgreSQL 
 URLs point to the Docker devnet ports. You only need to fill in external values when
 deploying to Arbitrum Sepolia.
 
-| Variable | Pre-filled? | When you need it |
-|----------|-------------|------------------|
-| `ANVIL_RPC_URL` | Yes (`localhost:8545`) | Always (local chain) |
-| `DATABASE_URL` | Yes (`localhost:5432`) | Always (off-chain state) |
-| `REDIS_URL` | Yes (`localhost:6379`) | Always (event bus) |
-| `AUTH_MODE` | Yes (`pq`) | Always — `pq` or `ecdsa_control` |
-| `ARBITRUM_SEPOLIA_RPC_URL` | No | Testnet deployment |
-| `DEPLOYER_PRIVATE_KEY` | No | Testnet deployment |
-| `ARBISCAN_API_KEY` | No | Contract source verification |
-| `PRICE_SOURCE_*_URL` | No | Oracle aggregation (M5) |
+| Variable                   | Pre-filled?            | When you need it                 |
+| -------------------------- | ---------------------- | -------------------------------- |
+| `ANVIL_RPC_URL`            | Yes (`localhost:8545`) | Always (local chain)             |
+| `DATABASE_URL`             | Yes (`localhost:5432`) | Always (off-chain state)         |
+| `REDIS_URL`                | Yes (`localhost:6379`) | Always (event bus)               |
+| `AUTH_MODE`                | Yes (`pq`)             | Always — `pq` or `ecdsa_control` |
+| `ARBITRUM_SEPOLIA_RPC_URL` | No                     | Testnet deployment               |
+| `DEPLOYER_PRIVATE_KEY`     | No                     | Testnet deployment               |
+| `ARBISCAN_API_KEY`         | No                     | Contract source verification     |
+| `PRICE_SOURCE_*_URL`       | No                     | Oracle aggregation (M5)          |
 
 See `.env.example` for a full explanation of every variable.
 
@@ -252,11 +252,11 @@ The Rust toolchain auto-installs via `rustup` when you run any `cargo` command f
 
 The devnet starts three containers:
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| **Anvil** | 8545 | Local Ethereum chain (chain ID 31337) |
-| **PostgreSQL 16** | 5432 | Off-chain state (settlement ledger, asset registry) |
-| **Redis 7** | 6379 | Event bus (Streams) + real-time notifications (Pub/Sub) |
+| Service           | Port | Purpose                                                 |
+| ----------------- | ---- | ------------------------------------------------------- |
+| **Anvil**         | 8545 | Local Ethereum chain (chain ID 31337)                   |
+| **PostgreSQL 16** | 5432 | Off-chain state (settlement ledger, asset registry)     |
+| **Redis 7**       | 6379 | Event bus (Streams) + real-time notifications (Pub/Sub) |
 
 **Start:**
 
@@ -292,15 +292,15 @@ pnpm contracts:deploy:local   # Deploy to local Anvil
 
 Contract source lives in `contracts/src/`, organised by module:
 
-| Directory | Module | Purpose |
-|-----------|--------|---------|
-| `keys/` | M2 | Post-quantum key registry |
-| `registry/` | M3 | Asset registration and attestation |
-| `tokens/` | M3 | ERC-20 wrapped tokens |
-| `vault/` | M4 | ERC-4626 asset vault |
-| `oracle/` | M5 | On-chain oracle consumer |
-| `lending/` | M7 | Collateralised micro-lending pool |
-| `anchoring/` | M9 | PQ anchor verification |
+| Directory    | Module | Purpose                            |
+| ------------ | ------ | ---------------------------------- |
+| `keys/`      | M2     | Post-quantum key registry          |
+| `registry/`  | M3     | Asset registration and attestation |
+| `tokens/`    | M3     | ERC-20 wrapped tokens              |
+| `vault/`     | M4     | ERC-4626 asset vault               |
+| `oracle/`    | M5     | On-chain oracle consumer           |
+| `lending/`   | M7     | Collateralised micro-lending pool  |
+| `anchoring/` | M9     | PQ anchor verification             |
 
 ---
 
@@ -387,20 +387,20 @@ their respective ports (8545, 5432, 6379) via port forwarding.
 
 ## Root Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm build` | Recursive build across all workspace packages |
-| `pnpm test` | Recursive test across all packages |
-| `pnpm lint` | Recursive ESLint |
-| `pnpm typecheck` | Recursive `tsc --noEmit` |
-| `pnpm format` | Prettier write across the repo |
-| `pnpm format:check` | Prettier check (no writes) |
-| `pnpm devnet:up` / `devnet:down` | Start / stop the local Docker devnet |
-| `pnpm contracts:build` | `forge build` |
-| `pnpm contracts:test` | `forge test -vvv` |
-| `pnpm contracts:fmt` | `forge fmt --check` |
-| `pnpm contracts:snapshot` | `forge snapshot` |
-| `pnpm contracts:deploy:local` | Deploy to local Anvil chain |
+| Script                           | Description                                   |
+| -------------------------------- | --------------------------------------------- |
+| `pnpm build`                     | Recursive build across all workspace packages |
+| `pnpm test`                      | Recursive test across all packages            |
+| `pnpm lint`                      | Recursive ESLint                              |
+| `pnpm typecheck`                 | Recursive `tsc --noEmit`                      |
+| `pnpm format`                    | Prettier write across the repo                |
+| `pnpm format:check`              | Prettier check (no writes)                    |
+| `pnpm devnet:up` / `devnet:down` | Start / stop the local Docker devnet          |
+| `pnpm contracts:build`           | `forge build`                                 |
+| `pnpm contracts:test`            | `forge test -vvv`                             |
+| `pnpm contracts:fmt`             | `forge fmt --check`                           |
+| `pnpm contracts:snapshot`        | `forge snapshot`                              |
+| `pnpm contracts:deploy:local`    | Deploy to local Anvil chain                   |
 
 ---
 
@@ -460,12 +460,12 @@ driven from root scripts (`pnpm contracts:build`, `pnpm contracts:test`).
 
 Modules ship in dependency order across four phases, gated by milestones:
 
-| Phase | Weeks | Modules | Gate |
-|-------|-------|---------|------|
-| 1 — Foundation & crypto core | 1–6 | M0, M1, M2, M3, M4 | MS1: gold lot registered and tokenised |
-| 2 — Investment path | 7–11 | M5, M8, M9 | MS2: FYP-I deliverable, offline proof |
-| 3 — Lending & risk | 12–19 | M6, M7, M10 | MS3: end-to-end lend and liquidate |
-| 4 — Evaluation | 20–24 | M11 | MS4: every RQ answered from measurement |
+| Phase                        | Weeks | Modules            | Gate                                    |
+| ---------------------------- | ----- | ------------------ | --------------------------------------- |
+| 1 — Foundation & crypto core | 1–6   | M0, M1, M2, M3, M4 | MS1: gold lot registered and tokenised  |
+| 2 — Investment path          | 7–11  | M5, M8, M9         | MS2: FYP-I deliverable, offline proof   |
+| 3 — Lending & risk           | 12–19 | M6, M7, M10        | MS3: end-to-end lend and liquidate      |
+| 4 — Evaluation               | 20–24 | M11                | MS4: every RQ answered from measurement |
 
 See the module build plan for the full task breakdown.
 
