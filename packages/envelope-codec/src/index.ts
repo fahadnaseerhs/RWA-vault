@@ -7,13 +7,19 @@
  * and to its context.
  */
 
-import type { PqAlgorithm } from "@rwa-vault/pq-core";
+import type { PqSignatureAlgorithm } from "@rwa-vault/pq-core";
 
 export interface PqEnvelope {
   /** Format evolution without ambiguity in the signed bytes. */
   version: number;
-  /** Cryptographic agility; prevents downgrade to a retired primitive. */
-  algorithm: PqAlgorithm;
+  /**
+   * Cryptographic agility; prevents downgrade to a retired primitive.
+   *
+   * Narrowed to the signature algorithms: an envelope is a signed structure, so
+   * a KEM identifier here is meaningless and is rejected at compile time rather
+   * than by the M2 verifier's allow-list at runtime.
+   */
+  algorithm: PqSignatureAlgorithm;
   /** Cross-chain replay protection. */
   chainId: bigint;
   /** Cross-contract replay protection. */

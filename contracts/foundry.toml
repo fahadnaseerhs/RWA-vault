@@ -35,6 +35,22 @@ solc_version = "0.8.26"
 optimizer = true
 optimizer_runs = 200
 
+# Pin the EVM target explicitly rather than inheriting solc's default.
+#
+# An unpinned target is not merely untidy — it makes every gas number
+# unreproducible, because a Foundry upgrade can move the default underneath a
+# measurement that has already been published. M1's RQ3 deliverable is a gas
+# report for the ETHFALCON dispute verifier, and a gas figure taken under
+# unstated EVM settings is not a result (ADR 0008, ADR 0011).
+#
+# `cancun` is chosen to match Arbitrum Sepolia's ArbOS feature level and to keep
+# the transient-storage opcodes noted above available. This value is VERIFIED
+# rather than assumed: task S6-09 confirms that a contract compiled at this
+# target deploys and executes on Arbitrum Sepolia before the RQ3 report is
+# published. If it does not, this drops to "shanghai" and the change is recorded
+# in the report. Either way the value in force is stated beside every gas figure.
+evm_version = "cancun"
+
 # Allow read access to the project root for deployment scripts that need to
 # load ABI files, constructor arguments, or other artefacts from the filesystem.
 fs_permissions = [{ access = "read", path = "./" }]

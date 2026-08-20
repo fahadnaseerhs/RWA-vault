@@ -13,3 +13,6 @@
 *.jpg binary
 *.woff binary
 *.woff2 binary
+
+# Preserve upstream PQClean bytes so the provenance SHA-256 manifest remains valid.
+packages/pq-core/native/vendor/pqclean/** -text

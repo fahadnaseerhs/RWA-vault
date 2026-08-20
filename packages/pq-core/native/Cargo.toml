@@ -1,0 +1,30 @@
+[package]
+name = "rwa-vault-pq-core"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.81"
+description = "Native and WebAssembly post-quantum primitives for RWA-Vault"
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "rwa_vault_pq_core"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+kat = []
+
+[dependencies]
+getrandom = "=0.2.15"
+slh-dsa = "=0.1.0"
+# slh-dsa 0.1.0 declares a prerelease range. Newer prereleases require
+# Edition 2024, so retain the version that slh-dsa 0.1.0 was published against.
+signature = "=2.3.0-pre.4"
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "=0.2.15", features = ["js"] }
+
+[build-dependencies]
+cc = "=1.1.31"
