@@ -10,8 +10,11 @@
 #                       at the default 1K-run fuzz depth.
 #   3. contracts-invariants — slow Foundry invariant fuzzing at 1M runs,
 #                       gating contract changes without blocking fast feedback.
+#   4. pq-core-native — vendored PQClean provenance, the native Rust build and
+#                       its FFI round-trips, the ADR 0007 `kat` build guard, and
+#                       the ADR 0003 differential oracle.
 #
-# Branch protection should require ALL THREE to pass before merging. Combined
+# Branch protection should require ALL FOUR to pass before merging. Combined
 # with the two-approval merge rule in CONTRIBUTING.md, this ensures:
 #   - Every merge is reviewed by ≥2 developers
 #   - Every merge passes the same lint/type/build/test standard everywhere
@@ -128,3 +131,112 @@ jobs:
         run: forge test --match-path "test/invariant/**" -vvv
         env:
           FOUNDRY_PROFILE: ci # → 1,000,000 fuzz runs (foundry.toml)
+
+  # ─── Job 4: pq-core native crate ─────────────────────────────────────────
+  # The cryptographic core is vendored C compiled by our own build.rs, so the
+  # things that can go wrong are not things `cargo build` reports:
+  #
+  #   - vendored bytes drifting from the pinned upstream commit,
+  #   - a build that links but is subtly wrong and still self-verifies,
+  #   - the deterministic `kat` hooks reaching an optimised artefact.
+  #
+  # Each gets an explicit step below. The toolchain is pinned to the crate's
+  # rust-version so a clippy or rustfmt change upstream cannot turn this job red
+  # on an unrelated PR.
+  pq-core-native:
+    name: pq-core native (vendor, build, test, oracle)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy, rustfmt
+
+      # The vendored tree is the crate's source of truth for the C. If it is not
+      # committed, every check below would be verifying something CI generated
+      # for itself, so fail loudly rather than silently passing.
+      - name: Vendored PQClean tree is committed
+        run: |
+          test -f packages/pq-core/native/vendor/pqclean/PROVENANCE.md || {
+            echo "::error::vendor/pqclean is not committed. Run scripts/vendor-pqclean.py and commit the result."
+            exit 1
+          }
+
+      # Compares every vendored byte, SHA-256 and Git blob ID against the objects
+      # in the pinned upstream commit. This is the check a self-attesting manifest
+      # cannot make: a manifest regenerated over tampered files agrees with itself.
+      - name: Verify vendored provenance against pinned upstream
+        run: python scripts/verify-vendor.py
+
+      # Re-vendoring must be a no-op. Catches a hand-edited vendor tree whose
+      # manifest was updated to match, and any Git filter (autocrlf) that would
+      # make the result depend on the machine it ran on.
+      - name: Re-vendoring is reproducible
+        run: |
+          python scripts/vendor-pqclean.py
+          if [ -n "$(git status --porcelain -- packages/pq-core/native/vendor)" ]; then
+            echo "::error::re-running the vendoring script changed the tree:"
+            git status --porcelain -- packages/pq-core/native/vendor
+            git diff -- packages/pq-core/native/vendor | head -50
+            exit 1
+          fi
+
+      - name: Format
+        working-directory: packages/pq-core/native
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: packages/pq-core/native
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      # Debug and release both run: the FFI round-trips are the only thing that
+      # forces the linker to resolve the vendored C at all.
+      - name: Test (debug)
+        working-directory: packages/pq-core/native
+        run: cargo test --locked
+
+      - name: Test (release)
+        working-directory: packages/pq-core/native
+        run: cargo test --locked --release
+
+      # ADR 0007: an optimised build with `kat` must not compile. Because the
+      # guard is a compile_error!, a release build that succeeds is itself proof
+      # that `kat` was not in its resolved feature set — no separate assertion on
+      # the feature list is needed, and none could be as strong.
+      - name: kat feature is refused in an optimised build
+        working-directory: packages/pq-core/native
+        run: |
+          if cargo build --locked --release --features kat 2>/dev/null; then
+            echo "::error::the kat guard did not fire: a release build with --features kat succeeded"
+            exit 1
+          fi
+          echo "kat correctly refused in an optimised build"
+
+      # The conformance suite still needs optimised code, and gets it only by
+      # acknowledging the guard explicitly. This job publishes a test report; it
+      # produces no artefact.
+      - name: Conformance build (kat, acknowledged override)
+        working-directory: packages/pq-core/native
+        env:
+          RUSTFLAGS: "-C debug-assertions=on"
+        run: cargo test --locked --release --features kat
+
+      # ADR 0003 differential oracle. It cannot be a dev-dependency — it vendors
+      # PQClean under the same symbol names, so linking both into one binary
+      # fails on MSVC and silently binds to one implementation on GNU ld. The
+      # comparison therefore runs across a process boundary. Direction 1 (the
+      # oracle's artefacts accepted by our build) ran in the test steps above;
+      # this is direction 2.
+      - name: Differential oracle (our artefacts checked by independent build)
+        working-directory: packages/pq-core/native
+        run: |
+          test -s target/differential/native-vectors.txt || {
+            echo "::error::the release test run did not emit native-vectors.txt"
+            exit 1
+          }
+          cargo run --locked --release --manifest-path oracle/Cargo.toml --             verify target/differential/native-vectors.txt

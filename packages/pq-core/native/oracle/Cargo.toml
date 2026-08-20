@@ -1,0 +1,36 @@
+# Differential oracle for the vendored PQClean build (ADR 0003).
+#
+# This is a SEPARATE crate on purpose. `pqcrypto-*` vendors the same PQClean C
+# under the same symbol names as our own build.rs, so the two cannot be linked
+# into one binary: MSVC reports LNK2005/LNK1169, and GNU ld would quietly resolve
+# every call to whichever archive it saw first — which would turn a differential
+# test into an implementation silently checked against itself. Keeping the oracle
+# in its own process is what makes the comparison real.
+#
+# It is deliberately NOT a dev-dependency of rwa-vault-pq-core, and nothing in
+# the release artefact's dependency graph refers to it.
+
+[package]
+name = "rwa-vault-pq-oracle"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.81"
+description = "Independent PQClean packaging used as a differential oracle"
+license = "UNLICENSED"
+publish = false
+
+# Own workspace root: this crate must never be pulled into the native crate's
+# build graph.
+[workspace]
+
+[[bin]]
+name = "pq-oracle"
+path = "src/main.rs"
+
+[dependencies]
+pqcrypto-falcon = "=0.4.1"
+pqcrypto-mldsa = "=0.1.2"
+pqcrypto-mlkem = "=0.1.1"
+pqcrypto-traits = "=0.3.5"
+# 0.2.11 moves to getrandom 0.3; hold the line that matches the native crate's pin.
+pqcrypto-internals = "=0.2.10"

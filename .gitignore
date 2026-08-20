@@ -91,3 +91,7 @@ Thumbs.db
 # Office creates ~$ lock files when a document is open. These are transient
 # and should never be committed. (Relevant because docs/ contains .docx files.)
 ~$*
+
+# Scratch PDF/PNG renders produced while iterating on the Module 1 manual.
+# Regenerable from the .docx; roughly 30 MB across revisions, so not committed.
+docs/.qa_module1*/

@@ -1,0 +1,15 @@
+# PQClean source plan v1.
+#
+# group fields:
+# group|static-library|upstream-directory|compiled-c-files|vendored-selection
+#
+# `tree` vendors the complete portable scheme directory, including headers and
+# its LICENSE. `files:` vendors only the named common support files.
+upstream|https://github.com/PQClean/PQClean.git
+commit|0586a824fc0d49df0b6b6e9179d8d15d06d0974f
+group|pqclean_falcon_padded_512|crypto_sign/falcon-padded-512/clean|codec.c,common.c,fft.c,fpr.c,keygen.c,pqclean.c,rng.c,sign.c,vrfy.c|tree
+group|pqclean_ml_dsa_44|crypto_sign/ml-dsa-44/clean|ntt.c,packing.c,poly.c,polyvec.c,reduce.c,rounding.c,sign.c,symmetric-shake.c|tree
+group|pqclean_ml_dsa_65|crypto_sign/ml-dsa-65/clean|ntt.c,packing.c,poly.c,polyvec.c,reduce.c,rounding.c,sign.c,symmetric-shake.c|tree
+group|pqclean_ml_kem_768|crypto_kem/ml-kem-768/clean|cbd.c,indcpa.c,kem.c,ntt.c,poly.c,polyvec.c,reduce.c,symmetric-shake.c,verify.c|tree
+group|pqclean_ml_kem_1024|crypto_kem/ml-kem-1024/clean|cbd.c,indcpa.c,kem.c,ntt.c,poly.c,polyvec.c,reduce.c,symmetric-shake.c,verify.c|tree
+group|pqclean_common|common|fips202.c|files:compat.h,fips202.c,fips202.h,randombytes.h
