@@ -6,23 +6,46 @@ A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Ass
 - Module build plan and per-phase tasks: [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
 - Contributing, branching and ADR conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
+## Module 1, Stage 1: Complete
+
+The post-quantum core foundation is complete on the `codex/module-1` branch.
+Stage 1 delivers a pinned and provenance-verified PQClean build, safe
+Falcon-padded-512 key generation/signing/verification, fail-closed native and Web
+Crypto entropy, a `Uint8Array` WebAssembly API, and Linux/Windows/WASM CI gates.
+
+The Stage 1 exit criterion has been demonstrated in both directions:
+
+- A native-generated Falcon signature verifies in browser WebAssembly.
+- A WebAssembly-generated Falcon signature verifies in the native Rust runtime.
+- Falcon signatures are exactly 666 bytes, and a bit-flipped signature returns
+  `false` rather than an operational error.
+
+**Start here:** [`packages/pq-core/README.md`](packages/pq-core/README.md) contains
+the completed scope, architecture, file structure, prerequisites, run commands,
+browser test procedure, CI behavior, and branch merge requirements.
+
+The detailed task and acceptance matrix is in
+[`docs/M1-task-breakdown.md`](docs/M1-task-breakdown.md). Stage 1 is complete;
+later Module 1 stages remain separate work.
+
 ---
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Clone the Repository](#clone-the-repository)
-3. [Environment Variables](#environment-variables)
-4. [Install Dependencies](#install-dependencies)
-5. [Local Development Network (Docker)](#local-development-network-docker)
-6. [Smart Contracts (Foundry)](#smart-contracts-foundry)
-7. [Evaluation Harness (Python)](#evaluation-harness-python)
-8. [Dev Container (Zero-Install Alternative)](#dev-container-zero-install-alternative)
-9. [Root Scripts](#root-scripts)
-10. [Project Structure](#project-structure)
-11. [Build Order](#build-order)
-12. [CI Pipeline](#ci-pipeline)
-13. [Status](#status)
+1. [Module 1, Stage 1](#module-1-stage-1-complete)
+2. [Prerequisites](#prerequisites)
+3. [Clone the Repository](#clone-the-repository)
+4. [Environment Variables](#environment-variables)
+5. [Install Dependencies](#install-dependencies)
+6. [Local Development Network (Docker)](#local-development-network-docker)
+7. [Smart Contracts (Foundry)](#smart-contracts-foundry)
+8. [Evaluation Harness (Python)](#evaluation-harness-python)
+9. [Dev Container (Zero-Install Alternative)](#dev-container-zero-install-alternative)
+10. [Root Scripts](#root-scripts)
+11. [Project Structure](#project-structure)
+12. [Build Order](#build-order)
+13. [CI Pipeline](#ci-pipeline)
+14. [Status](#status)
 
 ---
 
