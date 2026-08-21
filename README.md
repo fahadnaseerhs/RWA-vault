@@ -39,7 +39,7 @@ cross-machine "works on my machine" issues.
 | **Docker + Compose**             | latest        | Local devnet: Anvil chain, PostgreSQL, Redis           |
 | **Foundry** (forge, anvil, cast) | stable        | Solidity compiler, local chain, contract interaction   |
 | **Rust**                         | 1.81.0        | Post-quantum cryptography native library (pq-core)     |
-| **wasm-pack**                    | latest        | Builds pq-core to WASM for the browser signer          |
+| **wasm-pack**                    | 0.13.1        | Builds pq-core to WASM for the browser signer          |
 | **Python**                       | 3.12+         | Evaluation harness only (thesis data processing)       |
 
 > **Shortcut:** If you use VS Code, the [Dev Container](#dev-container-zero-install-alternative)
@@ -143,7 +143,7 @@ any `cargo` command from that directory will auto-install the correct version vi
 
 ```bash
 rustup target add wasm32-unknown-unknown
-cargo install wasm-pack --locked
+cargo install wasm-pack --version 0.13.1 --locked
 ```
 
 Verify:

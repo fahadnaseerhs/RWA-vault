@@ -22,11 +22,13 @@ algorithm, and it buys a fixed 666-byte length. See
 ```bash
 cargo test --locked            # debug: FFI round-trips + differential vectors
 cargo test --locked --release  # same, optimised
+cargo build --locked --target wasm32-unknown-unknown
 ```
 
 Requires a C compiler (MSVC Build Tools on Windows, `cc` elsewhere) and
-Rust 1.81. There is no `cargo build`-only smoke test worth running: see
-[Why the tests matter](#why-the-tests-matter).
+Rust 1.81. The WASM target additionally requires Clang and uses the
+`WASM32_UNKNOWN_UNKNOWN_CLANG` environment variable when it is not available as
+`clang` on `PATH`.
 
 ## Four invariants
 
@@ -36,15 +38,16 @@ correctness or provenance bug, not a style question.
 ### 1. One entropy path
 
 PQClean's schemes call `PQCLEAN_randombytes`. Upstream ships an implementation
-in `common/randombytes.c`; **we do not compile it**. `src/lib.rs` defines that
+in `common/randombytes.c`; **we do not compile it**. `src/rng.rs` defines that
 symbol from the `getrandom` crate instead, so the C and Rust halves draw from
 one OS CSPRNG on every target ([ADR 0007](../../../docs/adr/0007-random-source.md)).
 
-It fills the buffer or aborts — it never returns a partial buffer. That is
-stronger than the `int` return type suggests, and deliberate: PQClean's callers
-discard the return value (`ml-dsa/sign.c`, `ml-kem/kem.c`, `ml-kem/indcpa.c`,
-`falcon/pqclean.c` all call it as a bare statement), so returning `-1` would let
-key generation proceed from a zeroed seed.
+It fills the buffer or zeroes it and records a sticky operation failure. PQClean's
+callers discard the return value (`ml-dsa/sign.c`, `ml-kem/kem.c`,
+`ml-kem/indcpa.c`, `falcon/pqclean.c` all call it as a bare statement), so every
+safe wrapper clears that status before entering C and checks it afterward. A failed
+operation wipes all outputs and returns `RngFailure`; no partial buffer or
+zero-seeded result reaches the caller, and there is no retry loop.
 
 **Never add `randombytes.c` to the source plan.**
 
@@ -146,20 +149,36 @@ cargo run --release --manifest-path oracle/Cargo.toml -- generate \
 
 ## Why the tests matter
 
-Nothing in `src/lib.rs` outside `#[cfg(test)]` calls the vendored C yet, so the
-linker discards all six static libraries when building the `cdylib`. **A green
-`cargo build` proves the C compiles, not that it links or runs.** The round-trip
-tests are what force resolution. Keep it that way until the safe wrappers land.
+Native round-trip tests force the linker to resolve and execute the vendored C.
+The WASM build additionally exports an address-only link probe that retains every
+PQClean operation, including the incremental SHAKE allocation paths, so its strict
+linker gate resolves all six static libraries before safe wrappers land. A build
+still does not establish cryptographic conformance; that requires
+the KAT, ACVP, differential, and cross-runtime vector suites.
 
 ## Known constraints
 
-- **WASM does not build.** `wasm32-unknown-unknown` has no C sysroot for the
-  vendored sources; `build.rs` fails early with that reason rather than dying
-  inside a translation unit. Resolving it is an
-  [ADR 0004](../../../docs/adr/0004-wasm-build-target.md) decision (wasi-sdk +
-  `wasm32-wasip1`, or emscripten), not a code fix.
-- **`cdylib` exports no scheme API.** Only `PQCLEAN_randombytes` is exported
-  until the stage-2 safe wrappers reference `ffi`.
+- **WASM C is deliberately freestanding.** `build.rs` invokes Clang with
+  `--target=wasm32-unknown-unknown -mno-reference-types -nostdlibinc
+-ffreestanding`.
+  Complete `stdint.h` and `stddef.h` definitions come from Clang's freestanding
+  resource headers; `wasm-include/` owns only the four libc declaration stubs.
+  The strict WASM
+  build emits its actual compiler, flags, includes, and sources; run
+  `scripts/verify-wasm-preprocessor.py` after that build to audit the emitted
+  configuration for host-header leakage. Rust's `compiler_builtins` supplies the
+  four `mem*` symbols; `wasm_shim.rs` supplies aligned `malloc`/`free` and a
+  trapping `exit` for PQClean's incremental SHAKE contexts. The project-owned
+  `assert.h` also traps in every profile; defining `NDEBUG` never removes checks.
+- **Secret wrappers cannot erase pre-transfer allocation history.** `PrivateKey`
+  and `SharedSecret` zeroize the live `Vec` allocation they receive. If a caller
+  wrote secret bytes before a reallocation, the allocator may retain an
+  unreachable copy in freed memory. Callers must allocate final capacity before
+  writing secret material and avoid resizing afterward.
+- **The safe WASM slice is intentionally narrow.** Stage 1 exports Falcon
+  keygen/sign/verify behind `init()`. Safe ML-DSA, SLH-DSA, and ML-KEM operation
+  wrappers belong to later Module 1 stages; their raw C declarations are not an
+  application API.
 - **`jobserver` is pinned to 0.1.32** in both lockfiles. Newer `cc` pulls
   `jobserver 0.1.35 → getrandom 0.4.3`, which needs Edition 2024 and will not
   parse on Rust 1.81. Drop the pin when the toolchain moves to ≥1.85.
@@ -168,7 +187,10 @@ tests are what force resolution. Keep it that way until the safe wrappers land.
 
 ## CI
 
-The `pq-core-native` job in [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml)
-runs every check above on each PR: provenance against upstream, re-vendoring
-reproducibility, `fmt`, `clippy -D warnings`, debug and release tests, both
-`kat` guard directions, and the oracle. It is a required status check.
+The `pq-native` Linux/Windows matrix in
+[`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml) runs formatting,
+`clippy -D warnings`, release builds, and debug/release tests. Linux additionally
+checks provenance, reproducible vendoring, both `kat` guard directions, and the
+oracle. The separate `pq-wasm` job performs strict linking and preprocessing
+audits, builds with pinned `wasm-pack`, runs headless Chromium, proves native/WASM
+Falcon equivalence in both directions, and compiles the TypeScript package.

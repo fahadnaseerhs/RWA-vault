@@ -58,6 +58,12 @@ to the material itself. Encoding for transport or storage happens at an integrat
 boundary; M1 uses `Uint8Array` at the TypeScript surface and `&[u8]`/`Vec<u8>` in
 Rust throughout.
 
+Secret wrappers zeroize the live `Vec` allocation they own, not the allocator's
+history. A caller that writes secret material and then triggers `Vec`
+reallocation before ownership transfer may leave an unreachable copy in freed
+heap memory. Secret-producing paths therefore allocate final capacity before
+writing bytes and do not resize afterward.
+
 Every length is exact. There are no ranges and no maxima to compare against, because
 `falcon-padded-512` (ADR 0003) makes even Falcon fixed-size:
 
@@ -70,10 +76,13 @@ Every length is exact. There are no ranges and no maxima to compare against, bec
 | `ml-kem-768`        |       1184 |        2400 |         — |       1088 |            32 |
 | `ml-kem-1024`       |       1568 |        3168 |         — |       1568 |            32 |
 
-`metadata(algorithm)` returns these numbers from a single table in the Rust core,
-and a startup test asserts the table matches what the linked implementations
-actually produce. The numbers in this ADR are the specification; the test is what
-makes them true.
+`metadata(algorithm)` returns these numbers from one Rust table. For PQClean,
+`build.rs` parses the pinned implementations' `api.h` files and generates the FFI
+buffer constants; compile-time assertions require every generated value to equal
+the table. SLH-DSA is checked against its Rust implementation's associated
+serialization lengths. A mismatch is therefore a build error before any FFI call
+can allocate from a wrong value. Live tests then prove the implementations emit
+those lengths. The numbers in this ADR remain the specification.
 
 **Every input is length-checked for exact equality before it reaches the underlying
 implementation.** A key, signature or ciphertext of the wrong length is

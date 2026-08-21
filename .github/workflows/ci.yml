@@ -10,11 +10,12 @@
 #                       at the default 1K-run fuzz depth.
 #   3. contracts-invariants — slow Foundry invariant fuzzing at 1M runs,
 #                       gating contract changes without blocking fast feedback.
-#   4. pq-core-native — vendored PQClean provenance, the native Rust build and
-#                       its FFI round-trips, the ADR 0007 `kat` build guard, and
-#                       the ADR 0003 differential oracle.
+#   4. pq-native      — Linux/Windows native builds, lint, tests, provenance,
+#                       the ADR 0007 `kat` guard, and differential oracle.
+#   5. pq-wasm        — strict WASM build, browser entropy/API checks, and the
+#                       bidirectional native/WASM Falcon equivalence test.
 #
-# Branch protection should require ALL FOUR to pass before merging. Combined
+# Branch protection should require ALL FIVE to pass before merging. Combined
 # with the two-approval merge rule in CONTRIBUTING.md, this ensures:
 #   - Every merge is reviewed by ≥2 developers
 #   - Every merge passes the same lint/type/build/test standard everywhere
@@ -143,13 +144,22 @@ jobs:
   # Each gets an explicit step below. The toolchain is pinned to the crate's
   # rust-version so a clippy or rustfmt change upstream cannot turn this job red
   # on an unrelated PR.
-  pq-core-native:
-    name: pq-core native (vendor, build, test, oracle)
-    runs-on: ubuntu-latest
+  pq-native:
+    name: pq-native (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
+        if: runner.os == 'Linux'
         with:
           python-version: "3.12"
 
@@ -161,6 +171,7 @@ jobs:
       # committed, every check below would be verifying something CI generated
       # for itself, so fail loudly rather than silently passing.
       - name: Vendored PQClean tree is committed
+        if: runner.os == 'Linux'
         run: |
           test -f packages/pq-core/native/vendor/pqclean/PROVENANCE.md || {
             echo "::error::vendor/pqclean is not committed. Run scripts/vendor-pqclean.py and commit the result."
@@ -171,12 +182,14 @@ jobs:
       # in the pinned upstream commit. This is the check a self-attesting manifest
       # cannot make: a manifest regenerated over tampered files agrees with itself.
       - name: Verify vendored provenance against pinned upstream
+        if: runner.os == 'Linux'
         run: python scripts/verify-vendor.py
 
       # Re-vendoring must be a no-op. Catches a hand-edited vendor tree whose
       # manifest was updated to match, and any Git filter (autocrlf) that would
       # make the result depend on the machine it ran on.
       - name: Re-vendoring is reproducible
+        if: runner.os == 'Linux'
         run: |
           python scripts/vendor-pqclean.py
           if [ -n "$(git status --porcelain -- packages/pq-core/native/vendor)" ]; then
@@ -190,9 +203,13 @@ jobs:
         working-directory: packages/pq-core/native
         run: cargo fmt --check
 
-      - name: Clippy
+      - name: Clippy (warnings are errors)
         working-directory: packages/pq-core/native
         run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Build (release)
+        working-directory: packages/pq-core/native
+        run: cargo build --locked --release
 
       # Debug and release both run: the FFI round-trips are the only thing that
       # forces the linker to resolve the vendored C at all.
@@ -209,6 +226,7 @@ jobs:
       # that `kat` was not in its resolved feature set — no separate assertion on
       # the feature list is needed, and none could be as strong.
       - name: kat feature is refused in an optimised build
+        if: runner.os == 'Linux'
         working-directory: packages/pq-core/native
         run: |
           if cargo build --locked --release --features kat 2>/dev/null; then
@@ -221,6 +239,7 @@ jobs:
       # acknowledging the guard explicitly. This job publishes a test report; it
       # produces no artefact.
       - name: Conformance build (kat, acknowledged override)
+        if: runner.os == 'Linux'
         working-directory: packages/pq-core/native
         env:
           RUSTFLAGS: "-C debug-assertions=on"
@@ -233,10 +252,73 @@ jobs:
       # oracle's artefacts accepted by our build) ran in the test steps above;
       # this is direction 2.
       - name: Differential oracle (our artefacts checked by independent build)
+        if: runner.os == 'Linux'
         working-directory: packages/pq-core/native
         run: |
           test -s target/differential/native-vectors.txt || {
             echo "::error::the release test run did not emit native-vectors.txt"
             exit 1
           }
-          cargo run --locked --release --manifest-path oracle/Cargo.toml --             verify target/differential/native-vectors.txt
+          cargo run --locked --release --manifest-path oracle/Cargo.toml -- \
+            verify target/differential/native-vectors.txt
+
+  # ─── Job 5: pq-core WebAssembly and browser equivalence ─────────────────
+  pq-wasm:
+    name: pq-wasm (build, Chromium, cross-runtime, tsc)
+    runs-on: ubuntu-latest
+    needs: pq-native
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install pinned wasm-pack
+        run: cargo install wasm-pack --version 0.13.1 --locked
+
+      - name: Emit native Falcon fixture
+        working-directory: packages/pq-core/native
+        run: >-
+          cargo run --locked --release --example falcon_interop --
+          emit ../browser-tests/artifacts
+
+      - name: Build web package with no unresolved symbols
+        working-directory: packages/pq-core
+        env:
+          WASM32_UNKNOWN_UNKNOWN_CLANG: clang
+          RUSTFLAGS: "-C link-arg=--error-unresolved-symbols"
+        run: wasm-pack build native --target web --out-dir ../pkg --release --locked
+
+      - name: WASM C preprocessor uses no host headers
+        run: python scripts/verify-wasm-preprocessor.py
+
+      - name: WASM imports no C runtime from the host
+        run: >-
+          python scripts/verify-wasm-imports.py
+          packages/pq-core/native/target/wasm32-unknown-unknown/release/rwa_vault_pq_core.wasm
+
+      - name: Browser accepts native and emits WASM fixture
+        run: node packages/pq-core/browser-tests/run.mjs
+
+      - name: Native accepts WASM fixture
+        working-directory: packages/pq-core/native
+        run: >-
+          cargo run --locked --release --example falcon_interop --
+          verify ../browser-tests/artifacts
+
+      - name: TypeScript package compiles
+        run: pnpm --filter @rwa-vault/pq-core typecheck
