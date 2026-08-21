@@ -18,13 +18,17 @@ kat = []
 
 [dependencies]
 getrandom = "=0.2.15"
+hybrid-array = "=0.2.3"
 slh-dsa = "=0.1.0"
 # slh-dsa 0.1.0 declares a prerelease range. Newer prereleases require
 # Edition 2024, so retain the version that slh-dsa 0.1.0 was published against.
 signature = "=2.3.0-pre.4"
+zeroize = "=1.8.1"
 
 [target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
 getrandom = { version = "=0.2.15", features = ["js"] }
+js-sys = "=0.3.104"
+wasm-bindgen = "=0.2.127"
 
 [build-dependencies]
 cc = "=1.1.31"

@@ -1,4 +1,4 @@
-# ADR 0004 — Browser WASM target: `wasm32-unknown-unknown` with a freestanding C shim
+# ADR 0004 — Browser WASM target: `wasm32-unknown-unknown` with freestanding C support
 
 - **Status:** Proposed
 - **Date:** 2026-08-20
@@ -32,12 +32,14 @@ validates the build on native _and_ `wasm32`.
 What makes the problem tractable is the specific C we vendored. PQClean's `clean`
 implementations are deliberately portable, freestanding-friendly C99. Across the
 five vendored schemes the libc surface is small: the `<stdint.h>`/`<stddef.h>` type
-headers, which are header-only, and a handful of `<string.h>` functions —
-`memcpy`, `memset`, `memmove`, `memcmp` — which LLVM emits or which are a dozen
-lines to supply. The selected schemes size their working buffers through macros and
-caller-supplied or stack storage rather than `malloc`. There is no file I/O, no
-locale, no threads, no floating-point libm dependency in the integer `clean`
-implementations.
+headers, which are header-only, and a handful of `<string.h>` functions:
+`memcpy`, `memset`, `memmove`, and `memcmp`. Rust's WASM `compiler_builtins`
+already supplies those symbols. PQClean's incremental SHAKE implementation in
+`common/fips202.c` also allocates its context with `malloc`, releases it with
+`free`, and calls `exit(111)` on allocation failure. Those calls are reachable
+from ML-DSA signing and verification and ML-KEM operations; they are not dead
+library code. There is no file I/O, locale, thread, or floating-point libm
+dependency in the selected `clean` implementations.
 
 ## Decision
 
@@ -49,12 +51,26 @@ Concretely:
 
 - `build.rs` compiles the vendored PQClean sources with the `cc` crate for both the
   native and the `wasm32-unknown-unknown` targets. For `wasm32-unknown-unknown` it
-  configures `clang` with `--target=wasm32-unknown-unknown`, `-nostdlib`,
-  `-ffreestanding`, and no host include paths, so nothing can silently pick up a
-  system libc header.
-- A single `native/src/wasm_shim.rs` provides, behind `#[cfg(target_arch = "wasm32")]`
-  and `#[no_mangle]`, the `mem*` symbols the linker asks for. It contains no
-  cryptographic logic and is covered by its own unit tests.
+  configures `clang` with `--target=wasm32-unknown-unknown`,
+  `-mno-reference-types`, `-nostdlibinc`, and `-ffreestanding`. The explicit
+  reference-types setting keeps newer Clang output aligned with the pinned Rust
+  1.81 target features so `wasm-bindgen` sees one coherent module. Clang's
+  complete freestanding
+  `stdint.h`/`stddef.h` remain available from its resource directory, while the
+  project owns only `string.h`, `stdlib.h`, `unistd.h`, and `assert.h`
+  declaration stubs. `build.rs` emits the exact
+  compiler, flags, includes, and sources it used; CI preprocesses that manifest
+  with `-H` and rejects every header outside the reviewed roots and the discovered
+  Clang resource directory, including Linux, MSVC, MinGW, and MSYS paths.
+  Library resolution is owned by rustc's final WASM link; no Clang link-only
+  option is passed while compiling C objects.
+- Rust's target `compiler_builtins` supplies `memcpy`, `memset`, `memmove`, and
+  `memcmp`; the crate deliberately does not override them with optimisable Rust
+  loops. `native/src/wasm_shim.rs` supplies only `malloc`, `free`, and `exit`.
+  Allocations use `std::alloc` with a size-prefixed, aligned header so `free`
+  reconstructs the exact `Layout`; `exit` traps immediately. The allocator has
+  focused unit tests. The project `assert.h` always traps on failure and ignores
+  `NDEBUG`, keeping cryptographic C behaviour identical in debug and release.
 - `wasm-bindgen` provides the JS boundary as normal, so `build:wasm` keeps working
   as written and the generated package lands in `packages/pq-core/pkg`.
 - All six primitives are built into the WASM package, not only Falcon-512, because
@@ -99,11 +115,11 @@ in the exact place where secret buffers are copied.
 and the `packages/pq-core/pkg` output path all stay as written. Nothing in the M0
 baseline has to be revised.
 
-**Costly.** We own a libc shim, however small, in the path of cryptographic code. A
-wrong `memcpy` is a catastrophic and quiet failure. The controls are that the shim
-is separately unit-tested, that the cross-runtime vector tests compare WASM output
-against native output byte-for-byte for every algorithm and every vector, and that
-the shim is reviewed as cryptographic code under the two-approval rule.
+**Costly.** We own a small allocator adapter in the path of cryptographic code.
+The controls are exact-Layout deallocation, focused allocator tests, strict linking
+with every PQClean operation retained, cross-runtime vectors for every algorithm,
+and review under the two-approval rule. The lower-level memory operations remain
+the target's audited `compiler_builtins` implementations.
 
 **Costly.** This is an unsupported build configuration, in the sense that neither
 `pqcrypto` nor the rustc book endorses C interop on `wasm32-unknown-unknown`. If a

@@ -8,11 +8,12 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "build:wasm": "wasm-pack build native --target web --out-dir ../pkg",
+    "build:wasm": "wasm-pack build native --target web --out-dir ../pkg --release --locked",
     "build:native": "cargo build --release --manifest-path native/Cargo.toml",
     "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
-    "test": "echo \"[@rwa-vault/pq-core] no tests yet\"",
+    "test": "echo \"[@rwa-vault/pq-core] Rust and browser tests run in pq-native/pq-wasm CI\"",
+    "test:wasm-browser": "node browser-tests/run.mjs",
     "test:cavp": "echo \"[@rwa-vault/pq-core] no CAVP tests yet\""
   },
   "devDependencies": {

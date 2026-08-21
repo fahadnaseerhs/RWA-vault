@@ -55,6 +55,8 @@ contracts/broadcast/*/31337/
 target/
 # wasm-pack output directory for the browser signer build.
 packages/pq-core/pkg/
+# Binary fixtures exchanged by the Stage 1 native/browser acceptance test.
+packages/pq-core/browser-tests/artifacts/
 
 # ─── Python (eval/, M11) ───────────────────────────────────────────────────
 # The venv itself is machine-specific and can be huge (jupyter alone pulls in
