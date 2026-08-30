@@ -64,6 +64,9 @@ highest technical risk and this stage is the spike that settles it.
 
 ## Stage 2 — Full algorithm matrix
 
+Implementation evidence and the S2-06/S2-11 findings are recorded in
+[`stage2-report.md`](stage2-report.md).
+
 | ID    | Task                                                                                                                             | Depends on   | Done when                                                                                       |
 | ----- | -------------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
 | S2-01 | ML-DSA-44 FFI + wrapper                                                                                                          | S1-11        | Keygen/sign/verify round-trip; sizes match S1-09                                                |

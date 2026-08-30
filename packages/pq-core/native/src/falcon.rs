@@ -1,6 +1,7 @@
 //! Safe Falcon-512 operations over PQClean's fixed-length padded variant.
 
-use crate::{ffi, PqError, PrivateKey, PublicKey, Signature};
+use crate::traits::{RawKeyPair, SignatureScheme};
+use crate::{ffi, PqAlgorithm, PqError, PrivateKey, PublicKey, Signature};
 use zeroize::Zeroize;
 
 /// Maximum message size fixed by ADR 0006.
@@ -14,6 +15,8 @@ pub struct FalconKeyPair {
     public_key: PublicKey,
     private_key: PrivateKey,
 }
+
+pub(crate) struct FalconScheme;
 
 impl FalconKeyPair {
     /// Borrow the encoded Falcon public key.
@@ -33,6 +36,7 @@ pub fn falcon_keygen() -> Result<FalconKeyPair, PqError> {
     let mut private_key = vec![0u8; ffi::FALCON_PADDED_512_SECRET_KEY_BYTES];
 
     crate::rng::begin_operation();
+    crate::ffi_guard::entered();
     // SAFETY: both output allocations have exactly the generated api.h sizes.
     let status = unsafe {
         ffi::PQCLEAN_FALCONPADDED512_CLEAN_crypto_sign_keypair(
@@ -53,8 +57,8 @@ pub fn falcon_keygen() -> Result<FalconKeyPair, PqError> {
     }
 
     Ok(FalconKeyPair {
-        public_key: PublicKey::new(public_key),
-        private_key: PrivateKey::new(private_key),
+        public_key: PublicKey::for_algorithm(PqAlgorithm::Falcon512, public_key),
+        private_key: PrivateKey::for_algorithm(PqAlgorithm::Falcon512, private_key),
     })
 }
 
@@ -71,6 +75,7 @@ pub fn falcon_sign(private_key: &PrivateKey, message: &[u8]) -> Result<Signature
     let mut signature_len = 0usize;
 
     crate::rng::begin_operation();
+    crate::ffi_guard::entered();
     // SAFETY: the key length was checked, the signature allocation has the
     // generated api.h size, and both message pointers are valid for their lengths.
     let status = unsafe {
@@ -93,7 +98,7 @@ pub fn falcon_sign(private_key: &PrivateKey, message: &[u8]) -> Result<Signature
         });
     }
 
-    Ok(Signature::new(signature))
+    Ok(Signature::for_algorithm(PqAlgorithm::Falcon512, signature))
 }
 
 /// Verify a Falcon-padded-512 signature.
@@ -116,6 +121,7 @@ pub fn falcon_verify(
 
     // SAFETY: all fixed-length inputs were checked and the message pointer is
     // valid for its declared length.
+    crate::ffi_guard::entered();
     let status = unsafe {
         ffi::PQCLEAN_FALCONPADDED512_CLEAN_crypto_sign_verify(
             signature.as_bytes().as_ptr(),
@@ -127,6 +133,29 @@ pub fn falcon_verify(
     };
 
     Ok(status == 0)
+}
+
+impl SignatureScheme for FalconScheme {
+    fn keygen(&self) -> Result<RawKeyPair, PqError> {
+        let pair = falcon_keygen()?;
+        Ok(RawKeyPair {
+            public_key: pair.public_key,
+            private_key: pair.private_key,
+        })
+    }
+
+    fn sign(&self, private_key: &PrivateKey, message: &[u8]) -> Result<Signature, PqError> {
+        falcon_sign(private_key, message)
+    }
+
+    fn verify(
+        &self,
+        public_key: &PublicKey,
+        message: &[u8],
+        signature: &Signature,
+    ) -> Result<bool, PqError> {
+        falcon_verify(public_key, message, signature)
+    }
 }
 
 #[cfg(test)]

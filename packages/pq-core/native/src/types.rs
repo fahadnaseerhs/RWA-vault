@@ -2,36 +2,57 @@
 
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
+use crate::PqAlgorithm;
+
 macro_rules! public_bytes {
     ($name:ident, $description:literal) => {
         #[doc = $description]
         #[derive(Clone, Debug, Eq, PartialEq)]
-        pub struct $name(Vec<u8>);
+        pub struct $name {
+            algorithm: Option<PqAlgorithm>,
+            bytes: Vec<u8>,
+        }
 
         impl $name {
             /// Wrap raw implementation bytes without re-encoding them.
             pub fn new(bytes: Vec<u8>) -> Self {
-                Self(bytes)
+                Self {
+                    algorithm: None,
+                    bytes,
+                }
+            }
+
+            /// Wrap bytes emitted for a specific algorithm.
+            pub(crate) fn for_algorithm(algorithm: PqAlgorithm, bytes: Vec<u8>) -> Self {
+                Self {
+                    algorithm: Some(algorithm),
+                    bytes,
+                }
+            }
+
+            /// Return the algorithm tag when this value came from the stable API.
+            pub fn algorithm(&self) -> Option<PqAlgorithm> {
+                self.algorithm
             }
 
             /// Borrow the exact implementation bytes.
             pub fn as_bytes(&self) -> &[u8] {
-                &self.0
+                &self.bytes
             }
 
             /// Return the encoded length.
             pub fn len(&self) -> usize {
-                self.0.len()
+                self.bytes.len()
             }
 
             /// Return whether the byte string is empty.
             pub fn is_empty(&self) -> bool {
-                self.0.is_empty()
+                self.bytes.is_empty()
             }
 
             /// Consume the wrapper and return its bytes.
             pub fn into_bytes(self) -> Vec<u8> {
-                self.0
+                self.bytes
             }
         }
 
@@ -71,27 +92,46 @@ macro_rules! secret_bytes {
         #[doc = concat!("use rwa_vault_pq_core::", stringify!($name), ";")]
         #[doc = concat!("println!(\"{:?}\", ", stringify!($name), "::new(vec![1, 2, 3]));")]
         /// ```
-        pub struct $name(Vec<u8>);
+        pub struct $name {
+            algorithm: Option<PqAlgorithm>,
+            bytes: Vec<u8>,
+        }
 
         impl $name {
             /// Wrap raw secret bytes. The backing slice is zeroed on drop.
             pub fn new(bytes: Vec<u8>) -> Self {
-                Self(bytes)
+                Self {
+                    algorithm: None,
+                    bytes,
+                }
+            }
+
+            /// Wrap secret bytes emitted for a specific algorithm.
+            pub(crate) fn for_algorithm(algorithm: PqAlgorithm, bytes: Vec<u8>) -> Self {
+                Self {
+                    algorithm: Some(algorithm),
+                    bytes,
+                }
+            }
+
+            /// Return the algorithm tag without exposing the secret bytes.
+            pub fn algorithm(&self) -> Option<PqAlgorithm> {
+                self.algorithm
             }
 
             /// Borrow the secret only for the immediate cryptographic operation.
             pub fn as_bytes(&self) -> &[u8] {
-                &self.0
+                &self.bytes
             }
 
             /// Return the secret length without formatting or logging its bytes.
             pub fn len(&self) -> usize {
-                self.0.len()
+                self.bytes.len()
             }
 
             /// Return whether the secret is empty.
             pub fn is_empty(&self) -> bool {
-                self.0.is_empty()
+                self.bytes.is_empty()
             }
         }
 
@@ -109,7 +149,7 @@ macro_rules! secret_bytes {
 
         impl Zeroize for $name {
             fn zeroize(&mut self) {
-                self.0.as_mut_slice().zeroize();
+                self.bytes.as_mut_slice().zeroize();
             }
         }
 
@@ -120,7 +160,7 @@ macro_rules! secret_bytes {
                 self.zeroize();
                 #[cfg(test)]
                 $drop_observation.with(|observation| {
-                    observation.replace(self.0.clone());
+                    observation.replace(self.bytes.clone());
                 });
             }
         }
@@ -165,5 +205,24 @@ mod tests {
         SHARED_SECRET_DROP.with(|observation| {
             assert_eq!(&*observation.borrow(), &[0u8; 32]);
         });
+    }
+
+    #[test]
+    fn forced_panic_does_not_format_private_key_material() {
+        const SECRET_TEXT: &str = "stage2-secret-marker-7a8f";
+        let private_key = PrivateKey::new(SECRET_TEXT.as_bytes().to_vec());
+        let panic = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _key_is_live = private_key.as_bytes();
+            panic!("forced cryptographic-operation panic");
+        }))
+        .expect_err("the test must force a panic");
+
+        let message = panic
+            .downcast_ref::<&str>()
+            .copied()
+            .or_else(|| panic.downcast_ref::<String>().map(String::as_str))
+            .expect("panic payload is text");
+        assert_eq!(message, "forced cryptographic-operation panic");
+        assert!(!message.contains(SECRET_TEXT));
     }
 }

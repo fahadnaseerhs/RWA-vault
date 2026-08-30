@@ -158,8 +158,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Python runs on both platforms, not just Linux: the vendoring checks below
+      # are Linux-only, but the S2-15 artefact scan must see the Windows cdylib
+      # and rlib too — those are different files with different linkers.
       - uses: actions/setup-python@v5
-        if: runner.os == 'Linux'
         with:
           python-version: "3.12"
 
@@ -210,6 +212,18 @@ jobs:
       - name: Build (release)
         working-directory: packages/pq-core/native
         run: cargo build --locked --release
+
+      # S2-15/ADR 0007: the deterministic hooks must be absent from the artefact,
+      # not merely unreachable in it. The scan runs against the release build
+      # above, and its --self-test runs first so a scanner that matched nothing
+      # cannot pass by finding nothing. The linked cdylib is a weak witness on
+      # its own — an unexported Rust fn is dead-stripped from it even when
+      # compiled — so the rlib's object members and archive symbol index are
+      # what actually carry the proof.
+      - name: Deterministic KAT hooks are absent from the release artefacts
+        run: |
+          python scripts/verify-no-kat-symbols.py --self-test
+          python scripts/verify-no-kat-symbols.py packages/pq-core/native/target/release
 
       # Debug and release both run: the FFI round-trips are the only thing that
       # forces the linker to resolve the vendored C at all.
@@ -310,6 +324,14 @@ jobs:
         run: >-
           python scripts/verify-wasm-imports.py
           packages/pq-core/native/target/wasm32-unknown-unknown/release/rwa_vault_pq_core.wasm
+
+      # The browser artefact is shipped to end users, so it gets the same S2-15
+      # scan as the native release build.
+      - name: Deterministic KAT hooks are absent from the WASM artefact
+        run: >-
+          python scripts/verify-no-kat-symbols.py
+          packages/pq-core/native/target/wasm32-unknown-unknown/release/rwa_vault_pq_core.wasm
+          packages/pq-core/pkg/rwa_vault_pq_core_bg.wasm
 
       - name: Browser accepts native and emits WASM fixture
         run: node packages/pq-core/browser-tests/run.mjs
