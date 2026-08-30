@@ -3,10 +3,33 @@
 use crate::PqError;
 use core::cell::Cell;
 
+#[cfg(feature = "kat")]
+use core::cell::RefCell;
+#[cfg(feature = "kat")]
+use zeroize::Zeroize;
+
 thread_local! {
     // PQClean discards randombytes()'s return value. A failure is therefore
     // sticky until the safe wrapper that began the operation observes it.
     static OPERATION_FAILED: Cell<bool> = const { Cell::new(false) };
+}
+
+#[cfg(feature = "kat")]
+struct KatEntropy {
+    bytes: Vec<u8>,
+    offset: usize,
+}
+
+#[cfg(feature = "kat")]
+impl Drop for KatEntropy {
+    fn drop(&mut self) {
+        self.bytes.zeroize();
+    }
+}
+
+#[cfg(feature = "kat")]
+thread_local! {
+    static KAT_ENTROPY: RefCell<Option<KatEntropy>> = const { RefCell::new(None) };
 }
 
 #[cfg(test)]
@@ -41,6 +64,35 @@ pub(crate) fn fill(buffer: &mut [u8]) -> Result<(), PqError> {
         return Ok(());
     }
 
+    #[cfg(feature = "kat")]
+    let used_kat_entropy = KAT_ENTROPY.with(|slot| {
+        let mut slot = slot.borrow_mut();
+        let Some(entropy) = slot.as_mut() else {
+            return false;
+        };
+        let Some(end) = entropy.offset.checked_add(buffer.len()) else {
+            buffer.fill(0);
+            mark_operation_failed();
+            return true;
+        };
+        if end > entropy.bytes.len() {
+            buffer.fill(0);
+            mark_operation_failed();
+        } else {
+            buffer.copy_from_slice(&entropy.bytes[entropy.offset..end]);
+            entropy.offset = end;
+        }
+        true
+    });
+    #[cfg(feature = "kat")]
+    if used_kat_entropy {
+        return if operation_failed() {
+            Err(PqError::RngFailure)
+        } else {
+            Ok(())
+        };
+    }
+
     #[cfg(test)]
     if FAIL_NEXT_DRAW.with(|fail| fail.replace(false)) {
         // Model the strongest failure case: the backend changed a prefix and
@@ -54,6 +106,39 @@ pub(crate) fn fill(buffer: &mut [u8]) -> Result<(), PqError> {
         buffer.fill(0);
         PqError::RngFailure
     })
+}
+
+#[cfg(feature = "kat")]
+pub(crate) fn with_kat_entropy<T>(
+    bytes: &[u8],
+    operation: impl FnOnce() -> T,
+) -> Result<T, PqError> {
+    let already_active = KAT_ENTROPY.with(|slot| {
+        let mut slot = slot.borrow_mut();
+        if slot.is_some() {
+            true
+        } else {
+            *slot = Some(KatEntropy {
+                bytes: bytes.to_vec(),
+                offset: 0,
+            });
+            false
+        }
+    });
+    if already_active {
+        return Err(PqError::InternalError);
+    }
+
+    let result = operation();
+    let consumed_all = KAT_ENTROPY.with(|slot| {
+        let state = slot.borrow_mut().take().expect("KAT entropy scope exists");
+        state.offset == state.bytes.len()
+    });
+    if consumed_all {
+        Ok(result)
+    } else {
+        Err(PqError::InternalError)
+    }
 }
 
 /// Entropy symbol consumed by every vendored PQClean scheme.

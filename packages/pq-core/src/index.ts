@@ -129,3 +129,65 @@ export function isPqKemAlgorithm(algorithm: unknown): algorithm is PqKemAlgorith
     typeof algorithm === "string" && (PQ_KEM_ALGORITHMS as readonly string[]).includes(algorithm)
   );
 }
+
+/** Raw signature key material returned by the native or WASM adapter. */
+export interface PqKeyPair {
+  readonly publicKey: Uint8Array;
+  readonly privateKey: Uint8Array;
+}
+
+/** Raw KEM encapsulation outputs. */
+export interface PqEncapsulation {
+  readonly ciphertext: Uint8Array;
+  readonly sharedSecret: Uint8Array;
+}
+
+/** Exact byte lengths for one signature primitive. */
+export interface PqSignatureMetadata {
+  readonly algorithm: PqSignatureAlgorithm;
+  readonly publicKeyBytes: number;
+  readonly privateKeyBytes: number;
+  readonly signatureBytes: number;
+}
+
+/** Exact byte lengths for one KEM primitive. */
+export interface PqKemMetadata {
+  readonly algorithm: PqKemAlgorithm;
+  readonly publicKeyBytes: number;
+  readonly privateKeyBytes: number;
+  readonly ciphertextBytes: number;
+  readonly sharedSecretBytes: number;
+}
+
+/** Stage 2's stable signature contract, implemented by both runtime adapters. */
+export interface PqSignatureApi {
+  keygen(algorithm: PqSignatureAlgorithm): PqKeyPair;
+  sign(algorithm: PqSignatureAlgorithm, privateKey: Uint8Array, message: Uint8Array): Uint8Array;
+  verify(
+    algorithm: PqSignatureAlgorithm,
+    publicKey: Uint8Array,
+    message: Uint8Array,
+    signature: Uint8Array,
+  ): boolean;
+  metadata(algorithm: PqSignatureAlgorithm): PqSignatureMetadata;
+}
+
+/** Stage 2's stable KEM contract, implemented by both runtime adapters. */
+export interface PqKemApi {
+  kemKeygen(algorithm: PqKemAlgorithm): PqKeyPair;
+  encapsulate(algorithm: PqKemAlgorithm, publicKey: Uint8Array): PqEncapsulation;
+  decapsulate(
+    algorithm: PqKemAlgorithm,
+    privateKey: Uint8Array,
+    ciphertext: Uint8Array,
+  ): Uint8Array;
+  kemMetadata(algorithm: PqKemAlgorithm): PqKemMetadata;
+}
+
+// Compile-time backstop for S2-13: widening `sign` to PqAlgorithm makes this
+// assertion fail the TypeScript build even if runtime tests still pass.
+type AssertTrue<T extends true> = T;
+type SignSelectorRejectsKem = "ml-kem-768" extends Parameters<PqSignatureApi["sign"]>[0]
+  ? false
+  : true;
+type _S2_13KemCannotReachSign = AssertTrue<SignSelectorRejectsKem>;
