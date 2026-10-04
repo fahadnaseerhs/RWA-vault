@@ -1,0 +1,19 @@
+[package]
+name = "rwa-vault-pq-napi"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.81"
+description = "Node-API addon for RWA-Vault post-quantum primitives"
+license = "UNLICENSED"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "2.16", default-features = false, features = ["napi8", "async"] }
+napi-derive = "2.16"
+rwa-vault-pq-core = { path = "..", default-features = false }
+
+[build-dependencies]
+napi-build = "2.1"

@@ -1,0 +1,15 @@
+[package]
+name = "pqctl"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.81"
+description = "Offline SLH-DSA root ceremony CLI for RWA-Vault"
+license = "UNLICENSED"
+publish = false
+
+[[bin]]
+name = "pqctl"
+path = "src/main.rs"
+
+[dependencies]
+rwa-vault-pq-core = { path = "..", default-features = false }
