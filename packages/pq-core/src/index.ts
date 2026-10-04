@@ -2,192 +2,52 @@
  * @module @rwa-vault/pq-core
  * @description M1 — Post-quantum cryptographic core.
  *
- * This package is the typed TypeScript wrapper over the Rust/liboqs builds.
- * The Rust crate (in `native/`) compiles to two targets:
- *
- *   1. **WASM** (via `wasm-pack build`): runs in the browser for the investor
- *      PWA (M10). The Falcon-512 device key is generated and stored in
- *      IndexedDB; signing runs in the WASM sandbox. Falcon's Gaussian
- *      sampling is a side-channel hazard, but a browser tab holding one
- *      user's key can carry that risk — a shared service host holding
- *      protocol keys cannot.
- *
- *   2. **Native** (via `cargo build --release`): runs in Node.js services
- *      for ML-DSA and SLH-DSA operations. These algorithms are lattice-based
- *      (ML-DSA) and hash-based (SLH-DSA) with no timing side-channels in
- *      their reference implementations, making them safe for shared hosts.
- *
- * NIST POST-QUANTUM STANDARDS (FIPS 203/204/205):
- *
- * | Algorithm         | NIST Standard | Role in RWA-Vault (Table 2)         |
- * |-------------------|---------------|-------------------------------------|
- * | Falcon-512        | FIPS 206*     | Device signing (investor PWA)       |
- * | ML-DSA-44         | FIPS 204      | Oracle round signing (service)      |
- * | ML-DSA-65         | FIPS 204      | Service-to-contract operations      |
- * | SLH-DSA-SHA2-128s | FIPS 205      | Root key (offline, key ceremony)    |
- * | ML-KEM-768        | FIPS 203      | Service transport (hybrid, B6)      |
- * | ML-KEM-1024       | FIPS 203      | Document confidentiality at rest    |
- *
- * (*) Falcon-512 is NIST Round 3 Falcon, not FN-DSA. FIPS 206 was still a
- * draft as of August 2026, so this is a KAT-conformant implementation and not
- * a CAVP-conformant one — see ADR 0009 for the per-primitive evidence grades,
- * and ADR 0003 for why Round 3 is the required target (the ETHFALCON dispute
- * verifier cannot verify anything else).
- *
- * @see {@link ../../../docs/adr/0002-pq-primitive-inventory.md | ADR 0002 — six primitives}
- * @see {@link ../../../docs/adr/0003-pq-implementation-sources.md | ADR 0003 — implementation sources}
- * @see {@link ../../../docs/adr/0006-byte-encoding-contract.md | ADR 0006 — byte encoding contract}
- * @see {@link https://csrc.nist.gov/pubs/fips/203/final | FIPS 203 (ML-KEM)}
- * @see {@link https://csrc.nist.gov/pubs/fips/204/final | FIPS 204 (ML-DSA)}
- * @see {@link https://csrc.nist.gov/pubs/fips/205/final | FIPS 205 (SLH-DSA)}
+ * Public API surface for consumers. Re-exports types, errors, metadata,
+ * and the two runtime adapters. No PQClean or implementation detail leaks
+ * past this boundary.
  */
 
-/**
- * Immutable list of the four signature algorithms.
- *
- * Used for:
- * - Validating the `algorithm` field in incoming PQEnvelopes (M2)
- * - Populating key-type selection UIs in the ops console (M10)
- * - Generating test matrices that cover all signature variants
- */
-export const PQ_SIGNATURE_ALGORITHMS = [
-  "falcon-512",
-  "ml-dsa-44",
-  "ml-dsa-65",
-  "slh-dsa-sha2-128s",
-] as const;
+// Types and algorithm unions
+export {
+  PQ_SIGNATURE_ALGORITHMS,
+  PQ_KEM_ALGORITHMS,
+  PQ_ALGORITHMS,
+  isPqSignatureAlgorithm,
+  isPqKemAlgorithm,
+} from "./types.js";
+export type {
+  PqSignatureAlgorithm,
+  PqKemAlgorithm,
+  PqAlgorithm,
+  PqKeyPair,
+  PqEncapsulation,
+  PqSignatureMetadata,
+  PqKemMetadata,
+  PqSignatureApi,
+  PqKemApi,
+  PqCoreApi,
+} from "./types.js";
 
-/**
- * NIST-standardised post-quantum **signature** algorithms used in the protocol.
- *
- * Each algorithm is assigned to exactly one role (per proposal Table 2) to
- * prevent key reuse across security domains. The type is derived from the
- * immutable list so its compile-time and runtime representations cannot drift.
- *
- * Only these four may be passed to `sign`/`verify`. A KEM identifier is a
- * compile-time error there, which is the point of the split.
- */
-export type PqSignatureAlgorithm = (typeof PQ_SIGNATURE_ALGORITHMS)[number];
+// Errors
+export {
+  PQ_ERROR_CODES,
+  PqError,
+  UnsupportedAlgorithmError,
+  AlgorithmKeyMismatchError,
+  MalformedKeyError,
+  MalformedSignatureError,
+  MalformedCiphertextError,
+  MessageTooLongError,
+  RngFailureError,
+  NotInitialisedError,
+  InternalError,
+  pqErrorFromCode,
+} from "./errors.js";
+export type { PqErrorCode } from "./errors.js";
 
-/** Immutable list of the two KEM parameter sets. */
-export const PQ_KEM_ALGORITHMS = ["ml-kem-768", "ml-kem-1024"] as const;
+// Metadata
+export { SIGNATURE_METADATA, KEM_METADATA } from "./metadata.js";
 
-/**
- * NIST-standardised post-quantum **key-encapsulation** mechanisms.
- *
- * A KEM is not a signature scheme: these carry `keygen`/`encapsulate`/
- * `decapsulate` and have a ciphertext and a shared secret where a signature
- * scheme has a signature. They are kept in a separate union so that the two
- * API shapes cannot be confused at a call site.
- *
- * ML-KEM-768 is the post-quantum half of the hybrid X25519 + ML-KEM-768
- * transport at boundary B6; ML-KEM-1024 wraps documents at rest. The hybrid
- * *combiner* is deliberately not M1's — see ADR 0002.
- */
-export type PqKemAlgorithm = (typeof PQ_KEM_ALGORITHMS)[number];
-
-/**
- * Every post-quantum primitive in the protocol — the six of proposal Table 2.
- *
- * Prefer the narrower {@link PqSignatureAlgorithm} or {@link PqKemAlgorithm}
- * wherever the operation is known. This union is for code that genuinely spans
- * both, such as the conformance matrix, the benchmark harness, and metadata
- * lookup.
- */
-export type PqAlgorithm = PqSignatureAlgorithm | PqKemAlgorithm;
-
-/**
- * Immutable list of all six primitives.
- *
- * The count is six, not four: four signature schemes plus two ML-KEM parameter
- * sets. The build plan's "all six primitives" and this package's original four
- * identifiers were never in conflict — the KEMs had simply not been added yet.
- * ADR 0002 works this out from proposal Table 2 and is the authority.
- */
-export const PQ_ALGORITHMS: readonly PqAlgorithm[] = [
-  ...PQ_SIGNATURE_ALGORITHMS,
-  ...PQ_KEM_ALGORITHMS,
-] as const;
-
-/**
- * Narrowing predicate: is this identifier a signature scheme?
- *
- * Exists so that code holding a `PqAlgorithm` can reach the signature API
- * without a cast. The runtime check and the type guard come from the same
- * array, so they cannot drift apart.
- */
-export function isPqSignatureAlgorithm(algorithm: unknown): algorithm is PqSignatureAlgorithm {
-  return (
-    typeof algorithm === "string" &&
-    (PQ_SIGNATURE_ALGORITHMS as readonly string[]).includes(algorithm)
-  );
-}
-
-/** Narrowing predicate: is this identifier a KEM? */
-export function isPqKemAlgorithm(algorithm: unknown): algorithm is PqKemAlgorithm {
-  return (
-    typeof algorithm === "string" && (PQ_KEM_ALGORITHMS as readonly string[]).includes(algorithm)
-  );
-}
-
-/** Raw signature key material returned by the native or WASM adapter. */
-export interface PqKeyPair {
-  readonly publicKey: Uint8Array;
-  readonly privateKey: Uint8Array;
-}
-
-/** Raw KEM encapsulation outputs. */
-export interface PqEncapsulation {
-  readonly ciphertext: Uint8Array;
-  readonly sharedSecret: Uint8Array;
-}
-
-/** Exact byte lengths for one signature primitive. */
-export interface PqSignatureMetadata {
-  readonly algorithm: PqSignatureAlgorithm;
-  readonly publicKeyBytes: number;
-  readonly privateKeyBytes: number;
-  readonly signatureBytes: number;
-}
-
-/** Exact byte lengths for one KEM primitive. */
-export interface PqKemMetadata {
-  readonly algorithm: PqKemAlgorithm;
-  readonly publicKeyBytes: number;
-  readonly privateKeyBytes: number;
-  readonly ciphertextBytes: number;
-  readonly sharedSecretBytes: number;
-}
-
-/** Stage 2's stable signature contract, implemented by both runtime adapters. */
-export interface PqSignatureApi {
-  keygen(algorithm: PqSignatureAlgorithm): PqKeyPair;
-  sign(algorithm: PqSignatureAlgorithm, privateKey: Uint8Array, message: Uint8Array): Uint8Array;
-  verify(
-    algorithm: PqSignatureAlgorithm,
-    publicKey: Uint8Array,
-    message: Uint8Array,
-    signature: Uint8Array,
-  ): boolean;
-  metadata(algorithm: PqSignatureAlgorithm): PqSignatureMetadata;
-}
-
-/** Stage 2's stable KEM contract, implemented by both runtime adapters. */
-export interface PqKemApi {
-  kemKeygen(algorithm: PqKemAlgorithm): PqKeyPair;
-  encapsulate(algorithm: PqKemAlgorithm, publicKey: Uint8Array): PqEncapsulation;
-  decapsulate(
-    algorithm: PqKemAlgorithm,
-    privateKey: Uint8Array,
-    ciphertext: Uint8Array,
-  ): Uint8Array;
-  kemMetadata(algorithm: PqKemAlgorithm): PqKemMetadata;
-}
-
-// Compile-time backstop for S2-13: widening `sign` to PqAlgorithm makes this
-// assertion fail the TypeScript build even if runtime tests still pass.
-type AssertTrue<T extends true> = T;
-type SignSelectorRejectsKem = "ml-kem-768" extends Parameters<PqSignatureApi["sign"]>[0]
-  ? false
-  : true;
-type _S2_13KemCannotReachSign = AssertTrue<SignSelectorRejectsKem>;
+// Adapters
+export { createNativeAdapter } from "./native.js";
+export { createWasmAdapter } from "./wasm.js";

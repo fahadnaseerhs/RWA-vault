@@ -2,17 +2,42 @@
   "name": "@rwa-vault/pq-core",
   "version": "0.0.1",
   "private": true,
-  "description": "M1 - Post-quantum signing and verification (Falcon-512, ML-DSA-65/44, SLH-DSA-SHA2-128s) over liboqs. Rust core compiled to WASM for the browser signer and native for services. This TS package is the typed wrapper around both builds.",
+  "description": "M1 - Post-quantum cryptographic core. Rust crate compiled to WASM for the browser and native (napi-rs addon) for Node.js services, behind one typed TypeScript API.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./native": {
+      "types": "./dist/native.d.ts",
+      "import": "./dist/native.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm.d.ts",
+      "import": "./dist/wasm.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    }
+  },
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "build:wasm": "wasm-pack build native --target web --out-dir ../pkg --release --locked",
     "build:native": "cargo build --release --manifest-path native/Cargo.toml",
+    "build:addon": "cargo build --release --manifest-path native/napi/Cargo.toml",
+    "build:pqctl": "cargo build --release --manifest-path native/pqctl/Cargo.toml",
     "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
-    "test": "echo \"[@rwa-vault/pq-core] Rust and browser tests run in pq-native/pq-wasm CI\"",
+    "test": "node --test dist/__tests__/contract.test.js",
+    "test:rust": "cargo test --manifest-path native/Cargo.toml",
     "test:wasm-browser": "node browser-tests/run.mjs",
     "test:cavp": "echo \"[@rwa-vault/pq-core] no CAVP tests yet\""
   },

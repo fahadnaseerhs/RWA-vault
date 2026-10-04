@@ -6,33 +6,78 @@ A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Ass
 - Module build plan and per-phase tasks: [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
 - Contributing, branching and ADR conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
-## Module 1, Stage 1: Complete
+## Module 1 — Progress: Stages 1–3 Complete
 
-The post-quantum core foundation is complete on the `codex/module-1` branch.
-Stage 1 delivers a pinned and provenance-verified PQClean build, safe
-Falcon-padded-512 key generation/signing/verification, fail-closed native and Web
-Crypto entropy, a `Uint8Array` WebAssembly API, and Linux/Windows/WASM CI gates.
+Development continues on the `codex/module-1` branch. **Stages 0–3 are done**
+(49 / 102 tasks), covering the full post-quantum cryptography runtime layer.
 
-The Stage 1 exit criterion has been demonstrated in both directions:
+### What shipped in each stage
 
-- A native-generated Falcon signature verifies in browser WebAssembly.
-- A WebAssembly-generated Falcon signature verifies in the native Rust runtime.
-- Falcon signatures are exactly 666 bytes, and a bit-flipped signature returns
-  `false` rather than an operational error.
+| Stage | Title | Deliverables |
+| ----- | ----- | ------------ |
+| 0 | Decision follow-through | ADR 0003 (PQClean over liboqs), provenance anchor |
+| 1 | Crate skeleton & Falcon slice | Rust crate, Falcon-512 keygen/sign/verify, WASM build, CI |
+| 2 | Full algorithm matrix | ML-DSA-44, ML-DSA-65, SLH-DSA-SHA2-128s, ML-KEM-768, ML-KEM-1024 |
+| **3** | **Runtime adapters** | **Node addon (napi-rs), WASM adapter, TypeScript API, `pqctl` CLI** |
+
+### Stage 3 highlights
+
+- **Node addon** (`native/napi/`): stateless `#[napi]` wrappers with `AsyncTask`
+  so signing and verification never block the event loop. SLH-DSA signing is
+  excluded server-side (ADR 0005 — offline only via `pqctl`).
+- **WASM boundary expanded** (`native/src/wasm.rs`): the Stage 1 Falcon-only
+  `FalconKeyPair` struct was replaced by generic `WasmKeyPair` / `WasmEncapsulation`
+  covering all six primitives.
+- **TypeScript layer** (`src/`): `types.ts` (algorithm unions, contract interfaces),
+  `errors.ts` (nine error classes mirroring Rust), `metadata.ts` (ADR 0006 table),
+  `native.ts` and `wasm.ts` (two adapters implementing the same `PqCoreApi` interface),
+  and `index.ts` (clean public re-exports — no PQClean detail leaks).
+- **`pqctl` CLI** (`native/pqctl/`): offline SLH-DSA root ceremony tool
+  (`keygen`, `sign`, `verify` over files). Never linked into any service binary.
+- **Package exports map** with five sub-path entries (`.`, `./native`, `./wasm`,
+  `./errors`, `./types`) and real build scripts for WASM, native, addon, and pqctl.
+
+### How to verify Stage 3
+
+```bash
+# 1. TypeScript — typecheck and lint the adapter layer (no Rust toolchain needed)
+cd packages/pq-core
+pnpm build          # tsc --build
+pnpm lint           # eslint src
+
+# 2. Rust — run the native unit tests (exercises all six primitives)
+pnpm test:rust      # cargo test --manifest-path native/Cargo.toml
+
+# 3. Demo — run the all-algorithms demo (keygen → sign → verify → tamper checks)
+cargo run --example demo --manifest-path native/Cargo.toml --release
+
+# 4. pqctl — offline SLH-DSA root ceremony
+cargo build --release --manifest-path native/pqctl/Cargo.toml
+./native/pqctl/target/release/pqctl keygen --out ./ceremony
+./native/pqctl/target/release/pqctl sign   --key ./ceremony/slh-dsa-sha2-128s.key \
+                                            --message package.json --out sig.bin
+./native/pqctl/target/release/pqctl verify --key ./ceremony/slh-dsa-sha2-128s.pub \
+                                            --message package.json --sig sig.bin
+
+# 5. WASM — rebuild the browser WASM package (requires wasm-pack)
+pnpm build:wasm     # wasm-pack build native --target web --out-dir ../pkg
+
+# 6. Node addon — build the napi-rs addon (requires napi-cli)
+pnpm build:addon    # cargo build --release --manifest-path native/napi/Cargo.toml
+```
 
 **Start here:** [`packages/pq-core/README.md`](packages/pq-core/README.md) contains
-the completed scope, architecture, file structure, prerequisites, run commands,
-browser test procedure, CI behavior, and branch merge requirements.
+the completed scope, architecture, file structure, prerequisites, and CI behavior.
 
 The detailed task and acceptance matrix is in
-[`docs/M1-task-breakdown.md`](docs/M1-task-breakdown.md). Stage 1 is complete;
-later Module 1 stages remain separate work.
+[`docs/M1-task-breakdown.md`](docs/M1-task-breakdown.md). Stages 0–3 are complete;
+Stage 4 (CAVP conformance) is next.
 
 ---
 
 ## Table of Contents
 
-1. [Module 1, Stage 1](#module-1-stage-1-complete)
+1. [Module 1, Stages 1–3](#module-1--progress-stages-13-complete)
 2. [Prerequisites](#prerequisites)
 3. [Clone the Repository](#clone-the-repository)
 4. [Environment Variables](#environment-variables)
@@ -506,6 +551,10 @@ All three must pass before a PR can merge.
 
 ## Status
 
-M0 in progress. No protocol code is implemented yet — packages currently hold
-interfaces and constants only, per the "interfaces before implementations" rule in
-[`CONTRIBUTING.md`](CONTRIBUTING.md).
+Module 1 (PQ Core) Stages 0–3 are complete on `codex/module-1`. The runtime
+adapter layer (napi-rs Node addon + WASM + shared TypeScript API + `pqctl` CLI)
+is done. Stage 4 (NIST CAVP/ACVP conformance testing) is next.
+
+No protocol code beyond the cryptographic core is implemented yet — other packages
+hold interfaces and constants only, per the "interfaces before implementations"
+rule in [`CONTRIBUTING.md`](CONTRIBUTING.md).
