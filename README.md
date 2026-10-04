@@ -1,560 +1,261 @@
 # RWA-Vault
 
-A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Assets
+> **A Post-Quantum Secured Programmable Wealth Platform for Tokenized Real World Assets**
 
-- Full technical proposal: [`docs/RWA-Vault_proposal_v2.pdf`](docs/RWA-Vault_proposal_v2.pdf)
-- Module build plan and per-phase tasks: [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
-- Contributing, branching and ADR conventions: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+[![CI](https://github.com/fahadnaseerhs/RWA-vault/actions/workflows/ci.yml/badge.svg)](https://github.com/fahadnaseerhs/RWA-vault/actions/workflows/ci.yml)
+[![Node 22 LTS](https://img.shields.io/badge/node-22.16.0%20LTS-brightgreen.svg)](.nvmrc)
+[![pnpm 9](https://img.shields.io/badge/pnpm-9.12.0-orange.svg)](package.json)
+[![Rust 1.81](https://img.shields.io/badge/rust-1.81.0-blue.svg)](packages/pq-core/native/rust-toolchain.toml)
+[![Arbitrum Sepolia](https://img.shields.io/badge/network-Arbitrum%20Sepolia-blueviolet.svg)](https://sepolia.arbiscan.io/)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 
-## Module 1 — Progress: Stages 1–3 Complete
+- **Technical Proposal:** [`docs/RWA-Vault_proposal_v2.pdf`](docs/RWA-Vault_proposal_v2.pdf)
+- **Module Build Plan:** [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
+- **Developer Guide:** [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- **Obsidian Project Vault:** [`RWA Vault/`](RWA%20Vault/)
 
-Development continues on the `codex/module-1` branch. **Stages 0–3 are done**
-(49 / 102 tasks), covering the full post-quantum cryptography runtime layer.
+---
 
-### What shipped in each stage
+## Table of Contents
 
-| Stage | Title | Deliverables |
-| ----- | ----- | ------------ |
-| 0 | Decision follow-through | ADR 0003 (PQClean over liboqs), provenance anchor |
-| 1 | Crate skeleton & Falcon slice | Rust crate, Falcon-512 keygen/sign/verify, WASM build, CI |
-| 2 | Full algorithm matrix | ML-DSA-44, ML-DSA-65, SLH-DSA-SHA2-128s, ML-KEM-768, ML-KEM-1024 |
-| **3** | **Runtime adapters** | **Node addon (napi-rs), WASM adapter, TypeScript API, `pqctl` CLI** |
+1. [Executive Summary](#1-executive-summary)
+2. [Architecture & System Flow](#2-architecture--system-flow)
+3. [Developer Onboarding & What's in CONTRIBUTING.md](#3-developer-onboarding--whats-in-contributingmd)
+4. [Current Implementation: Module 1 (PQ Core)](#4-current-implementation-module-1-pq-core)
+5. [Roadmap & 12-Module Dependency Matrix](#5-roadmap--12-module-dependency-matrix)
+6. [Quickstart: Zero-Install & Local Paths](#6-quickstart-zero-install--local-paths)
+7. [Running & Verification Commands](#7-running--verification-commands)
+8. [Repository Layout](#8-repository-layout)
+9. [CI Quality Gates](#9-ci-quality-gates)
+10. [Academic Research Posture](#10-academic-research-posture)
 
-### Stage 3 highlights
+---
 
-- **Node addon** (`native/napi/`): stateless `#[napi]` wrappers with `AsyncTask`
-  so signing and verification never block the event loop. SLH-DSA signing is
-  excluded server-side (ADR 0005 — offline only via `pqctl`).
-- **WASM boundary expanded** (`native/src/wasm.rs`): the Stage 1 Falcon-only
-  `FalconKeyPair` struct was replaced by generic `WasmKeyPair` / `WasmEncapsulation`
-  covering all six primitives.
-- **TypeScript layer** (`src/`): `types.ts` (algorithm unions, contract interfaces),
-  `errors.ts` (nine error classes mirroring Rust), `metadata.ts` (ADR 0006 table),
-  `native.ts` and `wasm.ts` (two adapters implementing the same `PqCoreApi` interface),
-  and `index.ts` (clean public re-exports — no PQClean detail leaks).
-- **`pqctl` CLI** (`native/pqctl/`): offline SLH-DSA root ceremony tool
-  (`keygen`, `sign`, `verify` over files). Never linked into any service binary.
-- **Package exports map** with five sub-path entries (`.`, `./native`, `./wasm`,
-  `./errors`, `./types`) and real build scripts for WASM, native, addon, and pqctl.
+## 1. Executive Summary
 
-### How to verify Stage 3
+### The Problem
+Existing Real World Asset (RWA) tokenization platforms authenticate custody transfers and financial transactions using traditional elliptic-curve signatures (ECDSA / Ed25519). Shor's algorithm on cryptanalytically relevant quantum computers will break these schemes. However, running post-quantum signatures natively on-chain (e.g. EVM) is computationally prohibitive: a single Falcon or Dilithium verification can consume tens or hundreds of thousands of gas units.
+
+### The Solution: Separate Authentication from Anchoring
+RWA-Vault resolves this tension with a **hybrid post-quantum settlement model**:
+1. **Off-Chain PQ Authentication:** Users, oracles, custodians, and vault managers sign transactions using NIST-standardized Post-Quantum Cryptography (FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, and Falcon-padded-512). Signing and verification run natively in backend services (`napi-rs` Node addon) and client browsers (`wasm32-unknown-unknown`).
+2. **On-Chain Periodic Merkle Anchoring:** An off-chain batcher accumulates PQ-signed actions over 60-second epochs into an immutable Merkle tree. Only the resulting **32-byte Merkle root** is anchored on **Arbitrum Sepolia** at a fixed, predictable cost (~43,000 gas per epoch). Beyond 14 actions per epoch, post-quantum authentication becomes cheaper than per-event ECDSA.
+3. **Optimistic Dispute Verifier:** Falcon signatures are anchored into state transitions, with an on-chain `ETHFALCON` dispute contract ready to penalize invalid transitions under fraud-proof challenges.
+
+---
+
+## 2. Architecture & System Flow
+
+```
++----------------------------------------------------------------------------------+
+|                                CLIENT LAYER (M10)                                |
+|  Borrower & Lender PWA (React 18 + viem)    |    Operations & Custodian Console  |
+|  - Client-side keygen & signing via WASM    |    - In-browser key management     |
++----------------------------------------+-----------------------------------------+
+                                         | Post-Quantum Signed Requests
+                                         v
++----------------------------------------------------------------------------------+
+|                               SERVICES LAYER (M5-M9)                             |
+|  pq-verifier (M2)  <-- Stateless 7-condition verification                        |
+|  settlement-rail (M8) <-- Double-entry ledger (PKR 1,000 scale)                  |
+|  risk-engine (M6)     <-- Health-factor sweep on Redis Streams                   |
+|  oracle (M5)          <-- 5-source price median + TWAP gate                      |
+|  anchor-batcher (M9)  <-- 60s Merkle epoch aggregator                            |
++----------------------------------------+-----------------------------------------+
+                                         | Node-API (napi-rs) Addon
+                                         v
++----------------------------------------------------------------------------------+
+|                                PACKAGES LAYER (M1-M2)                            |
+|  packages/pq-core: Vendored PQClean C + Rust + WebAssembly + TypeScript API      |
+|  packages/envelope-codec: Seven-field canonical envelope serialization           |
++----------------------------------------+-----------------------------------------+
+                                         | Merkle Root (~43k gas / 60s)
+                                         v
++----------------------------------------------------------------------------------+
+|                            ON-CHAIN LAYER (Arbitrum Sepolia)                     |
+|  contracts/registry  <-- ERC-3643 Permissioned Asset Identity                    |
+|  contracts/vault     <-- ERC-4626 Vault Accounting (Virtual Share Offset)        |
+|  contracts/lending   <-- Aave V3 Collateralized Micro-Lending Pool               |
+|  contracts/anchoring <-- Merkle Anchor Root Storage & Epoch Verification         |
++----------------------------------------------------------------------------------+
+```
+
+---
+
+## 3. Developer Onboarding & What's in CONTRIBUTING.md
+
+[`CONTRIBUTING.md`](CONTRIBUTING.md) contains the non-negotiable operational conventions for all developers working on RWA-Vault:
+
+| Rule / Section in `CONTRIBUTING.md` | Why it exists & How it works |
+| ----------------------------------- | ---------------------------- |
+| **Path A: Dev Container** | Recommended setup. Requires only Docker & VS Code. Installs Node, Rust, Foundry, Python and launches Anvil + Postgres + Redis automatically. |
+| **Path B: Local Toolchain** | Pins specific tool versions: Node `22.16.0`, pnpm `9.12.0`, Rust `1.81.0`, wasm-pack `0.13.1`, Python `3.12+`, Foundry `stable`. |
+| **Clean-Clone Gate** | Any PR must pass `pnpm install && pnpm lint && pnpm typecheck && pnpm build && pnpm test` before merge. |
+| **Branching Strategy** | Trunk-based development. Feature branches (`codex/module-<N>`, `feat/<topic>`) merge directly to `main` with two required approvals. |
+| **Commit Standard** | Strictly [Conventional Commits](https://www.conventionalcommits.org/): `feat(m1): ...`, `fix(ci): ...`, `docs: ...`. |
+| **Interfaces Before Implementations** | Every module must start with an interface-only PR and acceptance test before writing production implementation. |
+| **Architecture Decision Records (ADRs)** | Architectural choices are permanently recorded in `docs/adr/`. ADRs are immutable once accepted (supersede, never edit). |
+| **Unidirectional Dependency Law** | `packages/` is consumed by `services/` and `apps/`, never the reverse. |
+
+---
+
+## 4. Current Implementation: Module 1 (PQ Core)
+
+Module 1 is currently active on the `codex/module-1` branch. **Stages 0–3 are complete (49 / 102 tasks).**
+
+### Primitive Matrix Delivered
+| Algorithm | Scheme | Role in RWA-Vault | Standard |
+| --------- | ------ | ----------------- | -------- |
+| **Falcon-padded-512** | Signature | Fast client-side signing & on-chain dispute verification | NIST Round 3 |
+| **ML-DSA-44** | Signature | Level 2 signing for general transactions & ops | FIPS 204 |
+| **ML-DSA-65** | Signature | Level 3 custodian & validator authentication | FIPS 204 |
+| **SLH-DSA-SHA2-128s** | Signature | Stateless hash-based root ceremony (`pqctl` CLI only) | FIPS 205 |
+| **ML-KEM-768** | KEM | Encrypted envelope key exchange | FIPS 203 |
+| **ML-KEM-1024** | KEM | High-security key encapsulation rail | FIPS 203 |
+
+### Stage 3 Deliverables (Runtime Adapters)
+- **Node-API Addon (`packages/pq-core/native/napi/`)**: High-performance async wrappers (`AsyncTask`) preventing thread pool starvation on Node 22. Server-side SLH-DSA signing excluded by design (ADR 0005).
+- **WebAssembly Adapter (`packages/pq-core/native/src/wasm.rs`)**: Generic `WasmKeyPair` and `WasmEncapsulation` covering all 6 primitives in browser targets.
+- **TypeScript API (`packages/pq-core/src/`)**: Shared `PqCoreApi` contract interface, nine `PqError` error classes, and ADR 0006 metadata table.
+- **`pqctl` CLI (`packages/pq-core/native/pqctl/`)**: Standalone, air-gapped SLH-DSA root ceremony utility for offline key generation, file signing, and verification.
+
+---
+
+## 5. Roadmap & 12-Module Dependency Matrix
+
+Development spans 4 phases across 13 two-week sprints:
+
+```
+M0 (Devnet) ──> M1 (PQ Core) ──> M2 (Envelope & PKI) ──> M3 (Registry) ──> M4 (Vault)
+                                       │                        │                │
+                                       ├──> M5 (Oracle)         └──> M10 (Apps) <┘
+                                       ├──> M8 (Settlement)
+                                       └──> M9 (Anchoring) ──> M6 (Risk) ──> M7 (Lending)
+                                                                 │
+                                                       All ────> M11 (Eval Harness)
+```
+
+| Phase | Milestone Gate | Focus |
+| ----- | -------------- | ----- |
+| **Phase 1: Foundation (Wk 1–6)** | **MS1**: Gold lot registered & tokenized against attested reserve | M0 (Devnet), M1 (PQ Core), M2 (PKI), M3 (Registry), M4 (Vault) |
+| **Phase 2: Investment Path (Wk 7–11)** | **MS2**: PKR 5,000 deposit with offline verifiable Merkle proof | M5 (Oracle), M8 (Settlement), M9 (Anchoring) |
+| **Phase 3: Lending & Risk (Wk 12–19)** | **MS3**: Collateralized borrow with automated health-factor liquidation | M6 (Risk Engine), M7 (Micro-Lending), M10 (Web Clients) |
+| **Phase 4: Evaluation (Wk 20–24)** | **MS4**: Thesis defense; RQ1–RQ4 benchmarks from hardware measurement | M11 (Python evaluation pipeline & charts) |
+
+---
+
+## 6. Quickstart: Zero-Install & Local Paths
+
+### Option A: VS Code Dev Container (Zero Manual Tooling)
+1. Install [Docker Desktop](https://www.docker.com/) and [VS Code](https://code.visualstudio.com/).
+2. Install the **Dev Containers extension**.
+3. Open this folder in VS Code and click **"Reopen in Container"**. All compilers, runtimes, and local Docker databases launch automatically.
+
+### Option B: Local Installation
+Ensure the pinned runtimes from the table above are installed, then clone the repository:
 
 ```bash
-# 1. TypeScript — typecheck and lint the adapter layer (no Rust toolchain needed)
+# 1. Clone recursively to fetch contracts/lib git submodules
+git clone --recurse-submodules https://github.com/fahadnaseerhs/RWA-vault.git
+cd RWA-vault
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Enable pnpm 9 via Corepack & install dependencies
+corepack enable
+pnpm install
+
+# 4. Start local Docker devnet (Anvil + PostgreSQL + Redis)
+pnpm devnet:up
+```
+
+---
+
+## 7. Running & Verification Commands
+
+### Verify Module 1 (Post-Quantum Core)
+```bash
+# Typecheck and lint TypeScript adapters
 cd packages/pq-core
-pnpm build          # tsc --build
-pnpm lint           # eslint src
+pnpm build
+pnpm lint
 
-# 2. Rust — run the native unit tests (exercises all six primitives)
-pnpm test:rust      # cargo test --manifest-path native/Cargo.toml
+# Run native Rust unit tests across all 6 primitives
+pnpm test:rust
 
-# 3. Demo — run the all-algorithms demo (keygen → sign → verify → tamper checks)
+# Run the 6-algorithm interactive walkthrough demo
 cargo run --example demo --manifest-path native/Cargo.toml --release
 
-# 4. pqctl — offline SLH-DSA root ceremony
+# Run the offline SLH-DSA root ceremony CLI (pqctl)
 cargo build --release --manifest-path native/pqctl/Cargo.toml
 ./native/pqctl/target/release/pqctl keygen --out ./ceremony
 ./native/pqctl/target/release/pqctl sign   --key ./ceremony/slh-dsa-sha2-128s.key \
                                             --message package.json --out sig.bin
 ./native/pqctl/target/release/pqctl verify --key ./ceremony/slh-dsa-sha2-128s.pub \
                                             --message package.json --sig sig.bin
-
-# 5. WASM — rebuild the browser WASM package (requires wasm-pack)
-pnpm build:wasm     # wasm-pack build native --target web --out-dir ../pkg
-
-# 6. Node addon — build the napi-rs addon (requires napi-cli)
-pnpm build:addon    # cargo build --release --manifest-path native/napi/Cargo.toml
 ```
 
-**Start here:** [`packages/pq-core/README.md`](packages/pq-core/README.md) contains
-the completed scope, architecture, file structure, prerequisites, and CI behavior.
-
-The detailed task and acceptance matrix is in
-[`docs/M1-task-breakdown.md`](docs/M1-task-breakdown.md). Stages 0–3 are complete;
-Stage 4 (CAVP conformance) is next.
-
----
-
-## Table of Contents
-
-1. [Module 1, Stages 1–3](#module-1--progress-stages-13-complete)
-2. [Prerequisites](#prerequisites)
-3. [Clone the Repository](#clone-the-repository)
-4. [Environment Variables](#environment-variables)
-5. [Install Dependencies](#install-dependencies)
-6. [Local Development Network (Docker)](#local-development-network-docker)
-7. [Smart Contracts (Foundry)](#smart-contracts-foundry)
-8. [Evaluation Harness (Python)](#evaluation-harness-python)
-9. [Dev Container (Zero-Install Alternative)](#dev-container-zero-install-alternative)
-10. [Root Scripts](#root-scripts)
-11. [Project Structure](#project-structure)
-12. [Build Order](#build-order)
-13. [CI Pipeline](#ci-pipeline)
-14. [Status](#status)
-
----
-
-## Prerequisites
-
-Install these tools **before** cloning. The pinned versions matter — they prevent
-cross-machine "works on my machine" issues.
-
-| Tool                             | Version       | Why                                                    |
-| -------------------------------- | ------------- | ------------------------------------------------------ |
-| **Git**                          | latest        | Version control; submodules required for Foundry deps  |
-| **Node.js**                      | 22.16.0 (LTS) | Runtime for all TS/JS services and apps                |
-| **pnpm**                         | 9.12.0        | Monorepo package manager (auto-managed via `corepack`) |
-| **Docker + Compose**             | latest        | Local devnet: Anvil chain, PostgreSQL, Redis           |
-| **Foundry** (forge, anvil, cast) | stable        | Solidity compiler, local chain, contract interaction   |
-| **Rust**                         | 1.81.0        | Post-quantum cryptography native library (pq-core)     |
-| **wasm-pack**                    | 0.13.1        | Builds pq-core to WASM for the browser signer          |
-| **Python**                       | 3.12+         | Evaluation harness only (thesis data processing)       |
-
-> **Shortcut:** If you use VS Code, the [Dev Container](#dev-container-zero-install-alternative)
-> installs everything automatically — skip straight to that section.
-
-### Step 1 — Git
-
-Download from [git-scm.com](https://git-scm.com/downloads) or install via your OS package
-manager. On Windows, install **Git for Windows** (includes Git Bash).
-
+### Smart Contracts (Foundry)
 ```bash
-git --version
+pnpm contracts:build         # Compile Solidity contracts
+pnpm contracts:test          # Run Foundry unit and fuzz tests (1k runs)
+pnpm contracts:snapshot      # Generate gas consumption reports
+pnpm contracts:fmt           # Verify contract code formatting
 ```
 
-### Step 2 — Node.js 22.16.0
-
-Use a version manager so you can switch Node versions per project:
-
-**Using nvm** (macOS / Linux / Git Bash on Windows):
-
+### Full Repository Gate
 ```bash
-nvm install 22.16.0
-nvm use 22.16.0
-```
-
-**Using fnm** (cross-platform):
-
-```bash
-fnm install 22.16.0
-fnm use 22.16.0
-```
-
-Verify:
-
-```bash
-node --version
-# v22.16.0
-```
-
-### Step 3 — Enable pnpm via Corepack
-
-Corepack ships with Node.js. It reads the `packageManager` field in `package.json` and
-ensures every developer uses **exactly** pnpm 9.12.0 — no separate install required:
-
-```bash
-corepack enable
-```
-
-Verify:
-
-```bash
-pnpm --version
-# 9.12.0
-```
-
-### Step 4 — Docker and Docker Compose
-
-Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/).
-Docker Compose is included.
-
-Verify:
-
-```bash
-docker --version
-docker compose version
-```
-
-### Step 5 — Foundry (Forge, Anvil, Cast)
-
-**macOS / Linux / Git Bash on Windows:**
-
-```bash
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
-```
-
-**Windows (without WSL):** Download prebuilt binaries from the
-[Foundry releases page](https://github.com/foundry-rs/foundry/releases).
-
-Verify:
-
-```bash
-forge --version
-anvil --version
-```
-
-### Step 6 — Rust 1.81.0 and wasm-pack
-
-**Install Rust** (if not already installed):
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-On Windows, download the installer from [rustup.rs](https://rustup.rs/).
-
-The project pins Rust 1.81.0 via `packages/pq-core/native/rust-toolchain.toml`. Running
-any `cargo` command from that directory will auto-install the correct version via `rustup`.
-
-**Add the WASM target and install wasm-pack:**
-
-```bash
-rustup target add wasm32-unknown-unknown
-cargo install wasm-pack --version 0.13.1 --locked
-```
-
-Verify:
-
-```bash
-rustc --version
-# rustc 1.81.0
-wasm-pack --version
-```
-
-### Step 7 — Python 3.12+
-
-Only needed for the evaluation harness (`eval/`). Download from
-[python.org](https://www.python.org/downloads/) or use your OS package manager.
-
-On Windows, check **"Add Python to PATH"** during installation.
-
-Verify:
-
-```bash
-python --version
-# Python 3.12.x or later
+pnpm lint && pnpm typecheck && pnpm build && pnpm test
 ```
 
 ---
 
-## Clone the Repository
-
-```bash
-git clone --recurse-submodules <repository-url>
-cd rwa-vault
-```
-
-`--recurse-submodules` pulls Foundry's git submodule dependencies (forge-std, OpenZeppelin,
-etc.) inside `contracts/lib/`.
-
-**Already cloned without submodules?** Run this from the repo root:
-
-```bash
-git submodule update --init --recursive
-```
-
----
-
-## Environment Variables
-
-Copy the template and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-For **local development only**, the defaults already work — Anvil, PostgreSQL and Redis
-URLs point to the Docker devnet ports. You only need to fill in external values when
-deploying to Arbitrum Sepolia.
-
-| Variable                   | Pre-filled?            | When you need it                 |
-| -------------------------- | ---------------------- | -------------------------------- |
-| `ANVIL_RPC_URL`            | Yes (`localhost:8545`) | Always (local chain)             |
-| `DATABASE_URL`             | Yes (`localhost:5432`) | Always (off-chain state)         |
-| `REDIS_URL`                | Yes (`localhost:6379`) | Always (event bus)               |
-| `AUTH_MODE`                | Yes (`pq`)             | Always — `pq` or `ecdsa_control` |
-| `ARBITRUM_SEPOLIA_RPC_URL` | No                     | Testnet deployment               |
-| `DEPLOYER_PRIVATE_KEY`     | No                     | Testnet deployment               |
-| `ARBISCAN_API_KEY`         | No                     | Contract source verification     |
-| `PRICE_SOURCE_*_URL`       | No                     | Oracle aggregation (M5)          |
-
-See `.env.example` for a full explanation of every variable.
-
----
-
-## Install Dependencies
-
-### JavaScript / TypeScript
-
-From the project root:
-
-```bash
-pnpm install
-```
-
-This installs dependencies for all 11 workspace packages (`apps/*`, `services/*`,
-`packages/*`) in a single command. The lockfile (`pnpm-lock.yaml`) ensures reproducible
-installs.
-
-### Foundry (Solidity)
-
-Foundry dependencies live in `contracts/lib/` as git submodules (pulled during the clone
-step). Build the contracts to verify everything is wired up:
-
-```bash
-pnpm contracts:build
-```
-
-### Rust (pq-core)
-
-The Rust toolchain auto-installs via `rustup` when you run any `cargo` command from
-`packages/pq-core/native/` — the `rust-toolchain.toml` file handles version pinning.
-
----
-
-## Local Development Network (Docker)
-
-The devnet starts three containers:
-
-| Service           | Port | Purpose                                                 |
-| ----------------- | ---- | ------------------------------------------------------- |
-| **Anvil**         | 8545 | Local Ethereum chain (chain ID 31337)                   |
-| **PostgreSQL 16** | 5432 | Off-chain state (settlement ledger, asset registry)     |
-| **Redis 7**       | 6379 | Event bus (Streams) + real-time notifications (Pub/Sub) |
-
-**Start:**
-
-```bash
-pnpm devnet:up
-```
-
-**Stop** (data preserved in Docker volumes):
-
-```bash
-pnpm devnet:down
-```
-
-**Full reset** (wipes all data):
-
-```bash
-docker compose -f infra/docker-compose.yml down -v
-```
-
----
-
-## Smart Contracts (Foundry)
-
-All commands run from the project root:
-
-```bash
-pnpm contracts:build          # Compile Solidity sources
-pnpm contracts:test           # Unit + fuzz tests (1K runs)
-pnpm contracts:fmt            # Check formatting (forge fmt)
-pnpm contracts:snapshot        # Generate gas snapshots
-pnpm contracts:deploy:local   # Deploy to local Anvil
-```
-
-Contract source lives in `contracts/src/`, organised by module:
-
-| Directory    | Module | Purpose                            |
-| ------------ | ------ | ---------------------------------- |
-| `keys/`      | M2     | Post-quantum key registry          |
-| `registry/`  | M3     | Asset registration and attestation |
-| `tokens/`    | M3     | ERC-20 wrapped tokens              |
-| `vault/`     | M4     | ERC-4626 asset vault               |
-| `oracle/`    | M5     | On-chain oracle consumer           |
-| `lending/`   | M7     | Collateralised micro-lending pool  |
-| `anchoring/` | M9     | PQ anchor verification             |
-
----
-
-## Evaluation Harness (Python)
-
-The `eval/` directory has its own Python virtual environment, separate from the Node/Rust
-stack. It processes Foundry gas snapshots and k6 output into the RQ1–RQ4 tables and
-figures for the thesis.
-
-### Step 1 — Create the virtual environment
-
-```bash
-cd eval
-python -m venv .venv
-```
-
-### Step 2 — Activate the virtual environment
-
-Pick your shell:
-
-```bash
-# macOS / Linux / Git Bash on Windows:
-source .venv/bin/activate
-
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
-
-# Windows Command Prompt:
-.venv\Scripts\activate.bat
-```
-
-Your terminal prompt should now show `(.venv)` at the beginning.
-
-### Step 3 — Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-`requirements.txt` is a lockfile generated by `pip freeze` — it pins exact versions for
-reproducibility. To add a new package, edit `requirements.in` (the human-intent file),
-then regenerate:
-
-```bash
-pip install -r requirements.in
-pip freeze > requirements.txt
-```
-
-### Step 4 — Deactivate when done
-
-```bash
-deactivate
-```
-
-See [`eval/README.md`](eval/README.md) for more on the evaluation pipeline layout.
-
----
-
-## Dev Container (Zero-Install Alternative)
-
-If you use VS Code with the
-[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers),
-skip all manual prerequisite installation:
-
-1. Open the project folder in VS Code.
-2. Click **"Reopen in Container"** when prompted (or run `Dev Containers: Reopen in Container`
-   from the command palette).
-3. Wait for the container to build. It automatically installs Node.js, Rust, Python,
-   Foundry, wasm-pack, and all project dependencies.
-
-**Important:** Inside the Dev Container, Anvil, PostgreSQL and Redis are sibling containers
-reached by **service name**, not `localhost`. Update your `.env` accordingly:
-
-```
-ANVIL_RPC_URL=http://anvil:8545
-DATABASE_URL=postgresql://rwa:rwa@postgres:5432/rwa_vault
-REDIS_URL=redis://redis:6379
-```
-
-From your **host machine's** browser, the same services remain available at `localhost` on
-their respective ports (8545, 5432, 6379) via port forwarding.
-
----
-
-## Root Scripts
-
-| Script                           | Description                                   |
-| -------------------------------- | --------------------------------------------- |
-| `pnpm build`                     | Recursive build across all workspace packages |
-| `pnpm test`                      | Recursive test across all packages            |
-| `pnpm lint`                      | Recursive ESLint                              |
-| `pnpm typecheck`                 | Recursive `tsc --noEmit`                      |
-| `pnpm format`                    | Prettier write across the repo                |
-| `pnpm format:check`              | Prettier check (no writes)                    |
-| `pnpm devnet:up` / `devnet:down` | Start / stop the local Docker devnet          |
-| `pnpm contracts:build`           | `forge build`                                 |
-| `pnpm contracts:test`            | `forge test -vvv`                             |
-| `pnpm contracts:fmt`             | `forge fmt --check`                           |
-| `pnpm contracts:snapshot`        | `forge snapshot`                              |
-| `pnpm contracts:deploy:local`    | Deploy to local Anvil chain                   |
-
----
-
-## Project Structure
+## 8. Repository Layout
 
 ```
 rwa-vault/
 ├── apps/
-│   ├── client/              # M10  Borrower/lender PWA (React, viem, TanStack Query)
-│   └── ops-console/         # M10  Provider onboarding and operations dashboard
+│   ├── client/              # M10  Borrower/lender React 18 PWA
+│   └── ops-console/         # M10  Custodian onboarding & audit console
 ├── contracts/
-│   ├── src/                 # Solidity sources (organised by module)
-│   ├── test/                # Forge test files
-│   ├── script/              # Deployment scripts
-│   ├── lib/                 # Git submodule dependencies (forge-std, OpenZeppelin)
-│   └── foundry.toml         # Foundry configuration
+│   ├── src/                 # Solidity smart contracts (Arbitrum Sepolia)
+│   ├── test/                # Forge test suites (unit + invariant fuzzing)
+│   └── lib/                 # Submodule dependencies (forge-std, openzeppelin)
 ├── docs/
-│   ├── adr/                 # Architecture Decision Records
+│   ├── adr/                 # Architecture Decision Records (0001-0011)
 │   ├── RWA-Vault_proposal_v2.pdf
 │   └── RWA-Vault_Module_Build_Plan.docx
 ├── eval/
-│   ├── .venv/               # Python virtual environment (gitignored)
-│   ├── scripts/             # Reproducible RQ1–RQ4 data processing
-│   ├── notebooks/           # Exploratory Jupyter notebooks
-│   ├── requirements.in      # Human-edited dependency intent
-│   └── requirements.txt     # Lockfile (pip freeze)
+│   ├── scripts/             # Python 3.12 data analysis for RQ1-RQ4
+│   └── requirements.txt     # Locked Python evaluation dependencies
 ├── infra/
-│   └── docker-compose.yml   # Anvil + PostgreSQL + Redis devnet
+│   └── docker-compose.yml   # Anvil + PostgreSQL 16 + Redis 7 devnet
 ├── packages/
-│   ├── config/              # Shared ESLint, Prettier, TypeScript config
+│   ├── config/              # Shared ESLint, Prettier, and TS base configs
 │   ├── envelope-codec/      # M2  PQ-signed envelope encode/decode (TS)
-│   ├── pq-core/             # M1  Falcon-512 / ML-DSA / SLH-DSA (Rust → WASM + native)
-│   └── types/               # Shared domain types and ABI-derived bindings
+│   ├── pq-core/             # M1  Rust PQClean native + WASM + napi addon
+│   └── types/               # Canonical shared domain types & ABI interfaces
 ├── services/
-│   ├── anchor-batcher/      # M9  60s epoch Merkle batching, on-chain anchoring
-│   ├── oracle/              # M5  Five-source aggregation, median + TWAP gate
-│   ├── pq-verifier/         # M2  Stateless seven-condition envelope verification
-│   ├── risk-engine/         # M6  Health-factor sweep on Redis Streams
-│   └── settlement-rail/     # M8  Mock PKR rail, double-entry ledger
-├── .devcontainer/           # VS Code Dev Container (zero-install path)
-├── .env.example             # Environment variable template
-├── .github/workflows/ci.yml # CI pipeline (3 parallel jobs)
-├── .gitignore
-├── .nvmrc                   # Pins Node.js to 22.16.0
-├── package.json             # Root workspace config
-├── pnpm-lock.yaml           # Dependency lockfile
-└── pnpm-workspace.yaml      # Workspace package definitions
+│   ├── anchor-batcher/      # M9  60-second epoch Merkle tree batching
+│   ├── oracle/              # M5  5-source median + TWAP price consumer
+│   ├── pq-verifier/         # M2  Stateless 7-condition envelope verifier
+│   ├── risk-engine/         # M6  Health factor sweep on Redis Streams
+│   └── settlement-rail/     # M8  Mock PKR 1,000 double-entry ledger
+└── RWA Vault/               # Obsidian project memory & knowledge base
 ```
 
-`packages/*` is consumed by `apps/*` and `services/*`, never the reverse.
-`contracts/` sits outside the pnpm workspace because Foundry has its own toolchain; it is
-driven from root scripts (`pnpm contracts:build`, `pnpm contracts:test`).
+---
+
+## 9. CI Quality Gates
+
+GitHub Actions runs three parallel workflows on every push and pull request:
+1. **`node` Job:** Runs `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, and Prettier format verification.
+2. **`contracts` Job:** Compiles Solidity sources and executes 1,000 fuzz runs.
+3. **`contracts-invariants` Job:** Executes deep 1,000,000-run property-based invariant tests.
 
 ---
 
-## Build Order
+## 10. Academic Research Posture
 
-Modules ship in dependency order across four phases, gated by milestones:
-
-| Phase                        | Weeks | Modules            | Gate                                    |
-| ---------------------------- | ----- | ------------------ | --------------------------------------- |
-| 1 — Foundation & crypto core | 1–6   | M0, M1, M2, M3, M4 | MS1: gold lot registered and tokenised  |
-| 2 — Investment path          | 7–11  | M5, M8, M9         | MS2: FYP-I deliverable, offline proof   |
-| 3 — Lending & risk           | 12–19 | M6, M7, M10        | MS3: end-to-end lend and liquidate      |
-| 4 — Evaluation               | 20–24 | M11                | MS4: every RQ answered from measurement |
-
-See the module build plan for the full task breakdown.
-
----
-
-## CI Pipeline
-
-The GitHub Actions workflow (`.github/workflows/ci.yml`) runs **three parallel jobs** on
-every push to `main` and every PR:
-
-1. **node** — Lint, typecheck, build, test, and format-check all TS/JS workspace packages.
-2. **contracts** — Compile, format-check, and run Forge tests (1K fuzz runs).
-3. **contracts-invariants** — Invariant and property-based fuzz tests at 1M runs.
-
-All three must pass before a PR can merge.
-
----
-
-## Status
-
-Module 1 (PQ Core) Stages 0–3 are complete on `codex/module-1`. The runtime
-adapter layer (napi-rs Node addon + WASM + shared TypeScript API + `pqctl` CLI)
-is done. Stage 4 (NIST CAVP/ACVP conformance testing) is next.
-
-No protocol code beyond the cryptographic core is implemented yet — other packages
-hold interfaces and constants only, per the "interfaces before implementations"
-rule in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+RWA-Vault is developed as a University Final Year Project evaluating post-quantum cryptographic feasibility in decentralized finance. All settlement rails operate in mock sandbox mode targeting the **Arbitrum Sepolia** testnet. **No real-world financial funds are deployed or at risk.**
