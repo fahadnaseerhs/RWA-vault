@@ -7,12 +7,12 @@
 ## Context
 
 Clause 4 of the admission predicate rejects an attestation whose valuation is older than τ.
-That covers *admission*. It says nothing about what the system does when an asset is already
+That covers _admission_. It says nothing about what the system does when an asset is already
 LIVE and no fresh attestation arrives — the custodian has simply gone quiet.
 
-M5 already sets a precedent for the adjacent case: a stale *price* freezes new borrows and
+M5 already sets a precedent for the adjacent case: a stale _price_ freezes new borrows and
 new locks, but never blocks repay or withdraw. The open question was whether a stale
-*reserve attestation* should carry the same consequence, a lighter one, or a heavier one.
+_reserve attestation_ should carry the same consequence, a lighter one, or a heavier one.
 
 Three responses were on the table: freeze minting only; freeze minting and new borrows; or
 freeze the asset outright. The third was rejected early — an automatic FROZEN transition
@@ -31,7 +31,7 @@ it is the first thing a reader will challenge:
    exact, minimal response to uncertainty about the reserve's size. Borrowing does not change
    the token-to-metal ratio.
 2. **A reported shortfall is a different event, and is handled harder.** The case where an
-   attestation reports *less* reserve than the supply already minted is governed separately
+   attestation reports _less_ reserve than the supply already minted is governed separately
    and blocks minting with an explicit under-reserve signal. "Stale" means nobody has spoken
    lately; "under-reserved" means we have been told it is short. The second is the stronger
    signal and receives the stronger response.

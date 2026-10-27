@@ -53,7 +53,7 @@ being that theirs is signed by a supervised third-party auditor and ours is not.
 writing any number?", to which there is no answer. Stated up front, the limitation is
 unremarkable and the mechanism is still a contribution.
 
-**Opens a better option.** Because the trust gap is about *who asserts*, not about what the
+**Opens a better option.** Because the trust gap is about _who asserts_, not about what the
 chain can check, the natural strengthening is to require more than one asserting party with
 opposing incentives — a custodian gains from overstating reserves, an insurer underwriting
 that bullion loses money if they are overstated. That is recorded as open question Q11 and

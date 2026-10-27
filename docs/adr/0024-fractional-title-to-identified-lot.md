@@ -7,7 +7,7 @@
 ## Context
 
 What a holder legally owns decides whether the system can describe itself as asset-backed, and
-it governs what proof-of-reserve is evidence *of*. It is paper rather than code, but it is not
+it governs what proof-of-reserve is evidence _of_. It is paper rather than code, but it is not
 free-standing: the architecture has already made commitments that constrain it.
 
 ADR 0016 put **one ERC-3643 token per asset**, and M3's AssetRegistry registers each lot with
@@ -38,7 +38,7 @@ explicitly marked as a description of intended structure rather than legal advic
 **Good.** It is what the contracts already do, so nothing is reworked. It is also the only
 structure in which the project's distinctive contribution means anything concrete: a holder can
 name their bar's serial, read the attestation covering it, and check that
-`attestedSupply ≤ reserveAmount` held for *that* lot at every block. A pooled claim would make
+`attestedSupply ≤ reserveAmount` held for _that_ lot at every block. A pooled claim would make
 proof-of-reserve a statement about an aggregate the holder cannot locate.
 
 **Costly.** Co-ownership of movable property by many parties is the part of this with the least

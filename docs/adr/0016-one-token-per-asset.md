@@ -21,7 +21,7 @@ Not everything is duplicated, which matters for cost: `IdentityRegistryStorage` 
 the verification of many tokens at once, and the Implementation Authority is shared to give
 centralised versioning across all tokens deployed from it.
 
-The project's own constraint: M3's done-criterion is that *a* provider onboards *a* gold lot
+The project's own constraint: M3's done-criterion is that _a_ provider onboards _a_ gold lot
 unaided, and the MS1 gate needs one lot registered and tokenised. Multi-asset onboarding is
 a Phase 3 concern.
 

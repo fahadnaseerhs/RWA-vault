@@ -6,10 +6,10 @@
 - **Supersedes nothing. Depends on:** ADR 0014 (liveness as a compliance module), ADR 0015
   (agent powers and key tiers), ADR 0016 (one token per asset), ADR 0017 (reserve source seam)
 - **Read alongside:** ADR 0021 (a stale reserve attestation freezes minting only). The two
-  agree and divide the cases between them: 0021 governs *staleness* ("nobody has spoken
-  lately"), this ADR governs a *reported shortfall* ("we have been told it is short"), which
+  agree and divide the cases between them: 0021 governs _staleness_ ("nobody has spoken
+  lately"), this ADR governs a _reported shortfall_ ("we have been told it is short"), which
   0021 explicitly defers here. **One terminology hazard for readers:** 0021's phrase "freezes
-  minting" means *blocks the mint*, not the `FROZEN` state — under decision 3 below an
+  minting" means _blocks the mint_, not the `FROZEN` state — under decision 3 below an
   under-reserved asset stays `LIVE` and the mint is vetoed by the compliance module. Nothing
   in either ADR moves an asset to `FROZEN` without an operator.
 
@@ -24,7 +24,7 @@ implementer would otherwise guess, and two of them are decisions a reviewer will
 The four gaps, in the order they arise:
 
 1. The maths note writes the failure branch as `PENDING → UNREGISTERED/rejected`, which can
-   be read as a failed admission *deleting* the registration.
+   be read as a failed admission _deleting_ the registration.
 2. It does not say whether an asset already LIVE may receive a further attestation.
 3. Its own corollary on a reserve figure that falls below the circulating supply says
    "decide which" and leaves three options open.
@@ -41,7 +41,7 @@ and is tracked separately as Q13.
 sequence number is not advanced, the reserve is not recorded, and the registration survives.
 
 **2. Re-attestation of a LIVE asset is permitted and keeps it LIVE.** The clauses are
-evaluated against the asset's *current* circulating supply, not the intended supply given at
+evaluated against the asset's _current_ circulating supply, not the intended supply given at
 first admission.
 
 **3. An attestation whose reserve falls below the circulating supply is accepted, not
@@ -114,7 +114,7 @@ comment listed minting, redemption and borrowing. T2.2 was about to hard-code on
 
 The decision follows the reasoning ADR 0021 already accepted for staleness, applied to the
 freeze state. The usual trigger for FROZEN is the custodian's failure, not the holder's: a
-stale valuation or a reported shortfall is something done *to* the people holding the token.
+stale valuation or a reported shortfall is something done _to_ the people holding the token.
 Blocking their transfers removes their only exit as a penalty for someone else's inaction,
 which is a liveness cost imposed by a third party and precisely the centralisation vector
 this project works to remove elsewhere.

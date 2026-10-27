@@ -37,11 +37,11 @@ we keep all three off the MS1 demo path.
 
 We map the roles onto the key tiers as follows:
 
-| On-chain role | Key tier | Form |
-| ------------- | -------- | ---- |
-| `owner` (configuration) | Tier 0/1 governance | **2-of-3 multisig**, not a single service key |
-| `agent` (operations: mint, freeze) | Tier 1 service key | Single service key, acceptable for operational latency |
-| Investor wallets | Tier 2 device keys | Self-custodied |
+| On-chain role                      | Key tier            | Form                                                   |
+| ---------------------------------- | ------------------- | ------------------------------------------------------ |
+| `owner` (configuration)            | Tier 0/1 governance | **2-of-3 multisig**, not a single service key          |
+| `agent` (operations: mint, freeze) | Tier 1 service key  | Single service key, acceptable for operational latency |
+| Investor wallets                   | Tier 2 device keys  | Self-custodied                                         |
 
 `setIdentityRegistry` and `setCompliance` are owner-only and therefore behind the multisig.
 `forcedTransfer` additionally requires a timelock and emits a typed reason code before
