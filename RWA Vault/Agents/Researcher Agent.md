@@ -19,7 +19,7 @@ Owns the **what** and the **why**, and is the **only role that checkmarks a task
 - **Out:** `{plan, acceptance criteria}` to the Coder; `{intended behaviour, rationale}` to the Debugger; a checkmark (or a gap report) to the board.
 
 ## Where the output lives
-One note per researched task, in that module's **`Research/`** folder: `Research/T<n> - <Task name>.md`. It carries the plan, the acceptance criteria, the Debugger's behaviour table, the risks, and the handoff — and **no implementation**. The task board links to it and its agent-state moves 🧭 → ⌨️.
+One spec per researched task, in that module's **`Specs/`** folder: `Specs/T<n> - <Task name>.md` (see [[_Templates/00 Vault Standard|Vault Standard]]); question and answer rounds go in `Threads/Rounds/`. It carries the plan, the acceptance criteria, the Debugger's behaviour table, the risks, and the handoff — and **no implementation**. The task board links to it and its agent-state moves 🧭 → ⌨️.
 Reference example: [[T6 - Provider Onboarding Console]].
 
 ## Definition of a good acceptance criterion

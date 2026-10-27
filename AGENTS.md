@@ -86,14 +86,14 @@ TASK (from Board) ──►│ 🧭 RESEARCHER (Owns WHAT & WHY)                
 - **Token Standard:** ERC-3643 (T-REX), Hybrid implementation: vendor `onchain-id` ERC-734/735, custom Token, Registries, and `ModularCompliance`.
 - **Token Unit:** 1 Token = 1 **fine gram** of gold ($10^{18}$ base units). A 1 kg kilobar of 999.9 purity yields exactly $999.9 \times 10^{18}$ units (ADR 0020).
 - **Valuation Window ($\tau$):** Default 24 hours for gold. In tests, parameterized via `setValuationWindowFor` to $\le 1$ hour. Never hardcode 24h into invariant checks (ADR 0018).
-- **Asset Admission Predicate (4-Clause + Q11 5th Clause):**
-  1. $SigValid(attestation, pk_{custodian}, pk_{insurer})$ (2-of-2 multisig attestation).
+- **Asset Admission Predicate — 4 clauses (ADR 0017). A 5th insurer/policy clause is NOT locked: it depends on open decision Q17, and where clause 1's ML-DSA-65 signature is checked depends on Q18:**
+  1. $SigValid(attestation, pk_{custodian})$ (+ $pk_{insurer}$ only if Q17 keeps the 2-of-2).
   2. $Seq(attestation) > lastSeq(assetId)$ (Strictly monotonic sequence).
   3. $reserveAmount \ge attestedSupply$ (Never fractional; 100% reserve backing).
   4. $now - valuationTs \le \tau \land valuationTs \le now$ (Fresh, no future timestamps).
-  5. $policyCoverage \ge attestedValue \land policyExpiry > now$ (Active insurer coverage).
+  5. *(Only if Q17 keeps the 2-of-2)* $policyCoverage \ge attestedValue \land policyExpiry > now$.
 - **Immutability:** No upgradeable proxies. Plain deployments with immutable constructor wiring (ADR 0025).
-- **Freezing Semantics:** `FROZEN` state blocks minting and new admissions only. Investor transfers and exits remain enabled (ADR 0019, ADR 0021).
+- **Freezing Semantics:** `FROZEN` blocks **minting only**; `AssetLiveModule` vetoes a mint, never a transfer. Investor transfers and exits stay enabled. A stale reserve also blocks minting only (ADR 0019 §6, ADR 0021).
 - **Post-Quantum Cryptography Inventory (M1 owns all six):**
   - Signatures: Falcon-padded-512, ML-DSA-44, ML-DSA-65, SLH-DSA-SHA2-128s.
   - KEM: ML-KEM-768, ML-KEM-1024.
@@ -105,8 +105,11 @@ TASK (from Board) ──►│ 🧭 RESEARCHER (Owns WHAT & WHY)                
 ```
 RWA Vault/
 ├── 00 Dashboard - Project Command Center.md    ← Live high-level status of entire project
+├── _Templates/                                 ← 🔒 LOCKED: 00 Vault Standard + templates (decision, task, thread, concept, hub)
 ├── Project Memory/
 │   ├── Project Modules To-Do (True Values).md  ← Verified code census & state of M0..M11
+│   ├── Decisions Register.md                   ← Every decision, open and decided, in one table
+│   ├── Audits/                                 ← Dated decision-conflict audits
 │   ├── ADR Index.md                            ← Canonical ADR register (0001–0026)
 │   ├── Changelog.md                            ← Concise, dated milestone log
 │   └── ...
@@ -117,9 +120,9 @@ RWA Vault/
 │   └── Debugger Agent.md
 └── Module 3 - Registry & Compliance/
     ├── 00 M3 Dashboard.md                      ← Module 3 command center
-    ├── Questions/                              ← Q1 to Q16 (one note per question)
+    ├── Questions/                              ← Q01 to Q22 (one Decision note per question)
     ├── Tasks/                                  ← T0 to T8 task group notes
-    ├── Threads/                                ← Append-only active agent discussion threads
+    ├── Threads/                                ← Append-only agent threads; long rounds in Threads/Rounds/
     ├── Specs/                                  ← Deep technical specifications
     ├── Algorithms/                             ← Mathematical predicates & decision trees
     └── Understanding/                          ← Conceptual walkthroughs

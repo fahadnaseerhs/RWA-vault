@@ -10,16 +10,16 @@ updated: 2026-10-27
 ---
 # 📋 Task Group T4 — AssetRegistry & Admission Predicate
 
-> **Decisions Applied:** Q13=A ($\tau = 24$h default for gold, configurable, ADR 0018), Q14=B (Under-reserve emits event & blocks mints, ADR 0019), Q15=A (Immutable plain deploys, ADR 0025), Q11=B (Insurer co-signs 2-of-2 multisig attestation).  
+> **Decisions Applied:** Q13=A ($\tau = 24$h default for gold, configurable, ADR 0018), Q14=B (Under-reserve emits event & blocks mints, ADR 0019), Q15=A (Immutable plain deploys, ADR 0025), Q11=B (insurer co-sign — **MS1 scope open as [[Questions/Q17 - Does the insurer co-sign at MS1, or after it|Q17]]**; signature location open as [[Questions/Q18 - Where is the ML-DSA-65 signature checked for MS1|Q18]]).  
 > **Status:** Unblocked. T4.1 can begin immediately.
 
 ### Critical Invariants & Rules
 - **Q13 Test Rule:** 24 hours is the deployed default set via `setValuationWindowFor`. Boundary tests MUST set a short window ($\le 1$ hour) and assert against the configured value. Never hardcode 24h in predicate code!
-- **Q11 Gas Check Pre-requisite:** Before writing the on-chain ML-DSA-65 verifier in T4.4, benchmark gas cost for 2 signatures.
+- **Q17/Q18 pre-requisite:** no on-chain ML-DSA-65 verifier exists in the project (ADR 0011's ~3.9M gas is Falcon). T4.4's design waits for Q18; the clause count in T4.2 waits for Q17.
 
 ### Subtasks Checklist
 - [ ] **T4.1** `AssetRegistry.sol` implementing `IAssetRegistry.sol`: State machine `UNREGISTERED` → `PENDING` → `LIVE` → `FROZEN`.
-- [ ] **T4.2** 5-clause admission predicate ($SigValid$, $Seq$, $Reserve \ge Supply$, $Freshness \le \tau$, $PolicyValid$).
+- [ ] **T4.2** Admission predicate: 4 clauses ($SigValid$, $Seq$, $Reserve \ge Supply$, $Freshness \le \tau$) per ADR 0017; a 5th ($PolicyValid$) only if Q17 = keep 2-of-2.
 - [ ] **T4.3** Connect `IReserveAttestationSource` stub driven by custodian envelope for MS1 (ADR 0017).
 - [ ] **T4.4** Verify ML-DSA-65 envelope verification path.
 - [ ] **T4.5** Foundry invariant test: `attestedSupply <= reserveAmount` on every mint and attestation.
