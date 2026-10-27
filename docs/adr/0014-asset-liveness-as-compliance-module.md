@@ -9,15 +9,15 @@
 ## Context
 
 Module 3 contains two checks that have nothing to do with each other. The ERC-3643 half
-asks whether a *wallet* may hold tokens, answered from KYC claims on its ONCHAINID. The
-AssetRegistry half asks whether a *gold lot* is in LIVE state with sufficient attested
+asks whether a _wallet_ may hold tokens, answered from KYC claims on its ONCHAINID. The
+AssetRegistry half asks whether a _gold lot_ is in LIVE state with sufficient attested
 reserve. The module's design question is where the second check physically executes.
 
 ERC-3643 routes every transfer through `compliance.canTransfer(...)`, which fans out to
 whatever modules the issuer has bound to its ModularCompliance contract. The official
 documentation's own example modules — country allow and restrict lists, maximum balance per
 holder, supply cap, time-window transfer limits, transfer fees, permit lists — are
-described as developed by tokenization platforms and explicitly *not* part of the
+described as developed by tokenization platforms and explicitly _not_ part of the
 open-source protocol. The extension point is the mechanism by which an issuer's private
 rulebook reaches the token, and published audit guidance confirms the reference
 implementation binds one token to exactly one compliance contract.

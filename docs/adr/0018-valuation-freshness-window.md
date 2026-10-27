@@ -24,7 +24,7 @@ The interface exposes τ as an owner-settable, per-asset value (`valuationWindow
 
 **Tests set their own window.** A unit test cannot wait 24 hours, so T4.2's boundary tests
 set a short window — one hour or less — through `setValuationWindowFor` and assert the
-boundary behaviour against *whatever τ is configured*. **A test that hard-codes 24 hours is
+boundary behaviour against _whatever τ is configured_. **A test that hard-codes 24 hours is
 wrong by construction.**
 
 ## Rationale

@@ -12,6 +12,7 @@
 **Core Purpose:** Tokenise physical gold (and future real-world assets) into compliant, legally sound on-chain assets with end-to-end post-quantum cryptographic security (PQ-Core) and on-chain compliance (ERC-3643 / T-REX).
 
 ### The Four Milestone Gates (True Project Roadmap)
+
 1. **MS1 (Week 6 - Phase 1 Foundation):** A physical gold lot registered and tokenised against an attested reserve in fine grams, verified on-chain via ERC-3643 and post-quantum custodian envelope. (Modules: M0, M1, M2, M3, M4).
 2. **MS2 (Week 11 - Phase 2 Investment Path / FYP-I Gate):** PKR 5,000 cash deposit through on-ramp seam → Merkle proof generated → offline verification succeeds without platform holding fiat. (Modules: M5, M8, M9).
 3. **MS3 (Week 19 - Phase 3 Lending & Risk):** Borrow against tokenised gold → simulated price drop → risk engine liquidation buffer triggered, resulting in zero bad debt. (Modules: M6, M7, M10).
@@ -30,12 +31,13 @@
    - All agent communication follows the structured message envelope:
      ```markdown
      ### YYYY-MM-DD HH:MM · 🎭 [Role] → 🎭 [Role] · [ACTION_TYPE]
+
      **Context:** <task/bug context>
      **On Disk Now:** `<file>:<line>` → `<code>` (Always quote exact on-disk code, not intent)
      **Message/Question/Finding:** <concise, high-density content>
      **Blocks/Unblocks:** <target>
      ```
-     *Permitted Action Types:* `PLAN`, `HANDOFF`, `REPORT`, `ASK`, `RULING`, `VERIFY ✅`.
+     _Permitted Action Types:_ `PLAN`, `HANDOFF`, `REPORT`, `ASK`, `RULING`, `VERIFY ✅`.
 3. **ADR Claim-By-File Protocol:**
    - ADR numbers cannot be assumed or promised in conversation.
    - The **only** way to claim an ADR number is to commit a stub file in `docs/adr/00XX-<slug>.md` with `Status: Reserved`.
@@ -91,7 +93,7 @@ TASK (from Board) ──►│ 🧭 RESEARCHER (Owns WHAT & WHY)                
   2. $Seq(attestation) > lastSeq(assetId)$ (Strictly monotonic sequence).
   3. $reserveAmount \ge attestedSupply$ (Never fractional; 100% reserve backing).
   4. $now - valuationTs \le \tau \land valuationTs \le now$ (Fresh, no future timestamps).
-  5. *(Only if Q17 keeps the 2-of-2)* $policyCoverage \ge attestedValue \land policyExpiry > now$.
+  5. _(Only if Q17 keeps the 2-of-2)_ $policyCoverage \ge attestedValue \land policyExpiry > now$.
 - **Immutability:** No upgradeable proxies. Plain deployments with immutable constructor wiring (ADR 0025).
 - **Freezing Semantics:** `FROZEN` blocks **minting only**; `AssetLiveModule` vetoes a mint, never a transfer. Investor transfers and exits stay enabled. A stale reserve also blocks minting only (ADR 0019 §6, ADR 0021).
 - **Post-Quantum Cryptography Inventory (M1 owns all six):**

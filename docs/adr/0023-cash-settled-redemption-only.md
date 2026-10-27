@@ -6,8 +6,8 @@
 
 ## Context
 
-Whether a holder can exchange tokens for metal is what separates a gold *claim* from a gold
-*price tracker*, and it is among the first questions a finance examiner asks. It also decides
+Whether a holder can exchange tokens for metal is what separates a gold _claim_ from a gold
+_price tracker_, and it is among the first questions a finance examiner asks. It also decides
 whether `burn` is a demonstrated path or only a unit test.
 
 The two established tokenised-gold products both offer physical redemption, under heavy
@@ -29,7 +29,7 @@ conclusion is robust to the price: a dollar buys single-digit milligrams of gold
 level the metal has traded at in recent years, so the threshold argument does not rest on the
 figure. Any threshold has to
 be a physically deliverable unit — in Pakistan, one tola (11.664 g) or a 10 g bar. And under
-the project's own decisions the holder's claim attaches to an *identified lot*, so delivering
+the project's own decisions the holder's claim attaches to an _identified lot_, so delivering
 part of a registered 1 kg bar would break that allocation unless small bars and coins are
 stocked specifically for redemption.
 

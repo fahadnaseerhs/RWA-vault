@@ -70,7 +70,7 @@ ambiguous would make the milestone unfalsifiable. Keeping the mocked provider is
 gate stay meaningful.
 
 **Dependent on another decision.** This is only coherent if the operator also never holds
-investor *tokens*. If that question is answered the other way, the platform becomes custodial
+investor _tokens_. If that question is answered the other way, the platform becomes custodial
 at the token layer and this decision buys much less than it appears to.
 
 ## Alternatives considered

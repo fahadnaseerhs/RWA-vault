@@ -34,11 +34,11 @@ One token represents **one gram of fine gold**, with 18 decimals.
 **The weight basis is fine (assay) grams, and it is the same on all three sides of the
 arithmetic:**
 
-| Quantity | Basis |
-| -------- | ----- |
-| `intendedSupply` (tokens minted for a lot) | fine grams |
-| Attested reserve (what the custodian signs) | fine grams |
-| `unitValue` (the valuation) | price per fine gram |
+| Quantity                                    | Basis               |
+| ------------------------------------------- | ------------------- |
+| `intendedSupply` (tokens minted for a lot)  | fine grams          |
+| Attested reserve (what the custodian signs) | fine grams          |
+| `unitValue` (the valuation)                 | price per fine gram |
 
 So a 1 kg kilobar of 999.9 fineness holds **999.9 g of fine gold and mints 999.9 × 10¹⁸ base
 units — not 1,000 × 10¹⁸.** Gross bar weight never appears in supply, reserve or price.
@@ -82,19 +82,19 @@ retained where it belongs, in the interface.
 
 **Gross weight as the minting basis.** Rejected during the amendment below. It would let a
 1 kg bar mint a round 1,000 × 10¹⁸ and keep the tidy example, at the cost of every token
-over-claiming fine gold by 0.01%. A small number, but a *deliberate* over-claim, and
+over-claiming fine gold by 0.01%. A small number, but a _deliberate_ over-claim, and
 "backed" is the single property the project rests on.
 
 ## Amendment — 2026-10-27
 
 **What was wrong.** The Decision section originally read "one token represents one gram of
-fine gold … a 1 kg lot *therefore* mints 1,000 × 10¹⁸ base units." Those two clauses agree
+fine gold … a 1 kg lot _therefore_ mints 1,000 × 10¹⁸ base units." Those two clauses agree
 only for chemically pure gold. A real 1 kg kilobar is 999.9 fine: 1,000 g gross, 999.9 g of
 fine gold. The word "therefore" silently converted a fine-gold claim into a gross-weight
 count.
 
 **Why it mattered more than a rounding slip.** The invariant `attestedSupply ≤ reserve` is
-only meaningful if both sides measure the same *substance*. Left as written, the ADR admitted
+only meaningful if both sides measure the same _substance_. Left as written, the ADR admitted
 two implementations, each citing it:
 
 - reserve attested in fine grams, supply minted on gross — then `999.9e18 ≥ 1000e18` is false
