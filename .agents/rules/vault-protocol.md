@@ -1,6 +1,6 @@
 # Vault Protocol & Agent Guidelines
 
-See [AGENTS.md](file:///c:/Users/USER/OneDrive/Desktop/RWA%20vault/AGENTS.md) at repository root for the full authoritative Master Protocol.
+See `AGENTS.md` at the repository root for the Master Protocol, and `RWA Vault/_Templates/00 Vault Standard.md` for the locked note shapes and templates.
 
 ### Core Working Rules
 1. **Never Invent Behavior:** When a test or boundary condition fails or is ambiguous, the Debugger must post an `ASK` in the module task thread.

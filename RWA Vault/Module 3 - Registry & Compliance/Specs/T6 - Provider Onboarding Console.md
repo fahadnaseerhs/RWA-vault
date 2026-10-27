@@ -3,6 +3,7 @@ tags: [rwa-vault, m3, research, t6]
 task: T6
 agent-state: 🧭 → ⌨️ → 🧭 (T6.0 questions)
 status: research-complete
+note: "canonical copy — the Research/ duplicate was archived 2026-10-27"
 researcher: Claude (Researcher role)
 updated: 2026-10-27
 ---
@@ -105,7 +106,7 @@ contracts/script/
 ```
 
 - `unitValue` / `intendedSupply` are 18-decimal fixed-point strings, never JSON numbers (precision loss).
-- **One token is one gram of fine gold (ADR `0020`).** So a 1 kg lot is `intendedSupply = 1000e18`, and `unitValue`
+- **One token is one gram of fine gold (ADR `0020`).** So a 999.9-fine 1 kg kilobar is `intendedSupply = 999.9e18` (fine grams, ADR `0020` as amended — see §9.0), and `unitValue`
   is the price of **one gram**. Tola and milligram are **display-only**, formatted in M10; neither may appear in a
   contract signature or in this schema.
 - **`unitValue` in this fixture is a deliberately synthetic placeholder, and the `source` string says so.** It is not
@@ -294,7 +295,7 @@ If something is not in this table, the Debugger **asks the Researcher** — it d
 | Risk | Severity | Mitigation |
 | ---- | -------- | ---------- |
 | T6 is behind the entire stack (§2); starting it now produces unverifiable code | **High** | Only T6.0 ships in this handoff; the rest is specified and queued behind T5.1 |
-| `apps/ops-console` has no UI stack at all, so T6.1b is secretly a scaffolding task | **High** | Split explicitly (§4.1); ADR `0018`; the script (T6.1a) is the fallback deliverable, per Q9's own wording |
+| `apps/ops-console` has no UI stack at all, so T6.1b is secretly a scaffolding task | **High** | Split explicitly (§4.1); ADR `0026`; the script (T6.1a) is the fallback deliverable, per Q9's own wording |
 | MS1's reserve is asserted, not verified — an examiner calls this out | **Medium** | ADR `0017` already concedes it; AC-12 forces the admission onto the screen rather than hiding it |
 | Q11 lands after the schema is written | **Medium** | `attestations` is an array from day one (§3.2) |
 | M2's ML-DSA-65 verifier not callable in time | **Medium** | Fixture-envelope path with the explicit banner; the real path swaps in behind the same `IReserveAttestationSource` seam |

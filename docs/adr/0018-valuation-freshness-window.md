@@ -36,7 +36,7 @@ bar refused at a demo.
 
 The second half matters more than the number. A freshness window is exactly the kind of
 parameter that gets compiled in "for now" and then cannot be changed without redeploying the
-registry, which under ADR 0015's immutable deployment means migrating holders. Per-asset
+registry, which under ADR 0025's immutable deployment means migrating holders. Per-asset
 configuration also anticipates the asset classes Q13 option C raised: gold revalues daily, a
 REIT quarterly, and that difference is configuration rather than a new contract.
 

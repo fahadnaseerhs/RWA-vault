@@ -9,6 +9,10 @@ updated: 2026-10-27
 
 ---
 
+> 🔒 **Note shapes are fixed by [[_Templates/00 Vault Standard|the Vault Standard]].** Use its templates for every thread,
+> thread entry, decision, task and concept note. Thread entries add one action type: `DECISION-NEEDED` (🧭 → 👤 Fahad),
+> which always comes with a new Decision note in `Questions/`.
+
 ## 1. The Three Roles
 
 | Role | Emoji | Primary Ownership | Definition of Success |
@@ -48,7 +52,7 @@ Every interaction in the thread MUST use this standard envelope:
 ## 3. The 4 Universal Vault Invariants
 
 1. **Frontmatter as Single Source of Truth:**
-   Status lives in YAML frontmatter (`status: decided | open | in-progress | done`). Do not copy and paste status paragraphs into other notes.
+   Status lives in YAML frontmatter, using the controlled vocabulary in the Vault Standard §4. Do not copy and paste status paragraphs into other notes.
 2. **ADR Claim-By-File:**
    An ADR number is claimed only when a file `docs/adr/00XX-<slug>.md` is committed.
 3. **No Loss of Memory:**

@@ -1,14 +1,14 @@
 ---
 tags: [rwa-vault, m3, thread, t6]
 task: T6.0
-status: in-progress
-lead_agent: debugger
+status: active
+lead_agent: researcher
 updated: 2026-10-27
 ---
 # 💬 Agent Thread — T6.0: Onboarding Schema & Parity
 
 > **Topic:** Declarative onboarding schema (`packages/types/src/onboarding.ts`), Ajv JSON schema parity, and edge-case boundary validation.  
-> **Status:** 🐞 Debugger → ⌨️ Coder (Batch 2 rulings delivered; ready for implementation).
+> Append-only. Current state = the last entry.
 
 ---
 
@@ -55,6 +55,19 @@ updated: 2026-10-27
 **Context:** Batch 2 status and failing regression tests.
 **On Disk Now:** 4 intentional failing tests committed in `onboarding.test.ts` (B10, B13, B15, C4).
 **Next Action:** ⌨️ Coder to apply the 7 Batch 2 rulings in `packages/types/src/onboarding.ts` to turn suite 100% green.
+
+---
+
+### 2026-10-28 03:10 PKT · 🧭 Researcher (vault audit) → 🧭 Researcher · REPORT
+**Context:** Vault audit 2026-10-27 ([[2026-10-27 - Decision Conflict Audit|Audit B1]]). Corrects three facts in the entries above; nothing above is edited.
+**On Disk Now:** `packages/types/src/onboarding.ts:214` → `const UINT256_MAX = 2n ** 256n - 1n;` · `packages/types/src/onboarding.ts:107` → `readonly fineness: number;` · clean build of `@rwa-vault/types`: `# tests 32 · # pass 32 · # fail 0`
+**Message:**
+1. The 22:00 entry is out of date: the Batch 2 rulings **are applied** and the four red tests (B10, B13, B15, C4) now pass. Fineness is a schema field (ADR 0020 follow-on done).
+2. The 20:15 RULING lists Ajv as the Debugger's Q7. The Debugger's real Q7 was **E1 — where a missing-field path points**; its ruling ("the path points at the missing field") is in [[T6.0 - Researcher Answers (round 2)]] §Q7. Ajv was the separate P2 item.
+3. The schema file is `packages/types/schema/onboarding-input.schema.json`, not `schema/onboarding.json` as the 11:00 PLAN says.
+4. Still open for the Coder: `packages/types/src/index.ts:31` says FROZEN blocks "minting, redemption, or borrowing"; ADR 0019 §6 and ADR 0021 say **minting only**.
+**Action Needed:** 🧭 Researcher runs AC-1…AC-3 from [[Specs/T6 - Provider Onboarding Console|T6 spec §6]] and posts `VERIFY ✅` or findings. ⌨️ Coder fixes the `index.ts` comment.
+**Unblocks:** T6.0 ✅ · T6.1a input contract
 
 ---
 

@@ -10,6 +10,7 @@ updated: 2026-10-27
 ---
 
 ### 2026-10-27
+- **2026-10-27:** Vault standardized — locked templates in `_Templates/`, [[Decisions Register]], conflict audit ([[2026-10-27 - Decision Conflict Audit]]), Task 6 decisions Q17–Q22 opened, duplicate specs archived, agent rounds moved to `Threads/Rounds/`.
 - **Vault Restructure & Master Protocol:** Restructured vault into Single Source of Truth architecture (Dashboards, Questions, Tasks, Threads, Specs). Established [[Agents/Protocol\|Agents Protocol]], [[00 Dashboard - Project Command Center]], and locked ADR index 0001–0026.
 - **T0.6 Checkmarked:** Researcher verified `IAssetRegistry.sol` and `AssetRegistryMock` clean across 2 rounds with zero selector collisions. (See [[Threads/Thread - T0.6 AssetRegistry Interface\|Thread T0.6]], ADR `0019`).
 - **M3 Decisions Q1–Q16 Complete:** All 16 Module 3 shaping decisions locked by Fahad. (See [[Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad\|Questions Index]], ADRs `0012`–`0019`, `0025`, `0026`).

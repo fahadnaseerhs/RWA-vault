@@ -3,6 +3,8 @@
 - **Status:** Proposed
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
+- **Partly superseded:** the phrase "vetoes any mint or transfer" below is narrowed by ADR 0019 §6 — the module
+  vetoes **mints only**. The rest of this record stands.
 
 ## Context
 

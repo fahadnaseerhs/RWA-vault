@@ -1,30 +1,45 @@
 ---
+type: dashboard
 tags: [rwa-vault, m3, decisions, index]
-status: all-sixteen-decided
 updated: 2026-10-27
 ---
-# 🎯 M3 Questions Index (All 16 Decided ✅)
+# 🎯 M3 Questions Index
 
-> **Single Source of Truth:** Each question has its own dedicated note in `Module 3 - Registry & Compliance/Questions/`.  
-> Status and decisions live inside each note's frontmatter. **Nothing in M3 core is decision-blocked.**
+> Index only. Each question's status and answer live in its own note in `Questions/` (frontmatter `status`).
+> Format: [[_Templates/Template - Decision|Template - Decision]]. Decided answers are listed in [[Decisions Log]].
 
-| # | Question Title | Decision Taken | ADR |
+## ⏳ Open — waiting on Fahad (raised 2026-10-27 for Task 6)
+
+| # | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Questions/Q01 - Build our own ONCHAINID + T-REX, or vendor To\|Q01]] | Implementation Strategy | Option C (Hybrid: vendor onchain-id, build rest) | `0012` |
-| [[Questions/Q02 - Which claim topics make a wallet verified, an\|Q02]] | KYC Claim Topics | Option A (Single topic `KYC`) | — |
-| [[Questions/Q03 - Who is the trusted claim issuer, and how does\|Q03]] | Claims vs Reserve Cryptography | Option A (Claims ECDSA, Reserve PQ ML-DSA-65) | `0013` |
-| [[Questions/Q04 - Is asset is LIVE a Compliance Module, or a mi\|Q04]] | Asset Liveness Enforcement | Option A (ModularCompliance `AssetLiveModule`) | `0014` |
-| [[Questions/Q05 - Where does reserve amount + valuation freshne\|Q05]] | Reserve Source Seam | Option A (Stubbed `IReserveAttestationSource`) | `0017` |
-| [[Questions/Q06 - Which transfer-restriction compliance modules\|Q06]] | Transfer Restriction Scope | Option A (AssetLiveModule only for MS1) | — |
-| [[Questions/Q07 - Map ERC-3643 owneragent roles onto the M2 thr\|Q07]] | Role & Key Hierarchy Mapping | 2-of-3 multisig on `owner`, Tier 1 service key on `agent` | `0015` |
-| [[Questions/Q08 - One token per asset (TokenFactory), or a shar\|Q08]] | Token Granularity | Option A (One ERC-3643 token per asset) | `0016` |
-| [[Questions/Q09 - What is the minimal provider console - real U\|Q09]] | Provider Console Surface | Option B (Ops console UI, Foundry script first) | `0026` |
-| [[Questions/Q10 - Enable `forcedTransfer` `recoveryAddress` for\|Q10]] | Agent Recovery Powers | Implement mandated methods; keep off MS1 demo path | `0015` |
-| [[Questions/Q11 - Is the insurer a required co-signer on the re\|Q11]] | Insurer Co-Signer | Option B (Custodian + Insurer 2-of-2 multisig attestation) | *ADR pending* |
-| [[Questions/Q12 - Who operates the onboarding console the provi\|Q12]] | Console Operator | Option (a) (Internal operator for MS1) | — |
-| [[Questions/Q13 - Valuation Freshness Window tau\|Q13]] | Freshness Window $\tau$ | Option A ($\tau = 24$ hours, configurable via setter) | `0018` |
-| [[Questions/Q14 - What happens when a new attestation shows les\|Q14]] | Downward Attestation | Option B (Emit `UnderReserve`, block new mints) | `0019` |
-| [[Questions/Q15 - Are M3's contracts upgradeable (proxy-based)\|Q15]] | Contract Upgradeability | Option A (Immutable plain deploys, no proxies) | `0025` |
-| [[Questions/Q16 - May a holder transfer tokens of a FROZEN asse\|Q16]] | Frozen Token Transfers | Option A (Freeze blocks minting only; transfers continue) | `0019` |
+| [[Questions/Q17 - Does the insurer co-sign at MS1, or after it\|Q17]] | Does the insurer co-sign at MS1, or after it? | 4 clauses + 1 signer for MS1; insurer in Phase 2 | T0.7, T4.2, T4.4, T6.1a, T8.2 |
+| [[Questions/Q18 - Where is the ML-DSA-65 signature checked for MS1\|Q18]] | Where is the ML-DSA-65 signature (clause 1) checked? | Off-chain verifier, allow-listed submitter, anchored hash | T0.7, T4.4, T6.1a, T8.2 |
+| [[Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] | What order does Task 6 run in? | Verify T6.0 → T6.2 protocol → build T1–T5 → T6.1a | T6.1a, T6.1b, T6.3 |
+| [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Push the local-only work; were the deleted files meant to go? | Push all, restore deletions | T0.8, T6.0 review |
+| [[Questions/Q21 - Accept the ADRs and settle the licence\|Q21]] | Accept the decided ADRs; which licence? | Accept all but 0017; GPL-3.0 for contracts | T7.3 |
+| [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | Who runs the unaided rehearsal? | A teammate who did not build T6 | T6.2, T7.4 |
+
+## ✅ Decided
+
+| # | Question | Decision | ADR |
+|---|---|---|---|
+| [[Questions/Q01 - Build our own ONCHAINID + T-REX, or vendor To\|Q01]] | Implementation strategy | C — hybrid: vendor `onchain-id`, build the rest | `0012` |
+| [[Questions/Q02 - Which claim topics make a wallet verified, an\|Q02]] | Claim topics | A — single `KYC` topic | none (scope) |
+| [[Questions/Q03 - Who is the trusted claim issuer, and how does\|Q03]] | Claims vs reserve cryptography | A — claims ECDSA, reserve ML-DSA-65 | `0013` |
+| [[Questions/Q04 - Is asset is LIVE a Compliance Module, or a mi\|Q04]] | Asset liveness enforcement | A — `AssetLiveModule` in ModularCompliance | `0014` (§ transfer half superseded by `0019` §6) |
+| [[Questions/Q05 - Where does reserve amount + valuation freshne\|Q05]] | Reserve source seam | A — stubbed `IReserveAttestationSource` | `0017` |
+| [[Questions/Q06 - Which transfer-restriction compliance modules\|Q06]] | Transfer-restriction scope | A — AssetLiveModule only for MS1 | none (scope) |
+| [[Questions/Q07 - Map ERC-3643 owneragent roles onto the M2 thr\|Q07]] | Role ↔ key-tier mapping | `owner` 2-of-3 multisig, `agent` Tier 1 key | `0015` |
+| [[Questions/Q08 - One token per asset (TokenFactory), or a shar\|Q08]] | Token granularity | A — one token per asset | `0016` |
+| [[Questions/Q09 - What is the minimal provider console — real U\|Q09]] | Provider console surface | B — ops-console UI, Foundry script first | `0026` |
+| [[Questions/Q10 - Enable `forcedTransfer` `recoveryAddress` for\|Q10]] | Agent recovery powers | Implement; off the MS1 demo path; multisig + timelock | `0015` |
+| [[Questions/Q11 - Is the insurer a required co-signer on the re\|Q11]] | Insurer co-signer | B — 2-of-2 + 5th clause, *conditional on gas + M2 schema* → MS1 scope reopened as **Q17** | none yet |
+| [[Questions/Q12 - Who operates the onboarding console the provi\|Q12]] | Console operator | (a) internal operator for MS1 | none (scope) |
+| [[Questions/Q13 - Valuation Freshness Window tau\|Q13]] | Freshness window τ | A — 24 h, set via setter; tests ≤ 1 h | `0018` |
+| [[Questions/Q14 - What happens when a new attestation shows les\|Q14]] | Downward attestation | B — accept, emit `UnderReserve`, block mints | `0019` §3 |
+| [[Questions/Q15 - Are M3's contracts upgradeable (proxy-based)\|Q15]] | Upgradeability | A — immutable plain deploys | `0025` |
+| [[Questions/Q16 - May a holder transfer tokens of a FROZEN asse\|Q16]] | FROZEN token transfers | A — FROZEN blocks minting only | `0019` §6 |
+
+Cross-cutting custody decisions C1–C11: [[Open Questions - Custody & Tokenisation]]. All decisions in one place: [[Decisions Register]].
 
 Up: [[00 M3 Dashboard]] · Related: [[Decisions Log]], [[ADR Index]]

@@ -107,17 +107,17 @@ updated: 2026-10-27
   - [ ] **T0.7:** Complete research and spec note for `IReserveAttestationSource.sol`.
   - [ ] **T1.1:** Vendor `onchain-id` ERC-734/735 as Git submodule (Q1=C).
   - [ ] **T1.3–T1.5:** Implement `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, and `IdentityRegistry`.
-  - [ ] **T2.2:** Implement `AssetLiveModule.sol` (vetoes transfer unless asset is LIVE).
+  - [ ] **T2.2:** Implement `AssetLiveModule.sol` (vetoes **mints** unless asset is LIVE; transfers continue — ADR 0019 §6).
   - [ ] **T4.1:** Implement `AssetRegistry.sol` state machine (`UNREGISTERED` → `PENDING` → `LIVE` → `FROZEN`).
-  - [ ] **T4.2:** Implement 5-clause admission predicate (monitored by Q11 2-of-2 multisig).
-  - [ ] **T6.0:** Complete Batch 2 rulings (Ajv parity harness, `assetId` regex tightening, `valuationTs` rejection).
+  - [ ] **T4.2:** Implement the admission predicate (4 clauses per ADR 0017; 5th only if Q17 keeps the insurer 2-of-2).
+  - [ ] **T6.0:** Batch 2 applied and 32/32 green on disk (2026-10-27) — awaiting Researcher VERIFY.
   - [ ] **T6.1a:** Forge onboarding script `contracts/script/OnboardAsset.s.sol`.
 
 ---
 
 ### M4 — Vault Accounting
 - **True Status:** ⬜ Not Started (Scheduled for Phase 1 close)
-- **Scope:** Triple-entry accounting tracking token balances, physical fine gram reserve allocations, and pending redemptions. Blocked on M3 Token interfaces.
+- **Scope (Build Plan):** `AssetVault.sol`, an OpenZeppelin ERC-4626 subclass with `_decimalsOffset() = 6`, explicit rounding on all four conversions, donation-attack hardening, 10⁶-sequence fuzzing and a Halmos proof. Holds ERC-3643 units of a LIVE asset, so it waits on M3's token.
 
 ---
 
