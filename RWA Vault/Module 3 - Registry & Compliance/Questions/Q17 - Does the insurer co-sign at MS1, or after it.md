@@ -2,15 +2,15 @@
 type: decision
 id: M3-Q17
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T4.2, T4.4, T6.1a, T8.2, T0.7]
 recommendation: "B — four clauses and one custodian signer for MS1; the insurer 2-of-2 and the policy clause follow in Phase 2 under their own ADR"
-decision: ""
-decided_by: ""
-decided_on: ""
-adr: none
+decision: "B — 4 clauses, one custodian signer for MS1; insurer 2-of-2 + policy clause in Phase 2 under its own ADR"
+decided_by: Fahad Naseer
+decided_on: 2026-10-28
+adr: "0017 (stands as written); the Phase 2 insurer ADR will supersede its single-signer assumption"
 tags: [rwa-vault, decision, m3, task6]
 updated: 2026-10-27
 ---
@@ -41,6 +41,6 @@ T4.2 while two documents say different things.
 schema make the Phase 2 upgrade an addition, not a rewrite.
 
 ## Decision
-> _Empty until Fahad decides._
+**Option B — four clauses and one custodian signer for MS1; the insurer 2-of-2 and the policy clause come in Phase 2 under their own ADR.** Q11 stays the target design. _(Fahad Naseer, 2026-10-28)_
 
 Up: [[Open Questions for Fahad]] · Related: [[Q11 - Is the insurer a required co-signer on the re|Q11]], ADR `0017`, [[2026-10-27 - Decision Conflict Audit|Audit A1]]

@@ -12,7 +12,6 @@ updated: 2026-10-27
 
 | # | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Questions/Q17 - Does the insurer co-sign at MS1, or after it\|Q17]] | Does the insurer co-sign at MS1, or after it? | 4 clauses + 1 signer for MS1; insurer in Phase 2 | T0.7, T4.2, T4.4, T6.1a, T8.2 |
 | [[Questions/Q18 - Where is the ML-DSA-65 signature checked for MS1\|Q18]] | Where is the ML-DSA-65 signature (clause 1) checked? | Off-chain verifier, allow-listed submitter, anchored hash | T0.7, T4.4, T6.1a, T8.2 |
 | [[Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] | What order does Task 6 run in? | Verify T6.0 → T6.2 protocol → build T1–T5 → T6.1a | T6.1a, T6.1b, T6.3 |
 | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Push the local-only work; were the deleted files meant to go? | Push all, restore deletions | T0.8, T6.0 review |
@@ -39,6 +38,7 @@ updated: 2026-10-27
 | [[Questions/Q14 - What happens when a new attestation shows les\|Q14]] | Downward attestation | B — accept, emit `UnderReserve`, block mints | `0019` §3 |
 | [[Questions/Q15 - Are M3's contracts upgradeable (proxy-based)\|Q15]] | Upgradeability | A — immutable plain deploys | `0025` |
 | [[Questions/Q16 - May a holder transfer tokens of a FROZEN asse\|Q16]] | FROZEN token transfers | A — FROZEN blocks minting only | `0019` §6 |
+| [[Questions/Q17 - Does the insurer co-sign at MS1, or after it\|Q17]] | Insurer co-sign at MS1? | B — 4 clauses + 1 custodian for MS1; insurer in Phase 2 (2026-10-28) | `0017` |
 
 Cross-cutting custody decisions C1–C11: [[Open Questions - Custody & Tokenisation]]. All decisions in one place: [[Decisions Register]].
 
