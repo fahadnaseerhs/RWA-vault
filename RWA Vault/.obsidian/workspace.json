@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad.md",
+                "file": "Module 3 - Registry & Compliance/Decisions/Decisions Log.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Open Questions for Fahad"
+              "title": "Decisions Log"
             }
           }
         ]
@@ -187,18 +187,10 @@
   },
   "active": "d66edf5efd00f985",
   "lastOpenFiles": [
+    "Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad.md",
     "Module 3 - Registry & Compliance/Decisions/Decisions Log.md",
-    "00 Dashboard - Project Command Center.md",
-    "Agents/Protocol.md",
-    "Agents/Debugger Agent.md",
-    "Agents/Coder Agent.md",
-    "Module 3 - Registry & Compliance/00 M3 Dashboard.md",
-    "Module 3 - Registry & Compliance/Threads/Thread - T6.0 Onboarding Schema & Parity.md",
-    "Module 3 - Registry & Compliance/Threads/Thread - T0.6 AssetRegistry Interface.md",
-    "Module 3 - Registry & Compliance/Specs/Coder Work Order - T0.6 then T6.0.md",
-    "Module 3 - Registry & Compliance/Specs/T6 - Provider Onboarding Console.md",
-    "Module 3 - Registry & Compliance/Specs/T0.6 - Fix Spec (round 2).md",
-    "Module 3 - Registry & Compliance/Specs/T0.6 - IAssetRegistry Interface.md",
+    "Module 3 - Registry & Compliance/Tasks/T0 - Interface PR.md",
+    "Module 3 - Registry & Compliance/Specs/T0.7 - Reserve Attestation Source.md",
     "Module 3 - Registry & Compliance/Tasks/T8 - Custodian Attestation Portal.md",
     "Module 3 - Registry & Compliance/Tasks/T7 - Acceptance & MS1 Readiness.md",
     "Module 3 - Registry & Compliance/Tasks/T6 - Provider Onboarding Console.md",
@@ -207,12 +199,20 @@
     "Module 3 - Registry & Compliance/Tasks/T3 - ERC-3643 Token.md",
     "Module 3 - Registry & Compliance/Tasks/T2 - Modular Compliance.md",
     "Module 3 - Registry & Compliance/Tasks/T1 - Identity Layer.md",
-    "Module 3 - Registry & Compliance/Tasks/T0 - Interface PR.md",
+    "Module 3 - Registry & Compliance/Threads/Thread - T0.7 Reserve Attestation Source.md",
+    "Module 3 - Registry & Compliance/Specs/T0.6 - IAssetRegistry Interface.md",
+    "Module 3 - Registry & Compliance/Tasks/M3 Task Board and Todo.md",
+    "Module 3 - Registry & Compliance/Threads/Thread - T0.6 AssetRegistry Interface.md",
+    "00 Dashboard - Project Command Center.md",
+    "Agents/Protocol.md",
+    "Agents/Debugger Agent.md",
+    "Agents/Coder Agent.md",
+    "Module 3 - Registry & Compliance/00 M3 Dashboard.md",
+    "Module 3 - Registry & Compliance/Threads/Thread - T6.0 Onboarding Schema & Parity.md",
+    "Module 3 - Registry & Compliance/Specs/Coder Work Order - T0.6 then T6.0.md",
+    "Module 3 - Registry & Compliance/Specs/T6 - Provider Onboarding Console.md",
+    "Module 3 - Registry & Compliance/Specs/T0.6 - Fix Spec (round 2).md",
     "Module 3 - Registry & Compliance/Questions/Q13 - Valuation Freshness Window tau.md",
-    "Module 3 - Registry & Compliance/Questions/Q16 - May a holder transfer tokens of a FROZEN asse.md",
-    "Module 3 - Registry & Compliance/Questions/Q15 - Are M3's contracts upgradeable (proxy-based).md",
-    "Module 3 - Registry & Compliance/Questions/Q14 - What happens when a new attestation shows les.md",
-    "Module 3 - Registry & Compliance/Questions/Q13 - How long is a valuation fresh (the value of τ.md",
     "Module 3 - Registry & Compliance/Specs",
     "Module 3 - Registry & Compliance/Threads",
     "Module 3 - Registry & Compliance/Questions",

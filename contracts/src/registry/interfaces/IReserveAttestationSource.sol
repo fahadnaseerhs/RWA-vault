@@ -5,13 +5,19 @@ pragma solidity ^0.8.20;
  * @title IReserveAttestationSource
  * @notice Read-only seam through which the AssetRegistry learns an asset's attested
  *         reserve, sequence and valuation time (ADR 0017).
- * @dev For MS1 the implementation is fed by a signed ML-DSA-65 custodian envelope via
- *      its own `submitAttestation(bytes)`, which is deliberately NOT part of this
- *      interface: in Phase 2 the Module 5 oracle implements {latest} directly and has
- *      no envelope to submit, so the registry never changes. Signature verification
- *      (admission clause 1) therefore happens on the source at submit time; the
- *      registry checks clauses 2-4 at `admit`. Only the slice T0.6 needs to compile;
- *      T0.7's full research is still owed. NatSpec authored for RWA-Vault.
+ * @dev For MS1, admission clause 1 is verified off-chain (ADR 0027): the M2 verifier —
+ *      or `pqctl` with M1's ML-DSA-65 verify until M2 exists — checks the custodian
+ *      envelope, and an allow-listed Tier 1 submitter then records the decoded fields
+ *      plus the envelope hash via the implementation's own `submitAttestation`. This
+ *      contract verifies no signature. M9 anchors the hash, so anyone may fetch the
+ *      original envelope and re-verify it offline against the custodian's registered
+ *      key. The registry checks clauses 2-4 at `admit`.
+ *
+ *      `submitAttestation` is deliberately NOT part of this interface: in Phase 2 the
+ *      Module 5 oracle implements {latest} directly and has no envelope to submit, so
+ *      the registry never changes (ADR 0017). Conforming implementations subclass
+ *      `test/registry/ReserveAttestationSourceConformance.t.sol`. Full specification:
+ *      Obsidian note "T0.7 - Reserve Attestation Source". NatSpec authored for RWA-Vault.
  */
 interface IReserveAttestationSource {
     /**
@@ -37,9 +43,12 @@ interface IReserveAttestationSource {
     }
 
     /**
-     * @notice Clause 1 failed: the custodian's signature on a submitted attestation is
-     *         not valid for the registered custodian key. Raised by the implementation's
-     *         submit path, never by the registry.
+     * @notice Clause 1 failed: the custodian's signature on an attestation is not valid
+     *         for the registered custodian key.
+     * @dev Under ADR 0027 no MS1 contract raises this: clause 1 is checked off-chain, and
+     *      this error is the name the off-chain verifier's reporting path uses, so the
+     *      operator sees the same sentence (T6 §3.4). It is reserved for a Phase 2
+     *      implementation that verifies on-chain. Never raised by the registry.
      */
     error BadAttestationSig();
 
@@ -47,7 +56,9 @@ interface IReserveAttestationSource {
      * @notice Returns the latest accepted attestation for `assetId`. Anyone may call.
      * @dev Returns a zeroed struct when none exists; callers must check
      *      {hasAttestation} first (the registry reverts `NoAttestation` rather than
-     *      read a zero reserve as valid).
+     *      read a zero reserve as valid). In the zeroed case `assetId` MUST be
+     *      `bytes32(0)`, never the queried key, so a caller that skips {hasAttestation}
+     *      but cross-checks `assetId` still fails closed (`AssetIdMismatch`).
      */
     function latest(bytes32 assetId) external view returns (ReserveAttestation memory);
 

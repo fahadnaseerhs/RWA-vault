@@ -152,7 +152,15 @@ contract AssetRegistryInterfaceTest is Test {
     function test_AssetTokenBoundTopicDiffersFromCompliance() public pure {
         assertEq(IAssetRegistry.AssetTokenBound.selector, keccak256("AssetTokenBound(bytes32,address)"));
         assertEq(IModularCompliance.TokenBound.selector, keccak256("TokenBound(address)"));
-        assertTrue(IAssetRegistry.AssetTokenBound.selector != IModularCompliance.TokenBound.selector);
+    }
+
+    /// T0.7 D2: the reserve source interface is exactly `latest` + `hasAttestation`. Concrete, so it
+    /// runs in every `forge test`; adding any function (e.g. `submitAttestation`) turns CI red.
+    function test_ReserveSourceInterfaceIdIsPinned() public pure {
+        assertEq(
+            type(IReserveAttestationSource).interfaceId,
+            IReserveAttestationSource.latest.selector ^ IReserveAttestationSource.hasAttestation.selector
+        );
     }
 
     /// Fix spec §14.4: the window bound is one pinned value.

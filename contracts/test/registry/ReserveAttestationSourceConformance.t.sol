@@ -91,8 +91,7 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
         IReserveAttestationSource.ReserveAttestation memory zero;
         _assertSame(source.latest(UNKNOWN), zero);
         _accept(GOLD_LOT_001, KILOBAR_FINE, 1, T0);
-        _assertSame(source.latest(UNKNOWN), zero);
-        assertEq(source.latest(UNKNOWN).assetId, bytes32(0));
+        _assertSame(source.latest(UNKNOWN), zero); // includes assetId == bytes32(0) (AC-T07-7)
         assertFalse(source.hasAttestation(UNKNOWN));
     }
 
@@ -122,15 +121,27 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
     }
 
     /// C4b: a non-increasing `seq` does not take effect: `latest()` is unchanged, field by field.
+    /// @dev Each probe differs from the baseline in BOTH `reserve` and `valuationTs`, so a
+    ///      "heartbeat" source that accepts an equal seq and refreshes only the timestamp
+    ///      is caught: it would give a stale reserve a fresh `valuationTs` (ADR 0021).
     function test_NonIncreasingSequenceDoesNotTakeEffect() public {
-        _accept(GOLD_LOT_001, KILOBAR_FINE, 5, T0);
+        _accept(GOLD_LOT_001, KILOBAR_FINE, 5, T0 - 100);
         IReserveAttestationSource.ReserveAttestation memory before = source.latest(GOLD_LOT_001);
 
-        _offer(GOLD_LOT_001, KILOBAR_FINE - 1, 5, T0); // equal seq, different reserve
+        _offer(GOLD_LOT_001, KILOBAR_FINE - 1, 5, T0); // equal seq: new reserve AND fresher ts
         _assertSame(source.latest(GOLD_LOT_001), before);
 
-        _offer(GOLD_LOT_001, KILOBAR_FINE - 1, 4, T0 - 1); // lower seq
+        _offer(GOLD_LOT_001, KILOBAR_FINE - 1, 4, T0 - 50); // lower seq: same idea
         _assertSame(source.latest(GOLD_LOT_001), before);
+    }
+
+    /// C4c: `seq = 0` is not a legal first attestation (spec §4.1): zero is how the registry
+    ///      says "never admitted", so an asset whose only record has seq 0 could never be admitted.
+    function test_ZeroSequenceIsNotAFirstAttestation() public {
+        IReserveAttestationSource.ReserveAttestation memory zero;
+        _offer(GOLD_LOT_001, KILOBAR_FINE, 0, T0);
+        assertFalse(source.hasAttestation(GOLD_LOT_001));
+        _assertSame(source.latest(GOLD_LOT_001), zero);
     }
 
     /// C5: neither view ever reverts, for any key.
@@ -139,12 +150,15 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
         source.hasAttestation(key);
     }
 
-    /// C6: `reserve` round-trips exactly in fine grams x 10^18; no conversion happens inside the source (§6).
+    /// C6: `reserve` is returned exactly as attested; no conversion inside the source (§6 rules 1-2).
+    /// @dev Establishes a byte-exact round-trip only: any rounding, scaling or gross
+    ///      substitution inside the source fails it. It CANNOT establish that the unit is
+    ///      fine grams (the fixture says so; the source cannot know), round-down (rule 3) or
+    ///      fail-closed fineness (rule 4): conversion happens before {_attest}, so those
+    ///      stay spec prose plus the T4.4 / M5 boundary code.
     function test_ReserveUnitIsFineGrams() public {
         _accept(GOLD_LOT_001, KILOBAR_FINE, 1, T0);
-        uint256 r = source.latest(GOLD_LOT_001).reserve;
-        assertEq(r, KILOBAR_FINE, "reserve must be returned exactly as attested, in fine grams");
-        assertTrue(r != 1_000_000_000_000_000_000_000, "gross weight leaked into reserve");
+        assertEq(source.latest(GOLD_LOT_001).reserve, KILOBAR_FINE, "reserve must round-trip exactly");
     }
 
     /// C7: attesting one asset never changes another asset's record.
@@ -173,6 +187,8 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
     }
 
     /// C9: conformance requires exactly `latest` and `hasAttestation`; `submitAttestation` is not part of the interface.
+    /// @dev Runs only inside a concrete subclass. The same pin runs today, concretely, as
+    ///      `AssetRegistryInterfaceTest.test_ReserveSourceInterfaceIdIsPinned`.
     function test_InterfaceIsReadOnly() public pure {
         assertEq(
             type(IReserveAttestationSource).interfaceId,

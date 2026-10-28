@@ -42,7 +42,7 @@ All Task 6 questions (Q17–Q22) were decided on 2026-10-28 (rows above). The in
 [[Open Questions for Fahad]]; each lives in its own note in `Questions/`. C11 (production custodian) is deferred by
 agreement.
 
-### Open decisions awaiting Fahad — T0.7 (as of 2026-10-28)
+### T0.7 decisions — D3 decided 2026-10-28; D1, D2 and T0.8 deferred by Fahad
 
 Moved here from the T0.7 thread on 2026-10-28. A thread is append-only, so a table that gets revised cannot live in
 one — later entries are appended *after* it and its own "appended here" promise becomes false, which is what happened.
@@ -50,10 +50,26 @@ Threads hold entries; revisable tables belong in the task note, the spec, or her
 
 | # | Decision | Recommended by Researcher | Blocks |
 | - | -------- | ------------------------- | ------ |
-| **D1** | May T0.7 be checkmarked as a spec while T0.8 is impossible? | Yes — complete as a spec, leave T0.8 open, make §8 a standing review item. Checkmarking T0.8 on the Researcher's own assertion would turn a later real review into a rubber stamp. | Formal closure of T0.7 |
-| **D2** | Reserve ADR `0028` as a stub now for the Phase 2 insurer design? | Yes — Q17 promises that work its own ADR, claim-by-file means the number exists only once committed, and a stub costs one file against the churn that caused three renumbers on 2026-10-27. | Nothing; prevents renumbering |
-| **D3** | Is the Tier 1 **submitter** key a separate address from the registry's **agent** key? | Separate addresses, same tier. ADR `0015` puts both at Tier 1 but never says whether they are one address; submitting an attestation and administering an asset are different acts, and one key means one compromise does both. | **T5.2 role assignment** |
-| **T0.8** | How is consumer sign-off satisfied when M4, M5 and M9 do not exist? | See the three options below. | Formal closure of T0 |
+| **D1** 🕓 | _Deferred by Fahad, 2026-10-28 — documentation rather than code or design, to be taken in the final pass._ May T0.7 be checkmarked as a spec while T0.8 is impossible? | Yes — complete as a spec, leave T0.8 open, make §8 a standing review item. Checkmarking T0.8 on the Researcher's own assertion would turn a later real review into a rubber stamp. | Formal closure of T0.7 |
+| **D2** 🕓 | _Deferred by Fahad, 2026-10-28 — same reason._ Reserve ADR `0028` as a stub now for the Phase 2 insurer design? | Yes — Q17 promises that work its own ADR, claim-by-file means the number exists only once committed, and a stub costs one file against the churn that caused three renumbers on 2026-10-27. | Nothing; prevents renumbering |
+| **D3** ✅ | **DECIDED 2026-10-28 — TWO SEPARATE ADDRESSES, same Tier 1.** Is the Tier 1 submitter key a separate address from the registry's agent key? | Separate addresses, same tier. ADR `0015` puts both at Tier 1 but never says whether they are one address; submitting an attestation and administering an asset are different acts, and one key means one compromise does both. | **T5.2 role assignment** |
+| **T0.8** 🕓 | _Deferred by Fahad, 2026-10-28 — "we will see task 0.8 later"._ How is consumer sign-off satisfied when M4, M5 and M9 do not exist? | See the three options below. | Formal closure of T0 |
+
+#### D3 — decided 2026-10-28: the submitter and the agent are two addresses
+
+**Decision:** the Tier 1 **attestation submitter** and the registry's **agent** are **two separate addresses at the same
+key tier**. Fahad's reasoning, recorded in his words: they are two different people doing two entirely different tasks,
+so sharing an address is not a trade-off to weigh — it is a mistake.
+
+**What it changes.** T5.2's role assignment deploys and records two addresses rather than one. A compromised submitter
+key can assert a false reserve but cannot mint against it; a compromised agent key can mint but cannot fabricate the
+attestation that would justify the mint. One stolen key no longer completes the whole attack.
+
+**Where it is recorded.** Here, and in the T5 task note at the point of use. **It does not yet have an ADR.** ADR `0015`
+maps the roles onto the PQ key tiers but never says whether the two are one address, and `0015` is now **Accepted**, so
+under ADR `0001` it is immutable and cannot absorb this. This is a clarification of something `0015` left unsaid rather
+than a reversal of anything it decided, so it wants its own short record when the documentation pass happens — which is
+the pass Fahad has deferred D1 and D2 to. Until then the register and the task note are the authority.
 
 #### T0.8 in full
 
