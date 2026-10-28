@@ -22,7 +22,7 @@ abstract contract OwnerAgentRoles {
     /// @notice An owner-only function was called by someone else.
     error NotOwner(address caller);
     /// @notice An agent-only function was called by a non-agent.
-    error NotAgent(address caller);
+    error NotAuthorisedAgent(address caller);
     /// @notice `addAgent` / `removeAgent` with `address(0)`.
     error InvalidAgent(address account);
     /// @notice `addAgent` on an agent, or `removeAgent` on a non-agent.
@@ -36,12 +36,12 @@ abstract contract OwnerAgentRoles {
     }
 
     modifier onlyAgent() {
-        if (!_agents[msg.sender]) revert NotAgent(msg.sender);
+        if (!_agents[msg.sender]) revert NotAuthorisedAgent(msg.sender);
         _;
     }
 
     constructor(address owner_) {
-        if (owner_ == address(0)) revert ZeroAddress();
+        if (owner_ == address(0)) revert NotOwner(address(0));
         owner = owner_;
     }
 

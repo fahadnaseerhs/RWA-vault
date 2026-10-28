@@ -6,7 +6,7 @@ import {IClaimTopicsRegistry} from "./interfaces/IClaimTopicsRegistry.sol";
 /**
  * @title ClaimTopicsRegistry
  * @notice The claim topics a wallet's identity must hold to be verified (T1.3). MS1
- *         requires one topic, `KYC` (Q02 = A); its numeric value is a deploy parameter.
+ *         requires one topic, `KYC_TOPIC` (Q02 = A, `ClaimTopics.sol`), seeded by the deploy script.
  * @dev Owner-only writes (ADR 0015); immutable owner (ADR 0025). Capped at 15 topics as
  *      in the T-REX reference, so `isVerified` stays bounded in gas.
  */
@@ -20,10 +20,9 @@ contract ClaimTopicsRegistry is IClaimTopicsRegistry {
     uint256[] private _topics;
 
     error NotOwner(address caller);
-    error ZeroAddress();
-    error TopicAlreadyRequired(uint256 claimTopic);
-    error TopicNotRequired(uint256 claimTopic);
-    error TooManyTopics();
+    error ClaimTopicAlreadyExists(uint256 claimTopic);
+    error ClaimTopicNotFound(uint256 claimTopic);
+    error TooManyClaimTopics();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner(msg.sender);
@@ -31,16 +30,16 @@ contract ClaimTopicsRegistry is IClaimTopicsRegistry {
     }
 
     constructor(address owner_) {
-        if (owner_ == address(0)) revert ZeroAddress();
+        if (owner_ == address(0)) revert NotOwner(address(0));
         owner = owner_;
     }
 
     /// @inheritdoc IClaimTopicsRegistry
     function addClaimTopic(uint256 claimTopic) external onlyOwner {
         uint256 n = _topics.length;
-        if (n >= MAX_TOPICS) revert TooManyTopics();
+        if (n >= MAX_TOPICS) revert TooManyClaimTopics();
         for (uint256 i; i < n; ++i) {
-            if (_topics[i] == claimTopic) revert TopicAlreadyRequired(claimTopic);
+            if (_topics[i] == claimTopic) revert ClaimTopicAlreadyExists(claimTopic);
         }
         _topics.push(claimTopic);
         emit ClaimTopicAdded(claimTopic);
@@ -57,7 +56,7 @@ contract ClaimTopicsRegistry is IClaimTopicsRegistry {
                 return;
             }
         }
-        revert TopicNotRequired(claimTopic);
+        revert ClaimTopicNotFound(claimTopic);
     }
 
     /// @inheritdoc IClaimTopicsRegistry

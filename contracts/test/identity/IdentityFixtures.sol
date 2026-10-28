@@ -11,15 +11,16 @@ import {IdentityRegistry} from "../../src/registry/IdentityRegistry.sol";
 import {IClaimTopicsRegistry} from "../../src/registry/interfaces/IClaimTopicsRegistry.sol";
 import {ITrustedIssuersRegistry} from "../../src/registry/interfaces/ITrustedIssuersRegistry.sol";
 import {IIdentityRegistryStorage} from "../../src/registry/interfaces/IIdentityRegistryStorage.sol";
+import {KYC_TOPIC} from "../../src/registry/ClaimTopics.sol";
 
 /**
- * @title IdentityFixture
+ * @title IdentityFixtures
  * @notice Deploys the T1 identity layer against the vendored onchain-id v2.2.1 contracts
  *         (compiled with solc 0.8.17, deployed from their artifacts) and issues real
  *         ECDSA KYC claims, so tests exercise upstream claim verification, not a mock.
  */
-abstract contract IdentityFixture is Test {
-    uint256 internal constant KYC = 1; // MS1 single topic (Q02 = A); value is a deploy parameter
+abstract contract IdentityFixtures is Test {
+    uint256 internal constant KYC = KYC_TOPIC; // MS1 single topic (Q02 = A)
     uint256 internal constant ECDSA_SCHEME = 1;
     uint256 internal constant CLAIM_PURPOSE = 3;
     uint256 internal constant ECDSA_KEY_TYPE = 1;
@@ -81,6 +82,11 @@ abstract contract IdentityFixture is Test {
         bytes32 prefixed = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", dataHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pk, prefixed);
         return abi.encodePacked(r, s, v);
+    }
+
+    /// @dev A KYC claim signature from `issuerPk` over `data` for `id` (T1 spec §2).
+    function _signKycClaim(uint256 issuerPk, IIdentity id, bytes memory data) internal pure returns (bytes memory) {
+        return _signClaim(issuerPk, id, KYC, data);
     }
 
     /// @dev Adds a claim from `issuer` (signed by `pk`) to the identity managed by `manager`.
