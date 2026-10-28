@@ -29,6 +29,7 @@ updated: 2026-10-27
 | M3-Q20 | Local-only work pushed; deleted PDF and PNGs restored (2026-10-28) — [[Q20 - Push the local-only work to GitHub]] | none |
 | M3-Q21 | ADRs 0002–0027 Accepted; licence GPL-3.0 (2026-10-28) — [[Q21 - Accept the ADRs and settle the licence]] | `0001` |
 | M3-Q22 | T6.2 tester: Hassan or Fawaz after T6.1a; outside tester for final MS1 run if time (2026-10-28) — [[Q22 - Who runs the T6.2 unaided onboarding rehearsal]] | none |
+| M3-Q23 | onchain-id compiled unmodified with 0.8.17 for its folder only; our code 0.8.26 (2026-10-28) — [[Q23 - How do we compile the vendored onchain-id]] | none |
 | C1 | Simulated custodian for the FYP | none |
 | C2 | Operator never holds investor tokens | none |
 | C3 | Agent powers governed (multisig, timelock) | `0015` |
