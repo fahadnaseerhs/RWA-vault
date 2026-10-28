@@ -5,7 +5,7 @@ updated: 2026-10-27
 # 🏛️ Architecture Decision Records (ADR Index)
 
 > **Source of Truth:** `docs/adr/`. ADRs are immutable once accepted.  
-> **Claim-By-File Rule:** Numbers are reserved only by committing `docs/adr/00XX-<slug>.md`. The next available number is **0027**.
+> **Claim-By-File Rule:** Numbers are reserved only by committing `docs/adr/00XX-<slug>.md`. The next available number is **0028**.
 
 | # | Title | Status | Module | Answers / Scope |
 |---|---|---|---|---|
@@ -35,5 +35,6 @@ updated: 2026-10-27
 | `0024` | A token is fractional title to an identified lot | Proposed | All | C8 |
 | `0025` | M3 contracts are immutable: plain deploys, no proxies | Proposed | M3 | Q15 |
 | `0026` | Ops Console Frontend Stack: React 18, Vite, Viem | Proposed | M3 | Q9, T6.1b |
+| `0027` | Clause 1 verified off-chain for MS1; envelope hash anchored | Proposed | M3 | Q18 |
 
 Up: [[Project Memory]] · Related: [[Module 1 - PQ Core]], [[Module 3 - Registry & Compliance]]

@@ -20,7 +20,6 @@ updated: 2026-10-27
 |---|---|---|---|
 | T6.0 not yet verified (code is green: `@rwa-vault/types` 32/32, 2026-10-27) | task | 🧭 Researcher | `VERIFY ✅` in the T6.0 thread |
 | No `AssetRegistry`, `Token`, registries, compliance or deploy script exist (T1–T5) | task | ⌨️ Coder | T5.1 green |
-| Where the ML-DSA-65 signature is checked (no on-chain verifier exists) | decision | 👤 Fahad | [[Questions/Q18 - Where is the ML-DSA-65 signature checked for MS1\|Q18]] decided |
 | Task 6 sequencing | decision | 👤 Fahad | [[Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] decided |
 | The T6.0 code is local only, not on GitHub | decision | 👤 Fahad | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] decided |
 | No named non-author tester for T6.2 | decision | 👤 Fahad | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] decided |

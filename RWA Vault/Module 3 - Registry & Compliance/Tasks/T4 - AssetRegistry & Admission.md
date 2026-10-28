@@ -15,7 +15,7 @@ updated: 2026-10-27
 
 ### Critical Invariants & Rules
 - **Q13 Test Rule:** 24 hours is the deployed default set via `setValuationWindowFor`. Boundary tests MUST set a short window ($\le 1$ hour) and assert against the configured value. Never hardcode 24h in predicate code!
-- **Q17/Q18 pre-requisite:** no on-chain ML-DSA-65 verifier exists in the project (ADR 0011's ~3.9M gas is Falcon). T4.4's design waits for Q18; the clause count is settled at four (Q17).
+- **Q17/Q18 pre-requisite:** no on-chain ML-DSA-65 verifier exists in the project (ADR 0011's ~3.9M gas is Falcon). T4.4 follows Q18 = A / ADR 0027: verify off-chain, Tier 1 submitter records result + envelope hash; the clause count is settled at four (Q17).
 
 ### Subtasks Checklist
 - [ ] **T4.1** `AssetRegistry.sol` implementing `IAssetRegistry.sol`: State machine `UNREGISTERED` → `PENDING` → `LIVE` → `FROZEN`.

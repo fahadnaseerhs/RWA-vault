@@ -88,7 +88,7 @@ TASK (from Board) ──►│ 🧭 RESEARCHER (Owns WHAT & WHY)                
 - **Token Standard:** ERC-3643 (T-REX), Hybrid implementation: vendor `onchain-id` ERC-734/735, custom Token, Registries, and `ModularCompliance`.
 - **Token Unit:** 1 Token = 1 **fine gram** of gold ($10^{18}$ base units). A 1 kg kilobar of 999.9 purity yields exactly $999.9 \times 10^{18}$ units (ADR 0020).
 - **Valuation Window ($\tau$):** Default 24 hours for gold. In tests, parameterized via `setValuationWindowFor` to $\le 1$ hour. Never hardcode 24h into invariant checks (ADR 0018).
-- **Asset Admission Predicate — 4 clauses, one custodian signer for MS1 (ADR 0017; Q17 = B, 2026-10-28). The insurer 2-of-2 and policy clause are Phase 2. Where clause 1's ML-DSA-65 signature is checked depends on open decision Q18:**
+- **Asset Admission Predicate — 4 clauses, one custodian signer for MS1 (ADR 0017; Q17 = B, 2026-10-28). The insurer 2-of-2 and policy clause are Phase 2. Clause 1's ML-DSA-65 signature is verified off-chain and its envelope hash anchored (Q18 = A, ADR 0027):**
   1. $SigValid(attestation, pk_{custodian})$.
   2. $Seq(attestation) > lastSeq(assetId)$ (Strictly monotonic sequence).
   3. $reserveAmount \ge attestedSupply$ (Never fractional; 100% reserve backing).
