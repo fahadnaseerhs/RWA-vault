@@ -19,6 +19,8 @@
     "m3:fixture-attestation": "node scripts/onboard/make-fixture-attestation.mjs",
     "m3:onboard": "node scripts/onboard/run.mjs",
     "test:onboard": "node --test scripts/onboard/onboard.test.mjs",
+    "abis:gen": "node scripts/gen-abis.mjs",
+    "abis:check": "node scripts/gen-abis.mjs --check",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm -r run build",
