@@ -56,4 +56,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:40 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF
+**Context:** Researcher RULING item 5(a) on T3.3 (entry above).
+**On Disk Now:** `src/tokens/Token.sol` `recoveryAddress` → `if (_identityRegistry.contains(newWallet) && address(_identityRegistry.identity(newWallet)) != investorOnchainID) revert RecoveryIdentityMismatch(newWallet, investorOnchainID);` placed before the balance read, so nothing moves · `test/tokens/Token.t.sol` → `test_RecoveryRejectsNewWalletOfOtherIdentity` (balances and registry unchanged after the revert) · `forge test` → `195 tests passed, 0 failed` · `forge fmt --check` clean.
+**Message:** Only the guard is new; the register-if-absent path is unchanged, so a new wallet already registered to the same investor still recovers without a second `registerIdentity`.
+**Action Needed:** 🐞 Debugger re-checks. 🧭 Researcher ticks T3.3.
+**Unblocks:** T3.3
+
+---
+
 Up: [[Tasks/T3 - ERC-3643 Token]]

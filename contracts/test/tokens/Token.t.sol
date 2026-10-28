@@ -440,6 +440,24 @@ contract TokenTest is M3System {
         tok.recoveryAddress(bob, newWallet, address(bobId));
     }
 
+    function test_RecoveryRejectsNewWalletOfOtherIdentity() public {
+        _live();
+        _mint(alice, 10);
+        _mint(bob, 4);
+        IIdentity aliceId = ir.identity(alice);
+        // bob's wallet is a key on alice's identity but is registered to bob's identity.
+        vm.prank(alice);
+        aliceId.addKey(keccak256(abi.encode(bob)), 1, 1);
+
+        vm.prank(govOwner);
+        vm.expectRevert(abi.encodeWithSelector(Token.RecoveryIdentityMismatch.selector, bob, address(aliceId)));
+        tok.recoveryAddress(alice, bob, address(aliceId));
+
+        assertEq(tok.balanceOf(alice), 10);
+        assertEq(tok.balanceOf(bob), 4);
+        assertTrue(ir.contains(alice));
+    }
+
     // ---------------------------------------------------------------- batches (T3.4)
 
     function test_BatchMintAndTransfer() public {

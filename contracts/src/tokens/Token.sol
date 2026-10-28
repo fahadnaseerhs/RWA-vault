@@ -297,6 +297,12 @@ contract Token is ERC20, IERC3643, OwnerAgentRoles {
         if (!IIdentity(investorOnchainID).keyHasPurpose(keccak256(abi.encode(newWallet)), 1)) {
             revert RecoveryKeyNotOnIdentity(newWallet);
         }
+        // A newWallet already in the registry must belong to the same investor (T3.3 VERIFY).
+        if (
+            _identityRegistry.contains(newWallet) && address(_identityRegistry.identity(newWallet)) != investorOnchainID
+        ) {
+            revert RecoveryIdentityMismatch(newWallet, investorOnchainID);
+        }
         uint256 bal = balanceOf(lostWallet);
         if (bal == 0) revert NothingToRecover(lostWallet);
 
