@@ -1,6 +1,6 @@
 # ADR 0016 — One ERC-3643 token per asset, with shared identity storage
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 

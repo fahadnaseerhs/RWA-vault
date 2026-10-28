@@ -1,6 +1,6 @@
 # ADR 0019 — Asset admission and freeze semantics in the AssetRegistry
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Supersedes nothing. Depends on:** ADR 0014 (liveness as a compliance module), ADR 0015

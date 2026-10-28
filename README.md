@@ -7,7 +7,7 @@
 [![pnpm 9](https://img.shields.io/badge/pnpm-9.12.0-orange.svg)](package.json)
 [![Rust 1.81](https://img.shields.io/badge/rust-1.81.0-blue.svg)](packages/pq-core/native/rust-toolchain.toml)
 [![Arbitrum Sepolia](https://img.shields.io/badge/network-Arbitrum%20Sepolia-blueviolet.svg)](https://sepolia.arbiscan.io/)
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
 - **Documentation Index:** [`docs/README.md`](docs/README.md) — proposal, defense deck, manuals, ADRs and stage reports
 - **Developer Guide:** [`CONTRIBUTING.md`](CONTRIBUTING.md)

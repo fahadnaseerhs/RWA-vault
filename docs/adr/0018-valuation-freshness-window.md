@@ -1,6 +1,6 @@
 # ADR 0018 — The valuation freshness window is 24 hours, set rather than compiled
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Answers:** Q13. **Depends on:** ADR 0017 (reserve source seam), ADR 0019 (admission semantics)

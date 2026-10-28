@@ -1,6 +1,6 @@
 # ADR 0014 — Asset liveness is enforced by a compliance module, not by the token
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21) — partly superseded by ADR 0019 §6
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Partly superseded:** the phrase "vetoes any mint or transfer" below is narrowed by ADR 0019 §6 — the module

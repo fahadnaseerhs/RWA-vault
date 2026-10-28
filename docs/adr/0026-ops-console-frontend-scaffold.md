@@ -1,6 +1,6 @@
 # ADR 0026 — Ops Console Frontend Stack: React 18, Vite, Viem
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Answers:** Q9 / T6.1b. **Depends on:** ADR 0015 (agent powers & key tiers), ADR 0016 (one token per asset), ADR 0025 (immutable deployments)

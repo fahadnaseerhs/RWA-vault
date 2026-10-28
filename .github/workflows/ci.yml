@@ -38,7 +38,7 @@ jobs:
   # the exact pnpm version from package.json's "packageManager" field.
   node:
     name: node (lint, typecheck, build, test)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -72,7 +72,7 @@ jobs:
   # fuzz tests at the default 1K-run depth. Typically completes in < 60s.
   contracts:
     name: contracts (build, test, fmt)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: contracts # All commands run from contracts/
@@ -113,7 +113,7 @@ jobs:
   #   - Reserve-buffer solvency invariants (M7)
   contracts-invariants:
     name: contracts (invariants)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: contracts
@@ -152,9 +152,9 @@ jobs:
       matrix:
         include:
           - platform: linux
-            os: ubuntu-latest
+            os: ubuntu-24.04
           - platform: windows
-            os: windows-latest
+            os: windows-2022
     steps:
       - uses: actions/checkout@v4
 
@@ -279,7 +279,7 @@ jobs:
   # ─── Job 5: pq-core WebAssembly and browser equivalence ─────────────────
   pq-wasm:
     name: pq-wasm (build, Chromium, cross-runtime, tsc)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pq-native
     steps:
       - uses: actions/checkout@v4
