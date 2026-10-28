@@ -88,12 +88,12 @@ TASK (from Board) ──►│ 🧭 RESEARCHER (Owns WHAT & WHY)                
 - **Token Standard:** ERC-3643 (T-REX), Hybrid implementation: vendor `onchain-id` ERC-734/735, custom Token, Registries, and `ModularCompliance`.
 - **Token Unit:** 1 Token = 1 **fine gram** of gold ($10^{18}$ base units). A 1 kg kilobar of 999.9 purity yields exactly $999.9 \times 10^{18}$ units (ADR 0020).
 - **Valuation Window ($\tau$):** Default 24 hours for gold. In tests, parameterized via `setValuationWindowFor` to $\le 1$ hour. Never hardcode 24h into invariant checks (ADR 0018).
-- **Asset Admission Predicate — 4 clauses (ADR 0017). A 5th insurer/policy clause is NOT locked: it depends on open decision Q17, and where clause 1's ML-DSA-65 signature is checked depends on Q18:**
-  1. $SigValid(attestation, pk_{custodian})$ (+ $pk_{insurer}$ only if Q17 keeps the 2-of-2).
+- **Asset Admission Predicate — 4 clauses, one custodian signer for MS1 (ADR 0017; Q17 = B, 2026-10-28). The insurer 2-of-2 and policy clause are Phase 2. Where clause 1's ML-DSA-65 signature is checked depends on open decision Q18:**
+  1. $SigValid(attestation, pk_{custodian})$.
   2. $Seq(attestation) > lastSeq(assetId)$ (Strictly monotonic sequence).
   3. $reserveAmount \ge attestedSupply$ (Never fractional; 100% reserve backing).
   4. $now - valuationTs \le \tau \land valuationTs \le now$ (Fresh, no future timestamps).
-  5. _(Only if Q17 keeps the 2-of-2)_ $policyCoverage \ge attestedValue \land policyExpiry > now$.
+  5. _(Phase 2, not MS1)_ $policyCoverage \ge attestedValue \land policyExpiry > now$.
 - **Immutability:** No upgradeable proxies. Plain deployments with immutable constructor wiring (ADR 0025).
 - **Freezing Semantics:** `FROZEN` blocks **minting only**; `AssetLiveModule` vetoes a mint, never a transfer. Investor transfers and exits stay enabled. A stale reserve also blocks minting only (ADR 0019 §6, ADR 0021).
 - **Post-Quantum Cryptography Inventory (M1 owns all six):**

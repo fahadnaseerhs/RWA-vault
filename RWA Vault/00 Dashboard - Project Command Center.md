@@ -23,10 +23,9 @@ updated: 2026-10-27
 
 > Index only — every status below is read from the linked note's frontmatter. Full list: **[[Decisions Register]]**.
 
-### ⏳ Open decisions for Fahad (6) — Module 3, Task 6
+### ⏳ Open decisions for Fahad (5) — Module 3, Task 6
 | Q | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Module 3 - Registry & Compliance/Questions/Q17 - Does the insurer co-sign at MS1, or after it\|Q17]] | Insurer co-sign at MS1, or after? | 4 clauses + 1 signer for MS1 | T4.2, T4.4, T6.1a |
 | [[Module 3 - Registry & Compliance/Questions/Q18 - Where is the ML-DSA-65 signature checked for MS1\|Q18]] | Where is the ML-DSA-65 signature checked? | Off-chain verifier + anchored hash | T4.4, T6.1a, T8.2 |
 | [[Module 3 - Registry & Compliance/Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] | Task 6 order while T1–T5 are unbuilt | Verify T6.0, then build T1–T5 | T6.1a, T6.1b, T6.3 |
 | [[Module 3 - Registry & Compliance/Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Push local-only work; restore deleted files? | Push all, restore | T0.8 |
@@ -35,7 +34,7 @@ updated: 2026-10-27
 
 ### ✅ Decided
 - **M3 Q01–Q16:** all decided 2026-10-27 — see [[Module 3 - Registry & Compliance/Decisions/Decisions Log|M3 Decisions Log]].
-  Q11's MS1 scope is reopened as Q17.
+  **Q17 (2026-10-28):** 4 clauses and one custodian signer for MS1; insurer in Phase 2.
 - **Custody C1–C10:** settled; **C11** (production custodian) deferred — see [[Open Questions - Custody & Tokenisation]].
 - **Latest audit:** [[2026-10-27 - Decision Conflict Audit]] (19 decision conflicts, 5 process conflicts, ADR ↔ code check).
 
@@ -54,7 +53,7 @@ updated: 2026-10-27
 ---
 
 ## 📋 Open Actions for Fahad
-1. Answer **Q17–Q22** above (each note has options and a recommendation).
+1. Answer **Q18–Q22** above (each note has options and a recommendation).
 2. Merge the vault-standardization PR, then commit the local code work (Q20).
 
 ---
