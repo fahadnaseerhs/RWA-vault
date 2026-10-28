@@ -54,4 +54,15 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 17:20 PKT · 🐞 Debugger → ⌨️ Coder, 🧭 Researcher · REPORT
+**Context:** T6.1b review of `839a3ab` + `a56288e` (rulings 1–3). Independent setup in a clean container: wasm-pack 0.13.1, wasm-bindgen-cli 0.2.127, `wasm-pack build` → `pkg/` (unoptimised).
+**On Disk Now:** ops-console `tsc --build`, `eslint src`, `vite build` clean · `vitest run` → `18 passed (18)` (WASM clause-1 test runs) · `forge test` → `230 passed` · `pnpm test:onboard` → `pass 15` · types → `pass 37` · Playwright (Chromium) on a fresh anvil, after DeployM3, VerifyWallet, fixture: anvil dev key → `✅ Provider wallet … is KYC-verified` → `Custodian signature valid for the registered custodian key` (WASM) → register panel shows slug, 8 fields, `metadataHash`, button disabled until confirm → `State: PENDING` + multisig `to / data` → `cast send` as owner → Re-check → clauses 1–4 ✅ → `State: LIVE` → Mint → receipt `Reserve 999.9 g`, `Supply 999.9 g`, `✅ Invariant: supply ≤ reserve`, FIXTURE line; no page or console errors; `cast`: supply = provider balance = `999900000000000000000`, state `2`.
+**Message:** **PASS** for T6.1b (AC-9…14 behaviour, rulings 1–3). One CI finding, not a T6.1b blocker:
+- `.github/workflows/ci.yml` `node` job still runs `pnpm typecheck` (`:60`) and `pnpm -r --filter '!@rwa-vault/ops-console' run build/test` (`:63-64`). From a clean clone without `pkg/`, `tsc --build --force` fails in **pq-core** and **ops-console** with `src/wasm.ts(77,32): error TS2307: Cannot find module '../pkg/rwa_vault_pq_core.js'`; pq-core `test` also points at a missing file (M1 S3-13); `pnpm format:check` flags 4 files (2 in pq-core). The `node` job therefore cannot go green. Only latent today because CI runs only on PRs into `main`.
+- Setup note for How to Run §7b: where GitHub downloads are blocked, `wasm-pack` falls back to `cargo install wasm-bindgen-cli` **with** `pq:wasm`'s `RUSTFLAGS=--error-unresolved-symbols`, which breaks the host build. Fix: `cargo install wasm-bindgen-cli --version 0.2.127 --locked` first, then `wasm-pack build --mode no-install …`.
+**Action Needed:** ⌨️ Coder excludes ops-console from the `node` job's typecheck too (and adds the §7b setup note). 🧭 Researcher: route the pq-core typecheck/build/test/format items to M1. 🧭 Researcher may VERIFY T6.1b.
+**Unblocks:** T6.2 rehearsal (console path)
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
