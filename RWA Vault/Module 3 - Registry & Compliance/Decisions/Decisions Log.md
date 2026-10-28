@@ -35,6 +35,7 @@ A running record of decisions actually made for M3. Each entry: date, the decisi
 | 2026-10-28 | Q20 | **Push all local-only work, restore the deleted PDF and PNGs (Option A)** — code and docs committed on the vault PR branch | Fahad | none |
 | 2026-10-28 | Q21 | **Accept ADRs 0002–0027; licence GPL-3.0** — 0014 marked partly superseded by 0019 §6; CI runners pinned per 0008; `LICENSE` added, README badge fixed | Fahad | `0001` (process) |
 | 2026-10-28 | Q22 | **T6.2 tester (Option A):** Hassan or Fawaz (non-author of T6), on devnet after T6.1a is green; an outside tester repeats it for the final MS1 dry run if time allows | Fahad | none |
+| 2026-10-28 | Q23 | **onchain-id compiler (Option A):** vendor 2.2.1 unmodified; compile `lib/onchain-id` with its own 0.8.17, our code stays 0.8.26; no upstream patch, so ADR 0012 stands | Fahad | none |
 
 ## Still open
 

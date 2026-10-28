@@ -98,8 +98,9 @@ interface IAssetRegistry {
 
     /**
      * @notice Clause 3: the attested reserve is below the supply required.
-     * @dev Raised by `admit` (agent): against `intendedSupply` on first admission,
-     *      against current supply on re-attestation.
+     * @dev Raised by `admit` (agent) on first admission only, against `intendedSupply`.
+     *      A re-attestation below current supply is accepted and emits `UnderReserve`
+     *      (ADR 0019 §3).
      */
     error ReserveTooLow(uint256 reserve, uint256 required);
 
@@ -132,8 +133,15 @@ interface IAssetRegistry {
     /// @notice `unfreeze` (owner) on an asset that is not FROZEN (FROZEN -> LIVE only).
     error AssetNotFrozen(bytes32 assetId);
 
-    /// @notice `register` (agent) with `assetId == bytes32(0)`, which would alias the unregistered default.
+    /// @notice `register` (agent) with `assetId == bytes32(0)` or an empty `assetRef`; a zero id would alias the unregistered default.
     error EmptyAssetId();
+
+    /**
+     * @notice `register` (agent) with `assetId != keccak256(bytes(assetRef))`.
+     * @dev The id is defined as the slug hash; a mismatch would store a slug that resolves
+     *      to a different id, permanently (T4 rulings round 1, reading 3).
+     */
+    error AssetRefMismatch(bytes32 assetId, bytes32 expected);
 
     // ------------------------------------------------------------------
     // Errors — wiring and authority
@@ -212,6 +220,13 @@ interface IAssetRegistry {
 
     /// @notice Returns the sequence of the last accepted attestation (the clause 2 replay guard). Anyone may call.
     function lastSequenceOf(bytes32 assetId) external view returns (uint64);
+
+    /**
+     * @notice Returns the `valuationTs` of the last accepted attestation; 0 if none. Anyone may call.
+     * @dev Read by the compliance module for the ADR 0021 mint-time freshness gate: a stale
+     *      reserve blocks minting only.
+     */
+    function valuationTsOf(bytes32 assetId) external view returns (uint64);
 
     /// @notice Returns the metadata hash committed at `register`. Anyone may call.
     function metadataHashOf(bytes32 assetId) external view returns (bytes32);
@@ -293,7 +308,12 @@ interface IAssetRegistry {
     /// @notice Sets a per-asset clause 4 window override, in seconds; requires `0 < seconds_ <= MAX_VALUATION_WINDOW`. Owner-only.
     function setValuationWindowFor(bytes32 assetId, uint64 seconds_) external;
 
-    /// @notice Sets the reserve attestation source (the MS1 -> M5 swap point). Owner-only.
+    /**
+     * @notice Sets the reserve attestation source (the MS1 -> M5 swap point). Owner-only.
+     * @dev The per-asset sequence (`lastSequenceOf`) is kept across a swap. A new source
+     *      must continue each asset's sequence above it; resetting it would let an old
+     *      envelope replay through the new source.
+     */
     function setAttestationSource(address source) external;
 
     /**
