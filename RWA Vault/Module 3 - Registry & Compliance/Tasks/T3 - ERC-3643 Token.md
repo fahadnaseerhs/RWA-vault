@@ -6,7 +6,8 @@ status: ready
 agent: coder
 progress: 0/6
 unblocked_by: ["Q08=A", "Q10=implement", "Q16=A"]
-updated: 2026-10-27
+spec: "[[Specs/T3 - ERC-3643 Token Build Spec]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T3 — ERC-3643 Permissioned Token
 
