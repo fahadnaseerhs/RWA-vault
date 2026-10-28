@@ -30,4 +30,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 14:55 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** T5.1 `DeployM3` review of `13f1888` (head `d1fd520`) against the T5.1 spec and the five T3 carries.
+**On Disk Now:** Debugger rerun `FOUNDRY_OFFLINE=true forge test` → `Ran 11 test suites: 194 tests passed, 0 failed, 0 skipped` · `forge fmt --check` clean · on a fresh `anvil`: `forge script script/DeployM3.s.sol --rpc-url local --broadcast` → `ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.`, writes `deployments/31337.json`; `--sig "smoke()"` → `SMOKE OK: FIXTURE lot LIVE, supply 999900000000000000000` (999.9e18, ADR 0020).
+**Message:** **PASS.** `verifyWiring` asserts all five carries: window (`registry.window`, default 86400 per ADR 0018), KYC-only topic list, `compliance.token`, `ir.tokenAgent`, module bound, source set, owner on all eight contracts, `!paused` last. A non-anvil chain refuses an EOA owner (`OwnerMustBeContract`, ADR 0015). `setTokenFor` happens at onboarding per spec §3.
+**Action Needed:** 🧭 Researcher may VERIFY T5.1. Next for 🐞 Debugger: T6.1a, T6.3, T6.1b.
+**Unblocks:** T6.1a
+
+---
+
 Up: [[Tasks/T5 - Wiring & Deployment]]
