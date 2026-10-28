@@ -243,6 +243,36 @@ contract OnboardAssetTest is Test {
         assertEq(s, "Admission reverted with 0xdeadbeef; unexpected; report it.");
     }
 
+    /// @dev T6.1b point 6: the TS sentence table and `describeAdmitError` agree on every
+    ///      vector in `packages/types/fixtures/onboarding-sentences.json`.
+    function test_SentenceVectorsMatchShared() public {
+        string memory json =
+            vm.readFile(string.concat(vm.projectRoot(), "/../packages/types/fixtures/onboarding-sentences.json"));
+        uint256 n;
+        while (vm.keyExistsJson(json, string.concat("[", vm.toString(n), "]"))) {
+            string memory p = string.concat("[", vm.toString(n), "]");
+            bytes32 kind = keccak256(bytes(vm.parseJsonString(json, string.concat(p, ".kind"))));
+            uint256 a = vm.parseJsonUint(json, string.concat(p, ".a"));
+            uint256 b = vm.parseJsonUint(json, string.concat(p, ".b"));
+            vm.warp(vm.parseJsonUint(json, string.concat(p, ".now")));
+            bytes memory err;
+            if (kind == keccak256("StaleSequence")) {
+                err = abi.encodeWithSelector(IAssetRegistry.StaleSequence.selector, uint64(a), uint64(b));
+            } else if (kind == keccak256("ReserveTooLow")) {
+                err = abi.encodeWithSelector(IAssetRegistry.ReserveTooLow.selector, a, b);
+            } else if (kind == keccak256("ValuationStale")) {
+                err = abi.encodeWithSelector(IAssetRegistry.ValuationStale.selector, uint64(a), uint64(b));
+            } else if (kind == keccak256("ValuationInFuture")) {
+                err = abi.encodeWithSelector(IAssetRegistry.ValuationInFuture.selector, uint64(a), uint64(b));
+            } else {
+                revert("unknown vector kind");
+            }
+            assertEq(script.describeAdmitError(err), vm.parseJsonString(json, string.concat(p, ".sentence")));
+            ++n;
+        }
+        assertGe(n, 5);
+    }
+
     // ---------------------------------------------------------------- pre-flight (AC-7, AC-20..22)
 
     function test_OnboardAbortsOnUnverifiedTreasury() public {

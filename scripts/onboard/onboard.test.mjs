@@ -289,3 +289,13 @@ test("test_FixtureGeneratorLeavesTrackedFilesAlone", async () => {
   assert.match(ws.attPath, /\/\.onboard\/gold-lot-002\.seq1\.att\.json$/);
   rmSync(ws.dir, { recursive: true });
 });
+
+test("test_ScriptUsesSharedRecipesAndSentences", async () => {
+  // T6.1b point 6: the script and the page import one module, so they cannot drift.
+  const types = await import("@rwa-vault/types");
+  const lib = await import("./lib.mjs");
+  assert.equal(lib.BAD_SIGNATURE_SENTENCE, types.BAD_ATTESTATION_SIG_SENTENCE);
+  assert.equal(lib.metadataHash, types.metadataHash);
+  assert.equal(lib.attestationMessage, types.attestationMessage);
+  assert.equal(lib.assetIdOf, types.assetIdOf);
+});
