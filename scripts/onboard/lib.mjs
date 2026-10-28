@@ -10,30 +10,29 @@ import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { encodeAbiParameters, hexToBytes, keccak256, toBytes, toHex } from "viem";
+import { keccak256, toHex } from "viem";
+import {
+  ATTESTATION_ALGORITHM,
+  ATTESTATION_FORMAT,
+  BAD_ATTESTATION_SIG_SENTENCE,
+  MalformedAttestationError,
+  assetIdOf,
+  attestationMessage,
+  metadataHash,
+  parseFixtureAttestation,
+} from "@rwa-vault/types";
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const DEFAULT_ADDON = resolve(REPO_ROOT, "packages/pq-core/pq-core.node");
 
-export const ATTESTATION_FORMAT = "rwa-vault/ms1-fixture-attestation@0";
-export const ATTESTATION_ALGORITHM = "ML-DSA-65";
-export const ATTESTATION_FIELDS = [
-  "format",
-  "algorithm",
-  "chainId",
-  "assetRef",
-  "reserve",
-  "seq",
-  "valuationTs",
-  "signature",
-];
+// The recipes and sentences are shared with the ops-console page (T6.1b points 2, 6).
+export { assetIdOf, attestationMessage, metadataHash };
 export const ANVIL_CHAIN_ID = 31337;
 
 /** Exit codes: 1 bad input, 2 waiting for the owner multisig, 3 attestation rejected, 4 stage 2 stopped. */
 export const EXIT = { INPUT: 1, WAITING_FOR_OWNER: 2, ATTESTATION: 3, SCRIPT_FAILED: 4 };
 
-export const BAD_SIGNATURE_SENTENCE =
-  "The custodian's signature on this attestation is not valid for the registered custodian key.";
+export const BAD_SIGNATURE_SENTENCE = BAD_ATTESTATION_SIG_SENTENCE;
 
 export class OnboardError extends Error {
   /** @param {string} code named error, e.g. "BadAttestationSig(...)" @param {number} exitCode */
@@ -57,102 +56,16 @@ export function loadAddon(path = process.env.PQ_CORE_ADDON ?? DEFAULT_ADDON) {
   }
 }
 
-export const assetIdOf = (slug) => keccak256(toBytes(slug));
-
-/** The signed message: abi.encode(format, chainId, assetId, reserve, seq, valuationTs). */
-export function attestationMessage({ chainId, assetRef, reserve, seq, valuationTs }) {
-  return hexToBytes(
-    encodeAbiParameters(
-      [
-        { type: "string" },
-        { type: "uint256" },
-        { type: "bytes32" },
-        { type: "uint256" },
-        { type: "uint64" },
-        { type: "uint64" },
-      ],
-      [
-        ATTESTATION_FORMAT,
-        BigInt(chainId),
-        assetIdOf(assetRef),
-        BigInt(reserve),
-        BigInt(seq),
-        BigInt(valuationTs),
-      ],
-    ),
-  );
-}
-
-/** The canonical eight-field metadataHash (T6.1a spec §3); OnboardAsset.metadataHash is the twin. */
-export function metadataHash(input) {
-  const vb = input.valuationBasis;
-  return keccak256(
-    encodeAbiParameters(
-      [
-        { type: "string" },
-        { type: "string" },
-        { type: "uint256" },
-        { type: "uint16" },
-        { type: "string" },
-        { type: "string" },
-        { type: "uint256" },
-        { type: "string" },
-      ],
-      [
-        input.assetId,
-        input.description,
-        BigInt(input.grossWeight),
-        input.fineness,
-        vb.source,
-        vb.currency,
-        BigInt(vb.unitValue),
-        input.custodianId,
-      ],
-    ),
-  );
-}
-
-const malformed = (msg) => new OnboardError("MalformedAttestation", EXIT.ATTESTATION, msg);
-
-/** Parses and shape-checks the envelope; unknown fields (a `publicKey`, say) are rejected. */
+/** Parses the envelope, turning a shape problem into exit 3. */
 export function parseAttestation(bytes) {
-  let a;
   try {
-    a = JSON.parse(Buffer.from(bytes).toString("utf8"));
-  } catch {
-    throw malformed("the attestation file is not JSON");
-  }
-  if (typeof a !== "object" || a === null || Array.isArray(a))
-    throw malformed("must be a JSON object");
-  for (const k of Object.keys(a)) {
-    if (!ATTESTATION_FIELDS.includes(k)) {
-      throw malformed(
-        `unknown field "${k}"; the custodian key is never read from the envelope (script/input/custodian.json)`,
-      );
+    return parseFixtureAttestation(bytes);
+  } catch (e) {
+    if (e instanceof MalformedAttestationError) {
+      throw new OnboardError("MalformedAttestation", EXIT.ATTESTATION, e.message);
     }
+    throw e;
   }
-  for (const k of ATTESTATION_FIELDS)
-    if (!Object.hasOwn(a, k)) throw malformed(`missing field "${k}"`);
-  if (a.format !== ATTESTATION_FORMAT) throw malformed(`format must be "${ATTESTATION_FORMAT}"`);
-  if (a.algorithm !== ATTESTATION_ALGORITHM)
-    throw malformed(`algorithm must be "${ATTESTATION_ALGORITHM}"`);
-  if (!Number.isSafeInteger(a.chainId) || a.chainId <= 0)
-    throw malformed("chainId must be a positive integer");
-  if (typeof a.assetRef !== "string" || a.assetRef.length === 0)
-    throw malformed("assetRef must be a string");
-  if (
-    typeof a.reserve !== "string" ||
-    !/^(0|[1-9][0-9]*)$/.test(a.reserve) ||
-    BigInt(a.reserve) >= 2n ** 256n
-  )
-    throw malformed("reserve must be a base-10 uint256 string");
-  for (const k of ["seq", "valuationTs"]) {
-    if (!Number.isSafeInteger(a[k]) || a[k] <= 0)
-      throw malformed(`${k} must be a positive integer`);
-  }
-  if (typeof a.signature !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(a.signature))
-    throw malformed("signature must be base64");
-  return a;
 }
 
 /**

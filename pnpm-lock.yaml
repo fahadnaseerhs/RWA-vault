@@ -82,6 +82,10 @@ importers:
         version: link:../config
 
   packages/types:
+    dependencies:
+      viem:
+        specifier: 2.21.0
+        version: 2.21.0(typescript@5.9.3)
     devDependencies:
       '@rwa-vault/config':
         specifier: workspace:*
