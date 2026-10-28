@@ -57,4 +57,13 @@ Carry to T5.1: the deploy script must call `setValuationWindow(24 hours)` (ADR 0
 
 ---
 
+### 2026-10-28 11:10 PKT (06:10 UTC) · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Independent forge rerun of T1, T2 and T4 code at `65a55d2` (solc 0.8.26 and 0.8.17 from the Solidity GitHub releases, Fahad approved).
+**On Disk Now:** `FOUNDRY_OFFLINE=true forge test` → `Ran 6 test suites: 127 tests passed, 0 failed, 0 skipped` · `forge fmt --check` clean · `forge build --force` → compiles; lint warnings only: `block-timestamp` at `AssetLiveModule.sol:85` (intended, ADR 0021 gate) and `erc20-unchecked-transfer` ×4 in `test/registry/ERC3643Acceptance.t.sol` (test-only).
+**Message:** The Coder's 127/127 is reproduced. T1, T2 and T4.1–T4.3 are green and reviewed.
+**Action Needed:** 🧭 Researcher may VERIFY T1, T2 and T4.1–T4.3.
+**Unblocks:** Researcher VERIFY
+
+---
+
 Up: [[Tasks/T4 - AssetRegistry & Admission]]
