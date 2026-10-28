@@ -109,6 +109,15 @@ cast call $(jq -r .token deployments/31337.json) 'totalSupply()(uint256)' --rpc-
 
 **Tests:** `forge test --match-path test/registry/OnboardAsset.t.sol` (stage 2) and `pnpm test:onboard` (stage 1, needs `pnpm pq:addon`).
 
+### 7b. The same onboarding in the console (T6.1b)
+One-time, from the repo root, after §7's setup: `pnpm pq:wasm` (pq-core's WASM verifier; needs `cargo install wasm-pack --version 0.13.1 --locked`, the `wasm32-unknown-unknown` target and clang) and `pnpm --filter @rwa-vault/pq-core build`. After steps 1–3 of §7 (the page bundles `contracts/deployments/<chainid>.json` and the custodian key when it starts):
+```bash
+pnpm --filter @rwa-vault/ops-console dev        # http://localhost:5173
+```
+Connect with the **agent** key: a browser wallet, or on anvil only "Anvil dev key" with anvil key 1 (the owner key is refused). Then: **1 Asset** paste `contracts/script/input/gold-lot-002.json` (Next waits until the provider is KYC-verified) → **2 Attestation** load `contracts/.onboard/gold-lot-002.seq1.att.json` (the custodian signature is checked in the browser) → **3 Admit** "Register asset", then give the shown `to / data` to the owner multisig (on anvil: `cast send <to> <data> --rpc-url local --private-key $M3_OWNER_PK`) and press "Re-check", then "Submit attestation and admit" once clauses 1–4 are ticked → **4 Mint** → receipt with `supply ≤ reserve` ✅. The page can only register, submit an attestation, admit and mint.
+
+Tests: `pnpm --filter @rwa-vault/ops-console test` (component tests; the WASM clause-1 test runs when `pnpm pq:wasm` has been built).
+
 ## 8. The "bypass" demo (T6.3)
 The chain refuses on its own; no script or console is involved. After §7 (the provider, anvil account 3, holds the lot), from `contracts/`:
 ```bash

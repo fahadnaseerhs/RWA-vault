@@ -16,6 +16,7 @@
     "contracts:snapshot": "cd contracts && forge snapshot",
     "contracts:deploy:local": "cd contracts && forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast",
     "pq:addon": "node scripts/onboard/build-addon.mjs",
+    "pq:wasm": "node scripts/onboard/build-wasm.mjs",
     "m3:fixture-attestation": "node scripts/onboard/make-fixture-attestation.mjs",
     "m3:onboard": "node scripts/onboard/run.mjs",
     "test:onboard": "node --test scripts/onboard/onboard.test.mjs",
