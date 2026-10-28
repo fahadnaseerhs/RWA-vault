@@ -32,7 +32,7 @@ script = "script"
 compilation_restrictions = [
     { paths = "lib/onchain-id/**", version = "=0.8.17" },
     { paths = "src/identity/vendor/**", version = "=0.8.17" },
-    { paths = "src/{registry,compliance,tokens,anchoring,keys,lending,oracle,vault}/**", version = "=0.8.26" },
+    { paths = "src/{access,registry,compliance,tokens,anchoring,keys,lending,oracle,vault}/**", version = "=0.8.26" },
     { paths = "src/identity/interfaces/**", version = "=0.8.26" },
     { paths = "test/**", version = "=0.8.26" },
     { paths = "script/**", version = "=0.8.26" },

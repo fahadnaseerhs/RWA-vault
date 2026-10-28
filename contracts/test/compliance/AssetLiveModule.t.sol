@@ -122,6 +122,68 @@ contract AssetLiveModuleTest is Test {
         assertFalse(mc.canTransfer(address(0), alice, type(uint256).max));
     }
 
+    // ---------------------------------------------------------------- freshness (ADR 0021)
+
+    function test_MintBlockedWhenReserveStale() public {
+        _bindAndLive(); // tau = 1h
+        vm.warp(block.timestamp + 2 days);
+        assertTrue(reg.isLive(ID));
+        assertFalse(mc.canTransfer(address(0), alice, 1));
+    }
+
+    function test_MintAllowedAtExactWindow() public {
+        _bindAndLive();
+        vm.warp(block.timestamp + 1 hours);
+        assertTrue(mc.canTransfer(address(0), alice, 1));
+        vm.warp(block.timestamp + 1);
+        assertFalse(mc.canTransfer(address(0), alice, 1));
+    }
+
+    function test_TransferAllowedWhenReserveStale() public {
+        _bindAndLive();
+        vm.warp(block.timestamp + 2 days);
+        assertTrue(mc.canTransfer(alice, bob, 1));
+        assertTrue(mc.canTransfer(alice, address(0), 1));
+    }
+
+    function test_MintBlockedAfterUnfreezeUntilReattested() public {
+        _bindAndLive();
+        vm.prank(agent);
+        reg.freeze(ID, "incident");
+        vm.warp(block.timestamp + 2 hours);
+        vm.prank(owner);
+        reg.unfreeze(ID);
+        assertTrue(reg.isLive(ID));
+        assertFalse(mc.canTransfer(address(0), alice, 1));
+
+        _admit(RESERVE, 2);
+        assertTrue(mc.canTransfer(address(0), alice, 1));
+    }
+
+    function test_ShorterPerAssetWindowAppliesToMint() public {
+        _bindAndLive();
+        vm.prank(owner);
+        reg.setValuationWindowFor(ID, 10 minutes);
+        vm.warp(block.timestamp + 11 minutes);
+        assertFalse(mc.canTransfer(address(0), alice, 1));
+    }
+
+    function test_OwnerCanUnbindSquatterThenTokenBinds() public {
+        ModularCompliance fresh = new ModularCompliance(owner);
+        address squatter = makeAddr("squatter");
+        vm.prank(squatter);
+        fresh.bindToken(squatter);
+        vm.prank(address(token));
+        vm.expectRevert(abi.encodeWithSelector(ModularCompliance.TokenBindingRefused.selector, address(token)));
+        fresh.bindToken(address(token));
+
+        vm.prank(owner);
+        fresh.unbindToken(squatter);
+        vm.prank(address(token));
+        fresh.bindToken(address(token));
+        assertEq(fresh.getTokenBound(), address(token));
+    }
+
     // ---------------------------------------------------------------- transfers pass
 
     function test_TransfersAndBurnsPassWhenFrozen() public {

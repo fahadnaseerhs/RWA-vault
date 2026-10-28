@@ -107,6 +107,19 @@ contract AssetRegistryTest is Test {
         reg.register(ID, META, REF);
     }
 
+    function test_RegisterRejectsSlugMismatch() public {
+        bytes32 wrong = keccak256("gold-lot-999");
+        vm.prank(agent);
+        vm.expectRevert(abi.encodeWithSelector(IAssetRegistry.AssetRefMismatch.selector, wrong, ID));
+        reg.register(wrong, META, REF);
+    }
+
+    function test_RegisterRejectsEmptyRef() public {
+        vm.prank(agent);
+        vm.expectRevert(IAssetRegistry.EmptyAssetId.selector);
+        reg.register(ID, META, "");
+    }
+
     // ---------------------------------------------------------------- admit: happy paths
 
     function test_AdmitPendingToLive() public {
@@ -321,6 +334,45 @@ contract AssetRegistryTest is Test {
         reg.admit(ID, 0);
         assertEq(reg.lastSequenceOf(ID), 1);
         assertTrue(reg.isLive(ID));
+    }
+
+    function test_ValuationTsOfRecordsAdmitted() public {
+        assertEq(reg.valuationTsOf(ID), 0);
+        _register();
+        uint64 ts = uint64(block.timestamp) - 5 minutes;
+        _attest(KILOBAR, 1, ts);
+        vm.prank(agent);
+        reg.admit(ID, KILOBAR);
+        assertEq(reg.valuationTsOf(ID), ts);
+
+        vm.warp(block.timestamp + 1 minutes);
+        _attest(KILOBAR, 2, uint64(block.timestamp));
+        vm.prank(agent);
+        reg.admit(ID, 0);
+        assertEq(reg.valuationTsOf(ID), uint64(block.timestamp));
+    }
+
+    /// Reading 6: the replay guard belongs to the asset, so a new source must continue the sequence.
+    function test_SourceSwapKeepsLastSeq() public {
+        _register();
+        _attest(KILOBAR, 5, uint64(block.timestamp));
+        vm.prank(agent);
+        reg.admit(ID, KILOBAR);
+
+        MockAttestationSource fresh = new MockAttestationSource();
+        vm.prank(owner);
+        reg.setAttestationSource(address(fresh));
+        assertEq(reg.lastSequenceOf(ID), 5);
+
+        fresh.set(ID, IReserveAttestationSource.ReserveAttestation(ID, KILOBAR, 1, uint64(block.timestamp)));
+        vm.prank(agent);
+        vm.expectRevert(abi.encodeWithSelector(IAssetRegistry.StaleSequence.selector, uint64(1), uint64(5)));
+        reg.admit(ID, 0);
+
+        fresh.set(ID, IReserveAttestationSource.ReserveAttestation(ID, KILOBAR, 6, uint64(block.timestamp)));
+        vm.prank(agent);
+        reg.admit(ID, 0);
+        assertEq(reg.lastSequenceOf(ID), 6);
     }
 
     // ---------------------------------------------------------------- freeze / unfreeze

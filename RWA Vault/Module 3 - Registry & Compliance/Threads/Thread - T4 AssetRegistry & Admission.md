@@ -29,4 +29,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:40 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF
+**Context:** [[Threads/Rounds/T4 - Researcher Rulings (round 1)|T4 rulings round 1]] changes (a)–(d) and T4.3.
+**On Disk Now:** `IAssetRegistry.sol` → `error AssetRefMismatch(bytes32 assetId, bytes32 expected);` · `function valuationTsOf(bytes32 assetId) external view returns (uint64);` · `src/registry/CustodianAttestationSource.sol` (no `AssetRegistry` import) · `forge test` → `127 tests passed, 0 failed`.
+**Message:** (a) `ReserveTooLow` NatSpec now says first admission only. (b) `valuationTsOf` stored in `admit`. (c) `register` reverts `EmptyAssetId` on an empty ref and `AssetRefMismatch` on a slug/id mismatch. (d) `setAttestationSource` NatSpec documents that `lastSeq` survives a swap. Reading 2 comment added. Selector-distinctness test now covers 23 errors. T4.3 built to spec: submitter allow-list, `submitAttestation(att, envelopeHash)`, `SequenceNotIncreasing`, zero reserve accepted, integration test submit → admit → LIVE. New tests: `test_RegisterRejectsSlugMismatch`, `test_RegisterRejectsEmptyRef`, `test_ValuationTsOfRecordsAdmitted`, `test_SourceSwapKeepsLastSeq`, plus `CustodianAttestationSource.t.sol` (7).
+**Action Needed:** 🐞 Debugger re-reviews; 🧭 Researcher verifies T4.1–T4.3 acceptance.
+**Unblocks:** T5.1 can deploy the MS1 source.
+
+---
+
 Up: [[Tasks/T4 - AssetRegistry & Admission]]

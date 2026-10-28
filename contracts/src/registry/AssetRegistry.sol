@@ -25,6 +25,7 @@ contract AssetRegistry is IAssetRegistry {
     mapping(bytes32 => AssetState) private _state;
     mapping(bytes32 => uint256) private _reserve;
     mapping(bytes32 => uint64) private _lastSeq;
+    mapping(bytes32 => uint64) private _valuationTs;
     mapping(bytes32 => bytes32) private _metadataHash;
     mapping(bytes32 => string) private _assetRef;
     mapping(bytes32 => address) private _tokenOf;
@@ -83,6 +84,11 @@ contract AssetRegistry is IAssetRegistry {
     }
 
     /// @inheritdoc IAssetRegistry
+    function valuationTsOf(bytes32 assetId) external view returns (uint64) {
+        return _valuationTs[assetId];
+    }
+
+    /// @inheritdoc IAssetRegistry
     function metadataHashOf(bytes32 assetId) external view returns (bytes32) {
         return _metadataHash[assetId];
     }
@@ -124,7 +130,9 @@ contract AssetRegistry is IAssetRegistry {
 
     /// @inheritdoc IAssetRegistry
     function register(bytes32 assetId, bytes32 metadataHash, string calldata assetRef) external onlyAgent {
-        if (assetId == bytes32(0)) revert EmptyAssetId();
+        if (assetId == bytes32(0) || bytes(assetRef).length == 0) revert EmptyAssetId();
+        bytes32 expected = keccak256(bytes(assetRef));
+        if (assetId != expected) revert AssetRefMismatch(assetId, expected);
         if (_state[assetId] != AssetState.UNREGISTERED) revert AssetAlreadyRegistered(assetId);
 
         _state[assetId] = AssetState.PENDING;
@@ -169,11 +177,13 @@ contract AssetRegistry is IAssetRegistry {
 
         _reserve[assetId] = a.reserve;
         _lastSeq[assetId] = a.seq;
+        _valuationTs[assetId] = a.valuationTs;
         if (s == AssetState.PENDING) _state[assetId] = AssetState.LIVE;
         emit AssetAdmitted(assetId, a.reserve, a.seq, a.valuationTs);
 
         if (s == AssetState.LIVE) {
             address token = _tokenOf[assetId];
+            // No token bound means nothing can have been minted (T4 rulings, reading 2).
             uint256 supply = token == address(0) ? 0 : IERC20(token).totalSupply();
             if (a.reserve < supply) emit UnderReserve(assetId, a.reserve, supply);
         }
