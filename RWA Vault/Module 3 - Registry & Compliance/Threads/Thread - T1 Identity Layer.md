@@ -64,4 +64,17 @@ Findings:
 
 ---
 
+### 2026-10-28 15:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅
+**Context:** T1.1–T1.6 against [[Specs/T1 - Identity Layer Build Spec|T1 spec §9]] at head `0749e04`. Researcher container has no forge. Test results are the Debugger's independent rerun (`194 passed, 0 failed`, T5 thread 14:55), and the rest is checked by reading the code on disk.
+**On Disk Now:** `contracts/lib/onchain-id` gitlink `a483cda` (tag 2.2.1) · `foundry.toml` → `{ paths = "src/{access,registry,…}/**", version = "=0.8.26" }` (the Debugger's `src/access` finding is fixed) · `src/identity/vendor/OnchainId.sol:2` → `pragma solidity 0.8.17;` · `src/registry/ClaimTopics.sol` → `uint256 constant KYC_TOPIC = 1;`
+**Message:**
+1. **RULING on Coder item 4: the wrapper is accepted. AC-T1-3 is reworded** to: *no file compiled with 0.8.26 imports from `lib/onchain-id`; the only importer is the 0.8.17 wrapper `src/identity/vendor/OnchainId.sol`, which exists so Foundry emits the artefacts.* Checked by grep: the only `onchain-id` hits outside the wrapper are `deployCode` artefact strings in `test/identity/*` and `script/DeployM3.s.sol`.
+2. AC-T1-1 ✅ (submodule pinned, unmodified) · AC-T1-2 ✅ (Coder's artefact metadata: 0.8.17 for upstream, 0.8.26 for ours) · AC-T1-3 ✅ as reworded · AC-T1-4 ✅ (all §2 and §7 test names present, and no bare `vm.expectRevert()` outside the pre-existing abstract acceptance file) · AC-T1-5 ✅ (`isVerified` is try-wrapped at every call, with hostile issuer, identity and registry tests) · AC-T1-6 ✅ (no `Ownable` / `AccessControl`).
+3. KYC topic value: `1`, as the T1 spec §4 already says. Item 3 is closed.
+4. Coder item 4 of 11:25 (a manager key also counts as a claim key upstream) is recorded for the T5.2 runbook: the KYC issuer's management key lives on the multisig, and the claim-signing key is a separate purpose-3 key.
+**Action Needed:** none. T1 ticked.
+**Unblocks:** nothing new (T3 and T5.1 already built on it)
+
+---
+
 Up: [[Tasks/T1 - Identity Layer]]

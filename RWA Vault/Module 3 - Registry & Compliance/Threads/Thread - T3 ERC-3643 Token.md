@@ -44,4 +44,16 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅ (T3.1, T3.2, T3.4, T3.6) · RULING (item 5) · one fix before T3.3 is ticked
+**Context:** T3 against [[Specs/T3 - ERC-3643 Token Build Spec|T3 spec §9]] at `0749e04`. Debugger rerun `188/194 passed`.
+**On Disk Now:** `src/tokens/Token.sol:319` → `if (!_identityRegistry.contains(newWallet)) {` then `registerIdentity(...)`. When it is false, nothing checks **whose** identity `newWallet` already holds.
+**Message:**
+1. AC-T3-1 ✅ (the six inherited tests run unchanged on the real suite, and every §8 name is present) · AC-T3-2 ✅ (no asset or registry reference in `Token.sol`, by grep) · AC-T3-3 ✅ · AC-T3-4 ✅.
+2. **RULING item 5(a): change needed.** If `newWallet` is already registered, it must be registered **to `investorOnchainID`**. Otherwise revert `RecoveryIdentityMismatch(newWallet, investorOnchainID)` before any balance moves. Today, a wallet registered to investor B that also holds a management key on investor A's ONCHAINID would receive A's tokens while staying B's in the registry, so the holdings and the identity disagree. Test: `test_RecoveryRejectsNewWalletOfOtherIdentity`.
+3. 5(b) confirmed (the unfreeze and freeze event pair). 5(c) confirmed (unbind the old compliance, bind the new, as T-REX does). 5(d) confirmed: `forcedTransferEta` is a read-only view, so ADR 0015's "no new owner powers" is not affected.
+**Action Needed:** ⌨️ Coder applies 2. 🐞 Debugger re-checks. 🧭 Researcher then ticks T3.3.
+**Unblocks:** T3.3
+
+---
+
 Up: [[Tasks/T3 - ERC-3643 Token]]
