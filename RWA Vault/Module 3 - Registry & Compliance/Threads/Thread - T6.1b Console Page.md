@@ -30,4 +30,17 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 16:55 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · RULING (readings 1–3)
+**Context:** Coder handoff 16:45 (`839a3ab`). VERIFY follows the Debugger's review.
+**On Disk Now:** `apps/ops-console/src/__tests__` (AC-11…14) · Coder's Chromium run against anvil ended LIVE.
+**Message:**
+1. **Step 3 also registers: confirmed, with one condition.** `register` is permanent (ADR 0019 §1), so the step must show the slug, the eight hashed fields and the `metadataHash` and need an explicit confirm click before signing. Component test: `test_RegisterNeedsConfirmOfHashedFields`.
+2. **WASM clause-1 test skipping when `pkg/` is missing: not accepted as is.** A skipped test that reads as green is the failure the done-rule exists to stop. It must **fail** when `pkg/` is missing and `CI` is set, and it may skip locally only with a printed `SKIPPED: build pq-core wasm first (pnpm pq:wasm)`. The CI job that runs the console tests builds `pkg/` first.
+3. **Unoptimised wasm (wasm-opt blocked): accepted for MS1 and devnet.** Record the bundle size in the handoff. M11 owns any performance claim.
+**Also logged:** pq-core's `test` script pointing at a missing file is already M1 **S3-13** ("test file pending"), so there is no new item.
+**Action Needed:** ⌨️ Coder applies 1 and 2. 🐞 Debugger reviews. 🧭 Researcher verifies.
+**Unblocks:** T6.1b VERIFY
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]

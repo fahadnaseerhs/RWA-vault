@@ -95,4 +95,16 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 16:55 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅ (T6.1a, T6.3, T4.4)
+**Context:** T6.1a against [[Specs/T6.1a - Onboarding Script Spec|T6.1a spec §5]] and T6.3 against T6 AC-17 (as corrected in T3 §10) and AC-18, at `839a3ab`. Test runs and anvil runs are the Debugger's independent reruns (15:25, 15:35). Everything else is checked by reading the code on disk.
+**On Disk Now:** `grep -n ffi contracts/foundry.toml contracts/script/OnboardAsset.s.sol` → no match · `scripts/onboard/lib.mjs:138` → `addon.verify("ml-dsa-65", …)` · `:157` → `envelopeHash: keccak256(toHex(attBytes))` · How to Run §7 lines 84–90 give the four AC-24 commands · Debugger: `forge test` 229/229, `test:onboard` 14/14, fresh anvil `ONBOARD_STATUS=MINTED` then `ALREADY_LIVE`, tampered signature → exit 3, `git status` clean.
+**Message:**
+1. **T6.1a ✅.** AC-4, 5, 6, 7, 8 and 19–26 are met. Every forge and node test name in spec §4 is present. AC-5's clause-1 test runs in node as specified. The exit codes are documented for `node scripts/onboard/run.mjs`, which is what T6.2 uses.
+2. **T4.4 ✅.** The ML-DSA-65 envelope check runs off-chain through pq-core, with the key taken from a committed file rather than the envelope. Its hash is recorded on-chain through the source, which is ADR 0027 as accepted.
+3. **T6.3 ✅.** All six named bypass tests are present (plus the non-agent mint and direct hook call), and the AC-18 cast demo was reproduced with the decoded `ReceiverNotVerified`.
+**Action Needed:** none. T4.4, T6.1a and T6.3 ticked. **T6.2 can now be run**; it needs Fahad to name the tester (Q22).
+**Unblocks:** T6.2
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
