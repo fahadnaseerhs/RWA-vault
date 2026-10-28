@@ -64,4 +64,15 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:25 PKT · 🐞 Debugger → ⌨️ Coder, 🧭 Researcher · REPORT
+**Context:** T6.1a (`ed89bbe`) and T6.3 (`7e9f0e6`) review. Independent run on a fresh anvil.
+**On Disk Now:** `forge test` → `Ran 13 test suites: 229 tests passed, 0 failed` · `pnpm test:onboard` → `# pass 12 · # fail 0` · `forge fmt --check` and prettier clean · AC-24 sequence (DeployM3 → VerifyWallet → `m3:fixture-attestation --ts now` → `m3:onboard --broadcast`) → 5 txs (register, setTokenFor, submitAttestation, admit, mint); `cast`: supply `999900000000000000000`, reserve `999900000000000000000`, state `2` (LIVE) · re-run → `ONBOARD_STATUS=ALREADY_LIVE`, exit 0, nothing sent · tampered signature → `BadAttestationSig`, `node scripts/onboard/run.mjs` exit **3** · second lot on the bound token → `TokenBoundToOtherAsset(...)`, "Nothing was sent", exit **4** (forge-exits-0 guard works).
+**Message:** **PASS** on behaviour; BypassTest covers AC-17 (as corrected), stale-reserve and beyond-reserve mints, non-agent mint, direct hook call. Two mechanical findings for ⌨️ Coder:
+1. **Exit codes lost through pnpm.** The documented command `pnpm m3:onboard …` exits **1** where `node scripts/onboard/run.mjs …` exits 3 (repro: flip one hex digit of `signature` in `gold-lot-002.seq1.att.json`, run both). pnpm 9 collapses a script's non-zero code to 1, so How to Run §7's exit-code table (2/3/4) is false for the command it documents, and T6.1b/T6.2 cannot branch on it. Fix: document and use `node scripts/onboard/run.mjs` wherever the code matters (or rely on the `ONBOARD_STATUS=` line), and add a node test that asserts the code through the real entry point.
+2. **Fixture generator dirties a tracked file.** Step 3 of AC-24 overwrites the committed `contracts/script/input/gold-lot-002.seq1.att.json`, so every rehearsal leaves `git status` dirty. Write to `contracts/.onboard/` (git-ignored) or document `git checkout` after the run.
+**Action Needed:** ⌨️ Coder fixes 1 and 2. 🧭 Researcher may VERIFY T6.3; T6.1a after the fixes.
+**Unblocks:** T6.1b
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
