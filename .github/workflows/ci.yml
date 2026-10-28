@@ -58,8 +58,10 @@ jobs:
       # If any fails, Step 1 isn't finished and the PR can't merge.
       - run: pnpm lint # → pnpm -r run lint (recursive ESLint)
       - run: pnpm typecheck # → pnpm -r run typecheck (tsc --build, project references)
-      - run: pnpm build # → pnpm -r run build (tsc --build, emits dist/)
-      - run: pnpm test # → pnpm -r run test (currently echo stubs)
+      # The ops-console bundles pq-core's WASM package (pkg/), which only the pq-wasm job
+      # builds, so its vite build and tests run there instead (T6.1b ruling 2).
+      - run: pnpm -r --filter '!@rwa-vault/ops-console' run build
+      - run: pnpm -r --filter '!@rwa-vault/ops-console' run test
 
       # Formatting is checked separately from lint because Prettier and
       # ESLint serve different purposes: Prettier handles whitespace/style,
@@ -344,3 +346,14 @@ jobs:
 
       - name: TypeScript package compiles
         run: pnpm --filter @rwa-vault/pq-core typecheck
+
+      # T6.1b: the onboarding page and its tests need pkg/ from the step above. With CI set,
+      # the WASM clause-1 test fails rather than skips if pkg/ is missing.
+      - name: Ops console builds against the WASM package
+        run: |
+          pnpm --filter @rwa-vault/types build
+          pnpm --filter @rwa-vault/pq-core build
+          pnpm --filter @rwa-vault/ops-console build
+
+      - name: Ops console tests (AC-11..14, clause 1 in WASM)
+        run: pnpm --filter @rwa-vault/ops-console test
