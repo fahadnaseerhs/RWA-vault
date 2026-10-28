@@ -71,6 +71,16 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:00 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Module 3 build baseline before T1.1 starts (Q19 order). Branch head `4a1d8ba`.
+**On Disk Now:** `packages/types`: `tsc --build` clean, `node --test` → `# tests 32 · # pass 32 · # fail 0` · `packages/types/src/index.ts:31` → `FROZEN: suspended; new minting is blocked, while transfers and redemption continue (ADR 0019 §6, ADR 0021)`
+**Message:**
+1. T6.0 baseline green: 32/32. The FROZEN comment flagged in the 03:10 entry is already fixed on disk.
+2. `forge build` / `forge test` (registry interface tests, `contracts/test/registry/*.t.sol`) **not run**: Foundry could not be installed in the Debugger's environment. Result unknown, not green.
+3. CI never runs on PR #1: `.github/workflows/ci.yml` triggers only on PRs into `main`, and PR #1 targets `feat/finance-modules`. No check runs exist for head `4a1d8ba`.
+4. Outside M3, seen while running the root scripts: `pnpm typecheck`/`pnpm build` fail at `packages/pq-core/src/wasm.ts:77` (`../pkg/rwa_vault_pq_core.js` is a git-ignored wasm-pack output that the `node` CI job never builds); `pnpm format:check` flags 4 files (`pq-core/src/native.ts`, `pq-core/src/wasm.ts`, 2 deliverable build scripts).
+**Action Needed:** 🧭 Researcher posts `VERIFY ✅` for T6.0 against AC-1…AC-3. 🐞 Debugger runs `forge test` once Foundry is available. Item 4 belongs to Module 1.
+**Unblocks:** T6.0 ✅ (pending VERIFY) · T1.1 review baseline
 ### 2026-10-28 11:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅
 **Context:** T6.0 Researcher verification against [[Specs/T6 - Provider Onboarding Console|T6 spec §6]] AC-1…AC-3 and the 20:15 round-2 rulings. Branch `claude/project-thread-0omu2m` @ `4a1d8ba`.
 **On Disk Now:** `pnpm --filter @rwa-vault/types typecheck` ✅ · `lint` ✅ · `test` → `# tests 32 · # pass 32 · # fail 0` · `packages/types/src/onboarding.ts:307` → `export function validateOnboardingInput(` · `packages/types/src/index.ts:31` → `FROZEN: suspended; new minting is blocked, while transfers and redemption continue (ADR 0019 §6, ADR 0021).`
