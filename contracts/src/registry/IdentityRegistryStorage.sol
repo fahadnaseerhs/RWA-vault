@@ -28,12 +28,14 @@ contract IdentityRegistryStorage is IIdentityRegistryStorage {
 
     error NotOwner(address caller);
     error NotBoundRegistry(address caller);
-    error ZeroAddress();
-    error AlreadyStored(address user);
-    error NotStored(address user);
+    error InvalidWallet(address wallet);
+    error InvalidIdentity(address identity);
+    error InvalidRegistry(address registry);
+    error IdentityAlreadyStored(address wallet);
+    error IdentityNotStored(address wallet);
     error RegistryAlreadyBound(address registry);
     error RegistryNotBound(address registry);
-    error TooManyRegistries();
+    error TooManyBoundRegistries();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner(msg.sender);
@@ -46,14 +48,15 @@ contract IdentityRegistryStorage is IIdentityRegistryStorage {
     }
 
     constructor(address owner_) {
-        if (owner_ == address(0)) revert ZeroAddress();
+        if (owner_ == address(0)) revert NotOwner(address(0));
         owner = owner_;
     }
 
     /// @inheritdoc IIdentityRegistryStorage
     function addIdentityToStorage(address user, IIdentity identity_, uint16 country) external onlyRegistry {
-        if (user == address(0) || address(identity_) == address(0)) revert ZeroAddress();
-        if (address(_investors[user].identity) != address(0)) revert AlreadyStored(user);
+        if (user == address(0)) revert InvalidWallet(user);
+        if (address(identity_) == address(0)) revert InvalidIdentity(address(0));
+        if (address(_investors[user].identity) != address(0)) revert IdentityAlreadyStored(user);
         _investors[user] = Investor(identity_, country);
         emit IdentityStored(user, identity_);
     }
@@ -61,32 +64,32 @@ contract IdentityRegistryStorage is IIdentityRegistryStorage {
     /// @inheritdoc IIdentityRegistryStorage
     function removeIdentityFromStorage(address user) external onlyRegistry {
         IIdentity old = _investors[user].identity;
-        if (address(old) == address(0)) revert NotStored(user);
+        if (address(old) == address(0)) revert IdentityNotStored(user);
         delete _investors[user];
         emit IdentityUnstored(user, old);
     }
 
     /// @inheritdoc IIdentityRegistryStorage
     function modifyStoredInvestorCountry(address user, uint16 country) external onlyRegistry {
-        if (address(_investors[user].identity) == address(0)) revert NotStored(user);
+        if (address(_investors[user].identity) == address(0)) revert IdentityNotStored(user);
         _investors[user].country = country;
         emit CountryModified(user, country);
     }
 
     /// @inheritdoc IIdentityRegistryStorage
     function modifyStoredIdentity(address user, IIdentity identity_) external onlyRegistry {
-        if (address(identity_) == address(0)) revert ZeroAddress();
+        if (address(identity_) == address(0)) revert InvalidIdentity(address(0));
         IIdentity old = _investors[user].identity;
-        if (address(old) == address(0)) revert NotStored(user);
+        if (address(old) == address(0)) revert IdentityNotStored(user);
         _investors[user].identity = identity_;
         emit IdentityModified(old, identity_);
     }
 
     /// @inheritdoc IIdentityRegistryStorage
     function bindIdentityRegistry(address registry) external onlyOwner {
-        if (registry == address(0)) revert ZeroAddress();
+        if (registry == address(0)) revert InvalidRegistry(registry);
         if (_isRegistry[registry]) revert RegistryAlreadyBound(registry);
-        if (_registries.length >= MAX_REGISTRIES) revert TooManyRegistries();
+        if (_registries.length >= MAX_REGISTRIES) revert TooManyBoundRegistries();
         _isRegistry[registry] = true;
         _registries.push(registry);
         emit IdentityRegistryBound(registry);

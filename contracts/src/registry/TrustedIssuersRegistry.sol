@@ -23,11 +23,11 @@ contract TrustedIssuersRegistry is ITrustedIssuersRegistry {
     mapping(uint256 => IClaimIssuer[]) private _issuersFor;
 
     error NotOwner(address caller);
-    error ZeroAddress();
+    error InvalidIssuer(address issuer);
     error IssuerAlreadyTrusted(address issuer);
     error IssuerNotTrusted(address issuer);
-    error NoClaimTopics();
-    error TooManyTopics();
+    error EmptyClaimTopics();
+    error TooManyClaimTopics();
     error TooManyIssuers();
 
     modifier onlyOwner() {
@@ -36,14 +36,14 @@ contract TrustedIssuersRegistry is ITrustedIssuersRegistry {
     }
 
     constructor(address owner_) {
-        if (owner_ == address(0)) revert ZeroAddress();
+        if (owner_ == address(0)) revert NotOwner(address(0));
         owner = owner_;
     }
 
     /// @inheritdoc ITrustedIssuersRegistry
     function addTrustedIssuer(IClaimIssuer issuer, uint256[] calldata claimTopics) external onlyOwner {
         address a = address(issuer);
-        if (a == address(0)) revert ZeroAddress();
+        if (a == address(0)) revert InvalidIssuer(a);
         if (_topicsOf[a].length != 0) revert IssuerAlreadyTrusted(a);
         _checkTopics(claimTopics);
         if (_issuers.length >= MAX_ISSUERS) revert TooManyIssuers();
@@ -111,8 +111,8 @@ contract TrustedIssuersRegistry is ITrustedIssuersRegistry {
     }
 
     function _checkTopics(uint256[] calldata claimTopics) private pure {
-        if (claimTopics.length == 0) revert NoClaimTopics();
-        if (claimTopics.length > MAX_TOPICS_PER_ISSUER) revert TooManyTopics();
+        if (claimTopics.length == 0) revert EmptyClaimTopics();
+        if (claimTopics.length > MAX_TOPICS_PER_ISSUER) revert TooManyClaimTopics();
     }
 
     function _unindex(IClaimIssuer issuer) private {

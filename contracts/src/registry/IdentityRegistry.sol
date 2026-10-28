@@ -18,7 +18,7 @@ import {OwnerAgentRoles} from "../access/OwnerAgentRoles.sol";
  *      confirms via `isClaimValid` (ECDSA, not revoked). Claim ids follow ERC-735 /
  *      ONCHAINID: `keccak256(abi.encode(issuer, topic))`. Calls into identities and issuers
  *      are wrapped so a broken or hostile identity makes the wallet unverified rather than
- *      reverting. Agent = Tier 1 service key (registration); owner = multisig (wiring).
+ *      reverting: every external call is try-wrapped (T1 spec §6 step 4). Agent = Tier 1 service key (registration); owner = multisig (wiring).
  */
 contract IdentityRegistry is IIdentityRegistry, OwnerAgentRoles {
     IIdentityRegistryStorage private _storage;
@@ -124,10 +124,20 @@ contract IdentityRegistry is IIdentityRegistry, OwnerAgentRoles {
 
     /// @inheritdoc IIdentityRegistry
     function isVerified(address user) external view returns (bool) {
-        IIdentity id = _storage.storedIdentity(user);
+        IIdentity id;
+        try _storage.storedIdentity(user) returns (IIdentity stored) {
+            id = stored;
+        } catch {
+            return false;
+        }
         if (address(id) == address(0)) return false;
 
-        uint256[] memory topics = _topics.getClaimTopics();
+        uint256[] memory topics;
+        try _topics.getClaimTopics() returns (uint256[] memory t) {
+            topics = t;
+        } catch {
+            return false;
+        }
         for (uint256 t; t < topics.length; ++t) {
             if (!_hasValidClaim(id, topics[t])) return false;
         }
@@ -169,7 +179,12 @@ contract IdentityRegistry is IIdentityRegistry, OwnerAgentRoles {
     }
 
     function _hasValidClaim(IIdentity id, uint256 topic) private view returns (bool) {
-        IClaimIssuer[] memory trusted = _issuers.getTrustedIssuersForClaimTopic(topic);
+        IClaimIssuer[] memory trusted;
+        try _issuers.getTrustedIssuersForClaimTopic(topic) returns (IClaimIssuer[] memory list) {
+            trusted = list;
+        } catch {
+            return false;
+        }
         for (uint256 i; i < trusted.length; ++i) {
             bytes32 claimId = keccak256(abi.encode(address(trusted[i]), topic));
             try id.getClaim(claimId) returns (
