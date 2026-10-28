@@ -2,14 +2,14 @@
 type: decision
 id: M3-Q22
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T6.2, T7.4]
 recommendation: "A — Hassan or Fawaz, whoever has not touched T6, from the written docs only, on devnet, once T6.1a is green"
-decision: ""
-decided_by: ""
-decided_on: ""
+decision: "A — Hassan or Fawaz (whoever has not touched T6), on devnet after T6.1a is green; outside tester for the final MS1 dry run if time allows"
+decided_by: Fahad
+decided_on: 2026-10-28
 adr: none
 tags: [rwa-vault, decision, m3, task6]
 updated: 2026-10-27
@@ -31,6 +31,8 @@ defect. No one is named, so the rehearsal can quietly become the author running 
 **Option A**, with Option B as the final MS1 rehearsal if time allows.
 
 ## Decision
-> _Empty until Fahad decides._
+> **Option A (Fahad, 2026-10-28).** A teammate who did not build T6 — Hassan or Fawaz, whoever has not touched T6 —
+> runs the rehearsal on devnet from the docs alone, after T6.1a is green. If time allows, an outside tester (Option B) repeats
+> it as the final MS1 dry run. The specific person is named when the protocol is handed over.
 
 Up: [[Open Questions for Fahad]] · Related: [[Specs/T6 - Provider Onboarding Console|T6 spec §5]]

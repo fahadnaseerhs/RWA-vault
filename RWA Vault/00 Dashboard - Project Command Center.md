@@ -23,14 +23,13 @@ updated: 2026-10-27
 
 > Index only — every status below is read from the linked note's frontmatter. Full list: **[[Decisions Register]]**.
 
-### ⏳ Open decisions for Fahad (1) — Module 3, Task 6
+### ⏳ Open decisions for Fahad (0) — Module 3, Task 6
 | Q | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Module 3 - Registry & Compliance/Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | Who runs the unaided rehearsal? | A non-author teammate | T6.2, T7.4 |
 
 ### ✅ Decided
 - **M3 Q01–Q16:** all decided 2026-10-27 — see [[Module 3 - Registry & Compliance/Decisions/Decisions Log|M3 Decisions Log]].
-  **Q17 (2026-10-28):** 4 clauses and one custodian signer for MS1; insurer in Phase 2. **Q18 (2026-10-28):** clause 1 verified off-chain, hash anchored (ADR 0027). **Q19 (2026-10-28):** verify T6.0 → T6.2 protocol → build T1–T5 → T6.1a. **Q20 (2026-10-28):** local-only work pushed on the vault PR; PDF and PNGs restored. **Q21 (2026-10-28):** ADRs 0002–0027 Accepted; licence GPL-3.0.
+  **Q17 (2026-10-28):** 4 clauses and one custodian signer for MS1; insurer in Phase 2. **Q18 (2026-10-28):** clause 1 verified off-chain, hash anchored (ADR 0027). **Q19 (2026-10-28):** verify T6.0 → T6.2 protocol → build T1–T5 → T6.1a. **Q20 (2026-10-28):** local-only work pushed on the vault PR; PDF and PNGs restored. **Q21 (2026-10-28):** ADRs 0002–0027 Accepted; licence GPL-3.0. **Q22 (2026-10-28):** Hassan or Fawaz runs T6.2 after T6.1a.
 - **Custody C1–C10:** settled; **C11** (production custodian) deferred — see [[Open Questions - Custody & Tokenisation]].
 - **Latest audit:** [[2026-10-27 - Decision Conflict Audit]] (19 decision conflicts, 5 process conflicts, ADR ↔ code check).
 
@@ -49,7 +48,7 @@ updated: 2026-10-27
 ---
 
 ## 📋 Open Actions for Fahad
-1. Answer **Q22** above (each note has options and a recommendation).
+1. No open decisions. Next: name Hassan or Fawaz for T6.2 when the protocol is ready.
 2. Merge the vault-standardization PR (it now carries the local code work, Q20).
 
 ---

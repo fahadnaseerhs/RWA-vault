@@ -12,7 +12,6 @@ updated: 2026-10-27
 
 | # | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | Who runs the unaided rehearsal? | A teammate who did not build T6 | T6.2, T7.4 |
 
 ## ✅ Decided
 
@@ -39,6 +38,7 @@ updated: 2026-10-27
 | [[Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] | Task 6 order | A — verify T6.0 → T6.2 protocol → T1–T5 → T6.1a (2026-10-28) | none (sequencing) |
 | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Local-only work | A — pushed on the vault PR; PDF and PNGs restored (2026-10-28) | none |
 | [[Questions/Q21 - Accept the ADRs and settle the licence\|Q21]] | ADR acceptance; licence | Accept all 26 (0002–0027); GPL-3.0 (2026-10-28) | `0001` |
+| [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | T6.2 tester | A — Hassan or Fawaz after T6.1a; outside tester for final MS1 run if time (2026-10-28) | none |
 
 Cross-cutting custody decisions C1–C11: [[Open Questions - Custody & Tokenisation]]. All decisions in one place: [[Decisions Register]].
 

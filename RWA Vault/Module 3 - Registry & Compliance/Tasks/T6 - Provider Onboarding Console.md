@@ -23,7 +23,6 @@ updated: 2026-10-27
 |---|---|---|---|
 | T6.0 not yet verified (code is green: `@rwa-vault/types` 32/32, 2026-10-27) | task | 🧭 Researcher | `VERIFY ✅` in the T6.0 thread |
 | No `AssetRegistry`, `Token`, registries, compliance or deploy script exist (T1–T5) | task | ⌨️ Coder | T5.1 green |
-| No named non-author tester for T6.2 | decision | 👤 Fahad | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] decided |
 | Real envelope path needs M2 codec/verifier (skeleton today) | external | M2 | M2 T3/T4 — until then the fixture envelope + banner (ADR 0017) |
 | `apps/ops-console` has no UI stack (ADR 0026 accepted, not scaffolded) | task | ⌨️ Coder | scaffold after T6.1a |
 
@@ -31,7 +30,7 @@ updated: 2026-10-27
 - [ ] **T6.0** 🧭 **In review** — Shared onboarding schema (`packages/types/src/onboarding.ts`, `schema/onboarding-input.schema.json`) and Ajv parity harness. Batch 2 applied; 32/32 green. Awaiting Researcher `VERIFY ✅` (see [[Threads/Thread - T6.0 Onboarding Schema & Parity]]).
 - [ ] **T6.1a** Foundry onboarding script `contracts/script/OnboardAsset.s.sol` (declarative JSON input, idempotent, named error translations). *(Queued after T5.1)*.
 - [ ] **T6.1b** UI page in `apps/ops-console` (React 18 + Vite + Viem per ADR 0026).
-- [ ] **T6.2** Unaided onboarding rehearsal (tester: [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal|Q22]]); protocol can be written now, run after T6.1a; documented in `docs/reports/M3-onboarding-rehearsal.md`.
+- [ ] **T6.2** Unaided onboarding rehearsal (tester: Hassan or Fawaz, per [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal|Q22]]); protocol can be written now, run after T6.1a; documented in `docs/reports/M3-onboarding-rehearsal.md`.
 - [ ] **T6.3** Acceptance bypass test `contracts/test/registry/BypassTest.t.sol` (direct-contract bypass attempts rejected on-chain).
 
 Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T6.0 Onboarding Schema & Parity]]
