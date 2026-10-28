@@ -30,6 +30,7 @@ updated: 2026-10-04
 - [ ] **S3-13** Replace the `"no tests yet"` placeholder with a real `pnpm test` *(script updated, test file pending)*
 - [x] **S3-14** Package exports map, `.d.ts` check, ESLint — **typecheck and lint pass**
 - [x] **S3-15** Wire `build:wasm`, `build:native`, `build:addon`, `build:pqctl` to real commands
+- [ ] **S3-16** Fix `src/native.ts`: it calls `require(...)` in an ESM package, where `require` is undefined, so `createNativeAdapter` cannot load. Use `createRequire(import.meta.url)`. *(Found by the M3 Coder in T6.1a, 2026-10-28; M3 works around it in `scripts/onboard/lib.mjs`.)*
 
 ## Expanded WASM boundary
 The `wasm.rs` module was expanded from Falcon-only (Stage 1 slice) to all six primitives, matching the full `PqCoreApi` interface. The Stage 1 `FalconKeyPair` WASM struct was replaced by a generic `WasmKeyPair` and `WasmEncapsulation`.

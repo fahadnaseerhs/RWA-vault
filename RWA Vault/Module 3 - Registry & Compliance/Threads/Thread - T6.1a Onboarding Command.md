@@ -33,4 +33,23 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:50 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · RULING (readings 1–9) · T6.3 scope
+**Context:** Coder handoff 15:30 (`ed89bbe`). **VERIFY of T6.1a waits for the 🐞 Debugger's review**, per the loop. These rulings come first so the review has the intended behaviour.
+**On Disk Now:** `contracts/script/OnboardAsset.s.sol` · `scripts/onboard/run.mjs` · Coder's results: `forge test` 221/221, `pnpm test:onboard` 11/11, AC-24 run on a fresh anvil.
+**Message:**
+1. **Confirmed.** For a PENDING asset, clause 2 can only fail at the source, and the joined sentence is right. Keep the registry pre-check: it costs nothing, and it is what fires once M5 replaces the source.
+2. **Confirmed.** `AdmitRejected(bytes reason, string sentence)` keeps the exact registry error inspectable, which satisfies AC-5 (selector plus sentence).
+3. **Confirmed, and it is required, not optional.** A green exit on a failed onboarding would make T6.2 lie. Add one test asserting that a revert gives a non-zero exit (`test_RunExitsNonZeroOnScriptRevert`) if it is not already covered by the 11.
+4. **Confirmed.** All-or-nothing simulation is stronger than the spec asked. AC-7's "no broadcast" holds trivially.
+5. **Confirmed, and my spec wording was wrong.** In 2.2.1 a management key does pass `onlyClaimKey`. Using `execute` stays, because it is the path that also works when the wallet holds only purpose 1 in a later upstream. I've corrected the T5.1 §7 wording. Together with the 15:20 T1 note, this means any management key on the KYC issuer can sign claims, which is a T5.2 runbook item.
+6. **Logged as an M1 defect, not fixed here** (right call: M1 code is outside M3's scope). Recorded in the M1 task list for its owner. Stage 1's `createRequire` workaround is acceptable until M1 fixes it.
+7. **Confirmed.** Extra named errors that close a check are welcome. `MalformedAttestation` rejecting a `publicKey` field is exactly the §2.2 rule.
+8. **Confirmed.** `viem` pinned at 2.21.0 matches ADR 0026's stack.
+9. **Confirmed.** A devnet public key and an example envelope in git are fine. The private key must never be committed. Add `contracts/.onboard/` to the AC-T5-4 key grep's scope in your next touch.
+**T6.3 scope (no separate spec needed):** T6 spec AC-17 **as corrected by [[Specs/T3 - ERC-3643 Token Build Spec|T3 spec §10]]**, so `test_DirectTransferToUnverifiedReverts` and `test_DirectMintToUnverifiedReverts` → `ReceiverNotVerified`, `test_DirectMintWhenAssetNotLiveReverts` → `TransferNotCompliant(address(0), to, amount)`, and `test_DirectTransferWhenAssetFrozenSucceeds`. Add `test_DirectMintWhenReserveStaleReverts` (ADR 0021) and `test_DirectMintBeyondReserveReverts`, because "bypass" means each gate the console checks must also hold when someone calls the contract directly. Build the suite with `M3System` and call the token from a plain EOA, with no script or console. AC-18: How to Run §7's `cast send` demo uses the real address pattern from `deployments/31337.json` and the real decoded error.
+**Action Needed:** 🐞 Debugger reviews T6.1a. ⌨️ Coder builds T6.3. 🧭 Researcher verifies T6.1a and T4.4 after the review.
+**Unblocks:** T6.3
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]

@@ -74,4 +74,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:50 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅ (T3.3)
+**Context:** The 15:20 owed fix, `b82c5d7`, passed by the Debugger in `95d543f`.
+**On Disk Now:** `src/tokens/Token.sol` (recoveryAddress) → `_identityRegistry.contains(newWallet) && address(_identityRegistry.identity(newWallet)) != investorOnchainID` → `revert RecoveryIdentityMismatch(newWallet, investorOnchainID);` placed before `_forcedMove` · `test/tokens/Token.t.sol:443` → `test_RecoveryRejectsNewWalletOfOtherIdentity`
+**Message:** The guard runs before any balance moves, as ruled. T3.3 ticked. T3 is done apart from T3.5, which stays deferred (Q8 = A).
+**Action Needed:** none
+**Unblocks:** nothing new
+
+---
+
 Up: [[Tasks/T3 - ERC-3643 Token]]
