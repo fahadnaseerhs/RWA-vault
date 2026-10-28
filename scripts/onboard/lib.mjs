@@ -6,7 +6,7 @@
  * subprocess. The real M2 envelope replaces the format below behind the same two seams:
  * the verified file and `IReserveAttestationSource` (T6.1a spec §2, §7).
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -156,12 +156,30 @@ export function parseAttestation(bytes) {
 }
 
 /**
- * Reads the registered custodian key and checks it against `custodianKeyHash`.
- * @param inputDir the `contracts/script/input` directory
+ * Where the custodian key is read from. The registered key is committed in
+ * `contracts/script/input/`. On anvil only, a devnet fixture key written by
+ * `make-fixture-attestation.mjs` to `contracts/.onboard/` (gitignored) takes precedence, so a
+ * rehearsal never rewrites tracked files.
  */
-export function readCustodianKey(inputDir) {
-  const pub = readFileSync(resolve(inputDir, "custodian.mldsa65.pub"));
-  const cfg = JSON.parse(readFileSync(resolve(inputDir, "custodian.json"), "utf8"));
+export function custodianKeyDir(contractsDir, chainId) {
+  const devnet = resolve(contractsDir, ".onboard");
+  if (chainId === ANVIL_CHAIN_ID && existsSync(resolve(devnet, "custodian.json"))) return devnet;
+  return resolve(contractsDir, "script/input");
+}
+
+/** Reads the custodian key from `dir` and checks it against `custodianKeyHash`. */
+export function readCustodianKey(dir) {
+  const pubPath = resolve(dir, "custodian.mldsa65.pub");
+  const cfgPath = resolve(dir, "custodian.json");
+  if (!existsSync(pubPath) || !existsSync(cfgPath)) {
+    throw new OnboardError(
+      "CustodianKeyMissing",
+      EXIT.ATTESTATION,
+      `no custodian key at ${dir} (custodian.mldsa65.pub and custodian.json)`,
+    );
+  }
+  const pub = readFileSync(pubPath);
+  const cfg = JSON.parse(readFileSync(cfgPath, "utf8"));
   const got = keccak256(pub);
   if (got.toLowerCase() !== String(cfg.custodianKeyHash).toLowerCase()) {
     throw new OnboardError(
@@ -174,12 +192,13 @@ export function readCustodianKey(inputDir) {
 }
 
 /**
- * Clause 1 and the envelope cross-checks (spec §2.3).
+ * Clause 1 and the envelope cross-checks (spec §2.3). The key is loaded only after the
+ * chain and asset checks, through `loadPublicKey`.
  * @returns the verified record written to `.onboard/<slug>.verified.json`
  */
 export async function verifyAttestation({
   attBytes,
-  publicKey,
+  loadPublicKey,
   chainId,
   inputAssetRef,
   addon,
@@ -200,6 +219,7 @@ export async function verifyAttestation({
       `the input is for "${inputAssetRef}" but the attestation is for "${a.assetRef}"`,
     );
   }
+  const publicKey = loadPublicKey();
   let ok = false;
   try {
     ok = await addon.verify(

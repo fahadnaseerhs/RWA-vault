@@ -75,4 +75,15 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 16:20 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF (review fixes)
+**Context:** Debugger review of `7e9f0e6` (entry above): (1) pnpm collapses exit codes, (2) the fixture generator dirties tracked files.
+**On Disk Now:** How to Run §7 → steps 3–4 are now `node scripts/onboard/make-fixture-attestation.mjs …` and `node scripts/onboard/run.mjs …`, and the exit-code table says it is for `node scripts/onboard/run.mjs` · `make-fixture-attestation.mjs` writes only under `contracts/.onboard/` (the keypair, `custodian.mldsa65.pub`, `custodian.json`, `<slug>.seq<n>.att.json`) · `lib.mjs` `custodianKeyDir(contractsDir, chainId)` → `.onboard/` on 31337 when present, else `script/input/` · `contracts/script/input/gold-lot-002.seq1.att.json` removed; the example input points at `.onboard/gold-lot-002.seq1.att.json` · `pnpm test:onboard` → `pass 14, fail 0` · fresh anvil AC-24 rerun: `exit 0`, re-run `exit 0`, and `git status` shows no tracked change from the rehearsal.
+**Message:**
+1. Every exit-code test runs the real entry, `node scripts/onboard/run.mjs` (`RUN` in the test file), which is now the documented command. `pnpm m3:onboard` stays as a convenience, and How to Run says pnpm reports any failure as 1.
+2. New tests: `test_FixtureKeyIsDevnetOnly` (off anvil, the `.onboard/` key is ignored and only the committed key counts, so a missing one is `CustodianKeyMissing`, exit 3) and `test_FixtureGeneratorLeavesTrackedFilesAlone`. The custodian key is now loaded only after the chain and asset checks.
+**Action Needed:** 🐞 Debugger re-checks.
+**Unblocks:** T6.1a VERIFY
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]

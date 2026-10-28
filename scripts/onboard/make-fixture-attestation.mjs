@@ -3,9 +3,11 @@
  * Devnet fixture custodian (T6.1a spec §2.4):
  *   node scripts/onboard/make-fixture-attestation.mjs --asset <slug> --reserve <wei> --seq <n> --ts <unix|now|stale>
  *
- * Refuses unless the RPC is anvil (31337). Generates or reuses an ML-DSA-65 keypair under
- * contracts/.onboard/keys/ (gitignored), writes the public key and its hash to
- * contracts/script/input/, and writes contracts/script/input/<slug>.seq<n>.att.json.
+ * Refuses unless the RPC is anvil (31337). Everything goes under contracts/.onboard/
+ * (gitignored), so a rehearsal never changes tracked files: the ML-DSA-65 keypair in keys/
+ * (generated once, then reused), the devnet custodian key and its hash
+ * (custodian.mldsa65.pub, custodian.json; on anvil run.mjs prefers these to the committed
+ * key in contracts/script/input/), and the envelope <slug>.seq<n>.att.json.
  * `now` and `stale` are read from the chain's latest block, not the wall clock.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -26,10 +28,9 @@ export async function makeFixture({
   seq,
   ts,
 }) {
-  const keyDir = resolve(contractsDir, ".onboard/keys");
-  const inputDir = resolve(contractsDir, "script/input");
+  const outDir = resolve(contractsDir, ".onboard");
+  const keyDir = resolve(outDir, "keys");
   mkdirSync(keyDir, { recursive: true });
-  mkdirSync(inputDir, { recursive: true });
 
   const pubPath = resolve(keyDir, "custodian.mldsa65.pub");
   const keyPath = resolve(keyDir, "custodian.mldsa65.key");
@@ -39,9 +40,9 @@ export async function makeFixture({
     writeFileSync(pubPath, kp.publicKey);
   }
   const pub = readFileSync(pubPath);
-  writeFileSync(resolve(inputDir, "custodian.mldsa65.pub"), pub);
+  writeFileSync(resolve(outDir, "custodian.mldsa65.pub"), pub);
   writeFileSync(
-    resolve(inputDir, "custodian.json"),
+    resolve(outDir, "custodian.json"),
     JSON.stringify(
       {
         algorithm: "ML-DSA-65",
@@ -64,7 +65,7 @@ export async function makeFixture({
     seq: Number(seq),
     valuationTs,
   });
-  const rel = `script/input/${asset}.seq${seq}.att.json`;
+  const rel = `.onboard/${asset}.seq${seq}.att.json`;
   writeFileSync(resolve(contractsDir, rel), JSON.stringify(att, null, 2) + "\n");
   return { path: rel, valuationTs };
 }

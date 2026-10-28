@@ -5,7 +5,7 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -178,7 +178,7 @@ test("test_RejectsEnvelopeForOtherAsset", async () => {
 test("test_RejectsCustodianKeyNotMatchingItsHash", async () => {
   const ws = await workspace();
   const other = await addon.keygen("ml-dsa-65");
-  writeFileSync(resolve(ws.dir, "script/input/custodian.mldsa65.pub"), other.publicKey);
+  writeFileSync(resolve(ws.dir, ".onboard/custodian.mldsa65.pub"), other.publicKey);
   const r = await onboard(ws);
   assert.equal(r.code, 3);
   assert.match(r.stderr, /CustodianKeyMismatch/);
@@ -266,4 +266,26 @@ test("test_NoKeyMaterialCommitted", () => {
       }
     },
   );
+});
+
+test("test_FixtureKeyIsDevnetOnly", async () => {
+  // Off anvil the devnet key in .onboard/ is ignored; only the committed key counts.
+  const ws = await workspace();
+  editEnvelope(ws, (a) => ({ ...a, chainId: 421614 }));
+  chainIdHex = "0x66eee";
+  try {
+    const r = await onboard(ws);
+    assert.equal(r.code, 3);
+    assert.match(r.stderr, /CustodianKeyMissing: no custodian key at .*script\/input/);
+  } finally {
+    chainIdHex = "0x7a69";
+    rmSync(ws.dir, { recursive: true });
+  }
+});
+
+test("test_FixtureGeneratorLeavesTrackedFilesAlone", async () => {
+  const ws = await workspace();
+  assert.ok(!existsSync(resolve(ws.dir, "script/input")), "nothing written outside .onboard/");
+  assert.match(ws.attPath, /\/\.onboard\/gold-lot-002\.seq1\.att\.json$/);
+  rmSync(ws.dir, { recursive: true });
 });

@@ -20,6 +20,7 @@ import {
   OnboardError,
   REPO_ROOT,
   loadAddon,
+  custodianKeyDir,
   readCustodianKey,
   rpc,
   verifyAttestation,
@@ -63,7 +64,7 @@ export async function main(argv, env = process.env) {
       : Buffer.from(att.bytesBase64, "base64");
     const verified = await verifyAttestation({
       attBytes,
-      publicKey: readCustodianKey(resolve(contractsDir, "script/input")),
+      loadPublicKey: () => readCustodianKey(custodianKeyDir(contractsDir, chainId)),
       chainId,
       inputAssetRef: input.assetId,
       addon: loadAddon(env.PQ_CORE_ADDON),
