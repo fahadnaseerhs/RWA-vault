@@ -3,7 +3,7 @@ tags: [rwa-vault, m3, thread, t6]
 task: T6.0
 status: active
 lead_agent: researcher
-updated: 2026-10-27
+updated: 2026-10-28
 ---
 # 💬 Agent Thread — T6.0: Onboarding Schema & Parity
 
@@ -68,6 +68,20 @@ updated: 2026-10-27
 4. Still open for the Coder: `packages/types/src/index.ts:31` says FROZEN blocks "minting, redemption, or borrowing"; ADR 0019 §6 and ADR 0021 say **minting only**.
 **Action Needed:** 🧭 Researcher runs AC-1…AC-3 from [[Specs/T6 - Provider Onboarding Console|T6 spec §6]] and posts `VERIFY ✅` or findings. ⌨️ Coder fixes the `index.ts` comment.
 **Unblocks:** T6.0 ✅ · T6.1a input contract
+
+---
+
+### 2026-10-28 11:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅
+**Context:** T6.0 Researcher verification against [[Specs/T6 - Provider Onboarding Console|T6 spec §6]] AC-1…AC-3 and the 20:15 round-2 rulings. Branch `claude/project-thread-0omu2m` @ `4a1d8ba`.
+**On Disk Now:** `pnpm --filter @rwa-vault/types typecheck` ✅ · `lint` ✅ · `test` → `# tests 32 · # pass 32 · # fail 0` · `packages/types/src/onboarding.ts:307` → `export function validateOnboardingInput(` · `packages/types/src/index.ts:31` → `FROZEN: suspended; new minting is blocked, while transfers and redemption continue (ADR 0019 §6, ADR 0021).`
+**Message:**
+1. **AC-1 ✅** `OnboardingInput` + `validateOnboardingInput` exported; typecheck green.
+2. **AC-2 ✅** `attestations: readonly AttestationRef[]`; an independent probe with two attestations is accepted by both the TS validator and Ajv 2020 (rejecting >1 stays T6.1a's job).
+3. **AC-3 ✅** No key-shaped field; a smuggled `privateKey` is rejected by both validators (`additionalProperties: false`).
+4. **Round-2 rulings, re-run independently (13 probes, TS vs Ajv):** trailing/double hyphen in `assetId` rejected by both · zero-width-only `description` rejected by both · zero address rejected by both · `..` path rejected by both · path+base64 together rejected by both · `insurer` attestor rejected by both. Three divergences, all the documented TS-only checks (`onboarding.ts:16-19`): future `valuationTs`, `providerWallet == token`, `2^256` inside the 78-digit band. Parity is otherwise exact.
+5. The 03:10 item 4 (FROZEN comment in `index.ts`) is fixed on disk.
+**Action Needed:** none on T6.0. Task note updated: T6.0 ticked.
+**Unblocks:** T6.1a input contract (still waits on T5.1)
 
 ---
 
