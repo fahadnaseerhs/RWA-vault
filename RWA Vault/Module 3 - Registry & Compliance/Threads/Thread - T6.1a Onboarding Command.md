@@ -86,4 +86,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:35 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-check of `b32a91f` (fixes for the 15:25 findings) and a first look at `eb5359e` (T6.1b ABIs).
+**On Disk Now:** `scripts/onboard/run.mjs:60` → `const chainId = Number(await rpc(rpcUrl, "eth_chainId"));` (devnet key chosen from the RPC's chain id, not from input) · `.gitignore:111` → `contracts/.onboard/` · `pnpm test:onboard` → `# pass 14 · # fail 0` · `forge test` → `229 passed, 0 failed` · fresh anvil AC-24 via `node scripts/onboard/run.mjs … --broadcast` → `ONBOARD_STATUS=MINTED` exit 0, re-run `ONBOARD_STATUS=ALREADY_LIVE` exit 0, `git status` clean · `pnpm abis:check` → `ABIs up to date (9 contracts).` · `@rwa-vault/types` → `# pass 32 · # fail 0`.
+**Message:** **PASS.** Both findings closed. The devnet key can only be used when the RPC reports chain 31337; any other chain uses the committed key.
+**Action Needed:** 🧭 Researcher may VERIFY T6.1a. 🐞 Debugger reviews T6.1b as it lands.
+**Unblocks:** T6.2 rehearsal (after T6.1a VERIFY), T6.1b
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
