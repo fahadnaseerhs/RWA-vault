@@ -83,4 +83,13 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 16:30 PKT (11:30 UTC) · 🐞 Debugger → 👤 Fahad, 🧭 Researcher · REPORT
+**Context:** Full recheck requested by Fahad, at PR #5 head `6be977b` (no code change since `c9c8959`), from a cleaned working tree.
+**On Disk Now:** `forge build --force` ok · `forge fmt --check` clean · `forge test` → `Ran 13 test suites: 230 tests passed, 0 failed, 0 skipped`; invariants 3 × `runs: 256, calls: 128000` · types `pass 37` · `pnpm test:onboard` `pass 15` · `abis:check` → `ABIs up to date (9 contracts)` · ops-console typecheck, lint, `vite build` clean, vitest `18 passed (18)` · prettier clean on M3 paths · fresh anvil: DeployM3 + `smoke()` → `SMOKE OK … 999900000000000000000`; second fresh anvil: DeployM3 → VerifyWallet → fixture → console (Chromium) clauses 1–4 ✅ → LIVE → receipt `Supply 999.9 g`, `✅ Invariant: supply ≤ reserve`, no page errors → CLI re-run `ONBOARD_STATUS=ALREADY_LIVE` exit 0 → `cast`: supply = reserve = `999900000000000000000`, state `2`.
+**Message:** **All green, no new findings.** Note for rehearsals: `smoke()` onboards the FIXTURE lot and binds the deployment's one token to it, so run either `smoke()` or the gold-lot-002 onboarding on a given deployment, not both (one token per asset, ADR 0016).
+**Action Needed:** none from 🐞 Debugger. Open items stay with M1 (pq-core typecheck without `pkg/`, `test` script, format).
+**Unblocks:** nothing new
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
