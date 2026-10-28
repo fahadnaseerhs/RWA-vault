@@ -22,4 +22,4 @@ updated: 2026-10-28
 - [ ] **T3.5** ~~`TokenFactory`~~ — Deferred until second asset enters demo (Q8=A).
 - [ ] **T3.6** Concrete implementation of `contracts/test/registry/ERC3643Acceptance.t.sol` passing all 6 guarantees.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T3 ERC-3643 Token]]
