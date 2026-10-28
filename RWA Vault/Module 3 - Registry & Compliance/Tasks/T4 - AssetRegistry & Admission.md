@@ -25,4 +25,4 @@ updated: 2026-10-27
 - [ ] **T4.5** Foundry invariant test: `attestedSupply <= reserveAmount` on every mint and attestation.
 - [ ] **T4.6** State-transition unit tests covering rejections, freezes, and unfreezes.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T4 AssetRegistry & Admission]]
