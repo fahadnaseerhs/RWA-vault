@@ -21,4 +21,4 @@ updated: 2026-10-27
 - [ ] **T1.5** `IdentityRegistryStorage` + `IdentityRegistry` with working `isVerified(address)`.
 - [ ] **T1.6** Unit test matrix: verified/unverified wallets, revoked claims, wrong issuer, country update.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T1 Identity Layer]]
