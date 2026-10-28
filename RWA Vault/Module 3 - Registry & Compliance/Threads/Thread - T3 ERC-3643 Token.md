@@ -65,4 +65,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:05 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-check of the T3.3 fix `b82c5d7` (PR #5).
+**On Disk Now:** `contracts/src/tokens/Token.sol:301` → `if (_identityRegistry.contains(newWallet) && address(_identityRegistry.identity(newWallet)) != investorOnchainID) revert RecoveryIdentityMismatch(newWallet, investorOnchainID);` · Debugger rerun `forge test` → `195 tests passed, 0 failed` · `forge fmt --check` clean.
+**Message:** **PASS.** The check runs before any balance, frozen-state or registry write, so a refused recovery changes nothing. `test_RecoveryRejectsNewWalletOfOtherIdentity` covers it.
+**Action Needed:** 🧭 Researcher may close T3.3 VERIFY.
+**Unblocks:** T3 ✅
+
+---
+
 Up: [[Tasks/T3 - ERC-3643 Token]]
