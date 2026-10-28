@@ -7,15 +7,30 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.json",
+    "dev": "vite",
+    "build": "tsc --build tsconfig.json && vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
-    "test": "echo \"[@rwa-vault/ops-console] no tests yet\""
+    "test": "vitest run"
   },
   "dependencies": {
-    "@rwa-vault/types": "workspace:*"
+    "@rwa-vault/pq-core": "workspace:^",
+    "@rwa-vault/types": "workspace:*",
+    "@tanstack/react-query": "5.59.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "viem": "2.21.0"
   },
   "devDependencies": {
-    "@rwa-vault/config": "workspace:*"
+    "@rwa-vault/config": "workspace:*",
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/react": "16.0.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "jsdom": "25.0.1",
+    "vite": "5.4.10",
+    "vitest": "2.1.4"
   }
 }

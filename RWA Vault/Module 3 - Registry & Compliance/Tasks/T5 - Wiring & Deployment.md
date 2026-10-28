@@ -2,11 +2,12 @@
 tags: [rwa-vault, m3, task]
 type: task
 id: M3-T5
-status: ready
+status: in-progress
 agent: coder
-progress: 0/3
+progress: 1/3
 unblocked_by: ["Q07=A", "Q15=A"]
-updated: 2026-10-27
+spec: "[[Specs/T5.1 - Deploy Script Spec]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T5 — Wiring & Deployment
 
@@ -14,8 +15,8 @@ updated: 2026-10-27
 > **Status:** Queued after contracts pass unit testing.
 
 ### Subtasks Checklist
-- [ ] **T5.1** Deploy script in `contracts/script/DeployM3.s.sol` wiring Token ↔ Registries ↔ Storage ↔ Topics ↔ Compliance ↔ AssetLiveModule.
+- [x] **T5.1** ✅ Deploy script in `contracts/script/DeployM3.s.sol` wiring Token ↔ Registries ↔ Storage ↔ Topics ↔ Compliance ↔ AssetLiveModule.
 - [ ] **T5.2** Role assignment per ADR 0015 (`owner` = 2-of-3 multisig, `agent` = Tier 1 service key; setters behind multisig).
 - [ ] **T5.3** Devnet deployment and smoke script onboarding one gold lot.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T5 Wiring & Deployment]]

@@ -34,5 +34,8 @@ defect. No one is named, so the rehearsal can quietly become the author running 
 > **Option A (Fahad, 2026-10-28).** A teammate who did not build T6 — Hassan or Fawaz, whoever has not touched T6 —
 > runs the rehearsal on devnet from the docs alone, after T6.1a is green. If time allows, an outside tester (Option B) repeats
 > it as the final MS1 dry run. The specific person is named when the protocol is handed over.
+>
+> **Participant: decided later (Fahad, 2026-10-28, decision card).** Named on the day of the run, from whoever of
+> Hassan or Fawaz has authored none of T6.0, T6.1a or T6.1b (check with T6.2 §6a's `git log` line).
 
 Up: [[Open Questions for Fahad]] · Related: [[Specs/T6 - Provider Onboarding Console|T6 spec §5]]

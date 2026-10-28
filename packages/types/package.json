@@ -10,7 +10,7 @@
     "build": "tsc --build tsconfig.json",
     "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
-    "test": "node --test dist/__tests__/onboarding.test.js dist/__tests__/parity.test.js"
+    "test": "node --test dist/__tests__/onboarding.test.js dist/__tests__/parity.test.js dist/__tests__/onboarding-shared.test.js"
   },
   "devDependencies": {
     "@rwa-vault/config": "workspace:*",
@@ -18,13 +18,18 @@
   },
   "files": [
     "dist",
-    "schema"
+    "schema",
+    "fixtures"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./schema/onboarding-input.schema.json": "./schema/onboarding-input.schema.json"
+    "./schema/onboarding-input.schema.json": "./schema/onboarding-input.schema.json",
+    "./fixtures/onboarding-sentences.json": "./fixtures/onboarding-sentences.json"
+  },
+  "dependencies": {
+    "viem": "2.21.0"
   }
 }

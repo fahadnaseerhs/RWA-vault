@@ -2,11 +2,12 @@
 tags: [rwa-vault, m3, task]
 type: task
 id: M3-T1
-status: ready
+status: done
 agent: coder
-progress: 0/6
-unblocked_by: ["Q01=C", "Q02=A", "Q03=A"]
-updated: 2026-10-27
+progress: 6/6
+unblocked_by: ["Q01=C", "Q02=A", "Q03=A", "Q23=A"]
+spec: "[[Specs/T1 - Identity Layer Build Spec]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T1 — Identity Layer (ONCHAINID + Registries)
 
@@ -14,11 +15,11 @@ updated: 2026-10-27
 > **Status:** Unblocked and ready for Coder implementation.
 
 ### Subtasks Checklist
-- [ ] **T1.1** Vendor `onchain-id` as git submodule (`Identity` + `ClaimIssuer` from upstream, reconciled to `solc 0.8.26`).
-- [ ] **T1.2** `ClaimIssuer` adapter tests.
-- [ ] **T1.3** `ClaimTopicsRegistry` implementation seeded with single `KYC` topic (Q2=A).
-- [ ] **T1.4** `TrustedIssuersRegistry` binding ECDSA project KYC issuer to `KYC` topic (Q3=A).
-- [ ] **T1.5** `IdentityRegistryStorage` + `IdentityRegistry` with working `isVerified(address)`.
-- [ ] **T1.6** Unit test matrix: verified/unverified wallets, revoked claims, wrong issuer, country update.
+- [x] **T1.1** ✅ Vendor `onchain-id` 2.2.1 as git submodule (`Identity` + `ClaimIssuer`), unmodified, compiled with 0.8.17 for that folder only (Q23 = A).
+- [x] **T1.2** ✅ `ClaimIssuer` adapter tests.
+- [x] **T1.3** ✅ `ClaimTopicsRegistry` implementation seeded with single `KYC` topic (Q2=A).
+- [x] **T1.4** ✅ `TrustedIssuersRegistry` binding ECDSA project KYC issuer to `KYC` topic (Q3=A).
+- [x] **T1.5** ✅ `IdentityRegistryStorage` + `IdentityRegistry` with working `isVerified(address)`.
+- [x] **T1.6** ✅ Unit test matrix: verified/unverified wallets, revoked claims, wrong issuer, country update.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T1 Identity Layer]]
