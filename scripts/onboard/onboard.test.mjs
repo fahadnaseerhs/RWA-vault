@@ -228,7 +228,7 @@ test("test_BroadcastIsPassedThrough", async () => {
   rmSync(ws.dir, { recursive: true });
 });
 
-test("test_ScriptRevertExitsFour", async () => {
+test("test_RunExitsNonZeroOnScriptRevert", async () => {
   // forge exits 0 when a script reverts; the missing ONBOARD_STATUS line is what counts.
   const ws = await workspace();
   const r = await onboard(ws, ["--broadcast"], null);
@@ -242,4 +242,28 @@ test("test_WaitingForOwnerExitsTwo", async () => {
   const r = await onboard(ws, ["--broadcast"], "WAITING_FOR_OWNER");
   assert.equal(r.code, 2);
   rmSync(ws.dir, { recursive: true });
+});
+
+test("test_NoKeyMaterialCommitted", () => {
+  // AC-T5-4, widened to contracts/.onboard/ (T6.1a ruling 9): nothing there is tracked, and
+  // no tracked file under contracts/script holds a key. A 32-byte value is allowed only as
+  // custodian.json's custodianKeyHash, which is a hash of the public key.
+  const tracked = (dir) =>
+    new Promise((r, j) =>
+      execFile("git", ["ls-files", dir], { cwd: REPO_ROOT }, (e, out) =>
+        e ? j(e) : r(out.split("\n").filter(Boolean)),
+      ),
+    );
+  return Promise.all([tracked("contracts/.onboard"), tracked("contracts/script")]).then(
+    ([onboard, script]) => {
+      assert.deepEqual(onboard, []);
+      for (const f of script) {
+        const text = readFileSync(resolve(REPO_ROOT, f), "latin1");
+        for (const line of text.split("\n")) {
+          if (/"custodianKeyHash": "0x[0-9a-f]{64}"/.test(line)) continue;
+          assert.ok(!/PRIVATE_KEY|0x[0-9a-f]{64}/.test(line), `${f}: ${line.slice(0, 80)}`);
+        }
+      }
+    },
+  );
 });

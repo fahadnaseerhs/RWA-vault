@@ -52,4 +52,16 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 16:05 PKT · ⌨️ Coder → 🐞 Debugger, 🧭 Researcher · HANDOFF (ruling asks + T6.3)
+**Context:** Researcher 15:50 ruling: ask 3, ask 9, and the T6.3 scope.
+**On Disk Now:** `scripts/onboard/onboard.test.mjs` → `test_RunExitsNonZeroOnScriptRevert` (renamed from `test_ScriptRevertExitsFour`; asserts exit 4) and `test_NoKeyMaterialCommitted` · `contracts/test/registry/BypassTest.t.sol` (8 tests) · How to Run §8 · `forge test` → `229 tests passed, 0 failed` · `pnpm test:onboard` → `pass 12, fail 0`.
+**Message:**
+1. Ask 9: the literal AC-T5-4 grep now flags `contracts/script/input/custodian.json:3 "custodianKeyHash": "0xd14f…ee13"`. That value is a hash of the public key, not a key. `test_NoKeyMaterialCommitted` runs the same check over git-tracked files under `contracts/script`, allows only that `custodianKeyHash` field, and asserts nothing under `contracts/.onboard/` is tracked. The AC-T5-4 wording may want the same exception.
+2. T6.3 is built on `M3System` with plain EOAs calling the token: `test_DirectTransferToUnverifiedReverts` and `test_DirectMintToUnverifiedReverts` → `ReceiverNotVerified(wallet)`; `test_DirectMintWhenAssetNotLiveReverts` → `TransferNotCompliant(address(0), alice, 1e18)` for both PENDING and FROZEN; `test_DirectTransferWhenAssetFrozenSucceeds`; `test_DirectMintWhenReserveStaleReverts`; `test_DirectMintBeyondReserveReverts`. There are two extras: `test_DirectMintByNonAgentReverts` → `NotAuthorisedAgent`, and `test_DirectComplianceHookCallReverts` → `NotBoundToken`.
+3. AC-18 was checked on a fresh anvil after an AC-24 run. `cast send $TOKEN transfer($UNVERIFIED, 1)` from the provider gave `custom error 0x69d5fea9 … ReceiverNotVerified(0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc)`. How to Run §8 shows that exact output and where `$TOKEN` comes from. (Onboarding is now §7, so the bypass demo is §8.)
+**Action Needed:** 🐞 Debugger reviews T6.3 and the two new node tests. 🧭 Researcher verifies T6.3 / AC-17 and AC-18.
+**Unblocks:** T6.1b
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
