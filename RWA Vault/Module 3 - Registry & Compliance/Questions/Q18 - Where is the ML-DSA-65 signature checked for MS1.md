@@ -2,15 +2,15 @@
 type: decision
 id: M3-Q18
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T0.7, T4.4, T6.1a, T8.2]
 recommendation: "A — off-chain M2 verifier checks the signature; an allow-listed submitter writes the result; the envelope hash is anchored so anyone can re-check offline"
-decision: ""
-decided_by: ""
-decided_on: ""
-adr: none
+decision: "A — off-chain verification, allow-listed Tier 1 submitter, envelope hash anchored by M9"
+decided_by: Fahad Naseer
+decided_on: 2026-10-28
+adr: "0027"
 tags: [rwa-vault, decision, m3, task6]
 updated: 2026-10-27
 ---
@@ -39,6 +39,6 @@ Build Plan makes the M2 verifier an off-chain NestJS service. Until this is deci
 MS1 off M2's critical path, and the anchored hash keeps clause 1 independently checkable.
 
 ## Decision
-> _Empty until Fahad decides._
+**Option A — off-chain verification, on-chain record.** M2 verifier (or `pqctl` until M2 exists) checks the ML-DSA-65 signature; the Tier 1 submitter records the result and envelope hash; M9 anchors the hash. Clause 1 being trusted to the submitter on-chain is disclosed in the thesis. ADR `0027`. _(Fahad Naseer, 2026-10-28)_
 
 Up: [[Open Questions for Fahad]] · Related: ADR `0011`, ADR `0013`, ADR `0017`, [[2026-10-27 - Decision Conflict Audit|Audit A2]]

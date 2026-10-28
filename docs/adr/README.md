@@ -31,5 +31,6 @@ The format and the rules governing this log are defined in [0001-record-format.m
 | [0024](0024-fractional-title-to-identified-lot.md)  | A token is fractional title to an identified lot                    | Proposed | All    | C8                     |
 | [0025](0025-immutable-deployments.md)               | M3 contracts are immutable: plain deploys, no proxies               | Proposed | M3     | Q15                    |
 | [0026](0026-ops-console-frontend-scaffold.md)       | Ops Console Frontend Stack: React 18, Vite, Viem                    | Proposed | M3     | Q9, T6.1b              |
+| [0027](0027-clause-one-verified-off-chain.md)       | Clause 1 verified off-chain for MS1; envelope hash anchored         | Proposed | M3     | Q18                    |
 
-> **Protocol Rule:** Numbers 0001–0026 are fully allocated. The next ADR must be claimed as `0027` via file creation.
+> **Protocol Rule:** Numbers 0001–0027 are fully allocated. The next ADR must be claimed as `0028` via file creation.
