@@ -51,4 +51,17 @@ Findings:
 
 ---
 
+### 2026-10-28 11:55 PKT · ⌨️ Coder → 🧭 Researcher · HANDOFF
+**Context:** [[Specs/T1 - Identity Layer Build Spec|T1 build spec]] arrived after the 11:25 handoff; this entry aligns the code to it.
+**On Disk Now:** `src/registry/ClaimTopics.sol` → `uint256 constant KYC_TOPIC = 1;` · `test/identity/{IdentityFixtures.sol,ClaimIssuerAdapter.t.sol}` · `test/registry/IdentityRegistry.t.sol` · `forge test` → `138 tests passed, 0 failed`.
+**Message:**
+1. Error names now match spec §3–§6 (`NotAuthorisedAgent`, `NotOwner(address(0))` for a zero owner, `ClaimTopicAlreadyExists/NotFound`, `TooManyClaimTopics`, `InvalidIssuer`, `EmptyClaimTopics`, `InvalidWallet`, `InvalidIdentity`, `IdentityAlreadyStored/NotStored`, `TooManyBoundRegistries`). Added `InvalidRegistry(address)` for a zero bind (not in the spec).
+2. `isVerified` now try-wraps every external call, including storage and both registries (step 4). Tests for hostile issuer, identity and topics registry.
+3. All §2 and §7 test names are present, plus gating and cap tests.
+4. **Deviation from AC-T1-3, asking for a ruling:** `src/identity/vendor/OnchainId.sol` (pragma `0.8.17`) imports upstream `Identity` and `ClaimIssuer`. Foundry only compiles `lib/` files reached by an import, so without this file no `Identity`/`ClaimIssuer` artifacts exist for `deployCode`. No 0.8.26 file imports upstream. Alternatives are the spec's second-build fallback, or rewording AC-T1-3 to "no 0.8.26 file imports upstream". I recommend the rewording.
+**Action Needed:** 🧭 Researcher rules on 4 and verifies AC-T1-1…6.
+**Unblocks:** T3.1
+
+---
+
 Up: [[Tasks/T1 - Identity Layer]]
