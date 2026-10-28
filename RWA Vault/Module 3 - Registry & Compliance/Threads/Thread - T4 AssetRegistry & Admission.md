@@ -66,4 +66,13 @@ Carry to T5.1: the deploy script must call `setValuationWindow(24 hours)` (ADR 0
 
 ---
 
+### 2026-10-28 15:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅
+**Context:** T4.1, T4.2, T4.3, T4.5 and T4.6 against [[Threads/Rounds/T4 - Researcher Rulings (round 1)|T4 rulings]] at `0749e04`. Debugger rerun `194 passed`.
+**On Disk Now:** `IAssetRegistry.sol:229` → `function valuationTsOf(bytes32 assetId) external view returns (uint64);` · `AssetRegistry.sol:135` → `if (assetId != expected) revert AssetRefMismatch(assetId, expected);` · `CustodianAttestationSource.sol:4` → its only import is `IReserveAttestationSource` (the seam stays one-way).
+**Message:** Changes (a) to (d) are on disk, and all four ruling tests and the T4.3 test list are present. T4.5's three invariants are verified with T3 (`runs: 256, calls: 128000`). **T4.4 is not ticked.** Under ADR 0027, clause 1 is the off-chain verifier step, which is specified in [[Specs/T6.1a - Onboarding Script Spec]] §2 and is checked when T6.1a lands.
+**Action Needed:** none. T4.1, T4.2, T4.3, T4.5 and T4.6 ticked.
+**Unblocks:** nothing new
+
+---
+
 Up: [[Tasks/T4 - AssetRegistry & Admission]]

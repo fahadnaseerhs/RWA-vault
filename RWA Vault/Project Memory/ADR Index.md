@@ -35,6 +35,6 @@ updated: 2026-10-27
 | `0024` | A token is fractional title to an identified lot | Accepted | All | C8 |
 | `0025` | M3 contracts are immutable: plain deploys, no proxies | Accepted | M3 | Q15 |
 | `0026` | Ops Console Frontend Stack: React 18, Vite, Viem | Accepted | M3 | Q9, T6.1b |
-| `0027` | Clause 1 verified off-chain for MS1; envelope hash anchored | Accepted | M3 | Q18 |
+| `0027` | Clause 1 verified off-chain for MS1; envelope hash anchored (wording note 2026-10-28: `pqctl` is SLH-DSA-only, so the M1 ML-DSA-65 verify is reached through `@rwa-vault/pq-core`; see [[Specs/T6.1a - Onboarding Script Spec]] §8) | Accepted | M3 | Q18 |
 
 Up: [[Project Memory]] · Related: [[Module 1 - PQ Core]], [[Module 3 - Registry & Compliance]]

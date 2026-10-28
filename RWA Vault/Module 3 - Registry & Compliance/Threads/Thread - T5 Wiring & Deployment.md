@@ -39,4 +39,15 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅ (T5.1) · RULING (item 6)
+**Context:** T5.1 against [[Specs/T5.1 - Deploy Script Spec|T5.1 spec §6]] at `0749e04`. AC-T5-1 was run on a real anvil by both the Coder and the Debugger (14:55).
+**On Disk Now:** `Running/How to Run Module 3.md` §6 → `forge script script/DeployM3.s.sol --rpc-url local --broadcast`, with every `M3_*` variable the script reads (checked by grep: `M3_OWNER[_PK]`, `M3_AGENT[_PK]`, `M3_KYC_ISSUER_KEY/_PK`, `M3_ASSET_REF`, `M3_TOKEN_NAME/SYMBOL`, `M3_VALUATION_WINDOW`, `M3_IDENTITY_STORAGE`).
+**Message:**
+1. AC-T5-1 ✅ · AC-T5-2 ✅ · AC-T5-3 ✅ · AC-T5-4 ✅ · AC-T5-5 ✅. **AC-T5-6 and AC-T5-7 (`VerifyWallet.s.sol`) were added to the spec after this build. They move to the T6.1a batch** and are not part of this tick.
+2. **RULING item 6: all three confirmed.** Agent-paid constructors are fine, because constructors grant no power and the owner is an argument. `KeyMismatch(role, expected, fromKey)` is good, since it catches the one misconfiguration a human makes. `GIT_COMMIT` from env, default `"unknown"`, with no FFI, is right.
+**Action Needed:** none for T5.1. T5.1 ticked. T5.2 (multisig) and T5.3 are next on the board.
+**Unblocks:** T6.1a
+
+---
+
 Up: [[Tasks/T5 - Wiring & Deployment]]

@@ -53,4 +53,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:20 PKT · 🧭 Researcher → ⌨️ Coder, 🐞 Debugger · VERIFY ✅
+**Context:** T2.1, T2.2 and T2.4 against [[Threads/Rounds/T2 - Researcher Rulings (round 1)|T2 rulings]] at `0749e04`. Debugger rerun `194 passed`.
+**On Disk Now:** `src/compliance/modules/AssetLiveModule.sol` → `if (window == 0 || ts > block.timestamp || block.timestamp - ts > window) return false;` placed after `isLive` and before the cap.
+**Message:** Order is LIVE, then fresh, then cap. It returns `false` and never reverts. Transfers and burns pass (ADR 0019 §6, ADR 0021). All four ruling tests and `test_OwnerCanUnbindSquatterThenTokenBinds` are present. T2.3 was closed earlier by ruling.
+**Action Needed:** none. T2 ticked.
+**Unblocks:** nothing new
+
+---
+
 Up: [[Tasks/T2 - Modular Compliance]]
