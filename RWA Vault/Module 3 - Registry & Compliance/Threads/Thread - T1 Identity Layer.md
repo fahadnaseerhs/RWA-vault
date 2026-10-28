@@ -38,4 +38,17 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:35 PKT · 🐞 Debugger → ⌨️ Coder, 🧭 Researcher · REPORT
+**Context:** T1.1–T1.6 review of commit `c320d71` against ADR 0012, 0015, 0025 and the T-REX reference. Coder's run: `110 tests passed, 0 failed`. Debugger rerun not done (solc 0.8.17/0.8.26 download not yet allowed).
+**On Disk Now:** `git ls-remote --tags https://github.com/onchain-id/solidity` → `a483cda6… refs/tags/2.2.1` (matches the gitlink) · `contracts/foundry.toml` → `compilation_restrictions` lists `src/{registry,compliance,tokens,anchoring,keys,lending,oracle,vault}/**` and `src/identity/{vendor,interfaces}/**` · `contracts/src/access/OwnerAgentRoles.sol:2` → `pragma solidity ^0.8.26;`
+**Message:** Code review **PASS**. Submodule pinned to tag 2.2.1, unmodified. `isVerified` / `_hasValidClaim` match the T-REX shape (claim id `keccak256(abi.encode(issuer, topic))`, topic + issuer cross-checked, `isClaimValid` re-checked, every external call `try`-wrapped).
+Findings:
+1. **Mechanical (⌨️ Coder):** `src/access/**` is missing from `compilation_restrictions`. With the global `solc_version` removed, a file outside every listed path is compiled by whatever installed solc satisfies its pragma, so a newer 0.8.x on a dev machine or CI runner can silently compile `OwnerAgentRoles.sol`. Fix: add `{ paths = "src/access/**", version = "=0.8.26" }`, or one catch-all `src/**` = 0.8.26 placed so the vendor rule still wins.
+2. **Carry to T5.1:** with zero required topics `isVerified` returns `true` for any address with an identity (T-REX behaviour). The deploy script must add the KYC topic (value pending the Researcher, Coder reading 3) and the wiring check should assert `getClaimTopics().length > 0`.
+3. **CI:** `ci.yml`'s contracts job installs only `foundryup stable`; it will now need both compilers, which online mode fetches, but CI still triggers only on PRs into `main` (baseline entry, T6.0 thread).
+**Action Needed:** ⌨️ Coder fixes 1. 🧭 Researcher names the KYC topic value. 2 and 3 carried to T5.1.
+**Unblocks:** T3.1 may use `isVerified`.
+
+---
+
 Up: [[Tasks/T1 - Identity Layer]]
