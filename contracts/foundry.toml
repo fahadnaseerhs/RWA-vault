@@ -25,7 +25,18 @@ script = "script"
 # - Custom errors (0.8.4+)
 # - User-defined value types (0.8.8+)
 # - transient storage opcodes (0.8.24+) if needed for gas optimisation
-solc_version = "0.8.26"
+# Two compilers, pinned per path (T1.1, Fahad 2026-10-28). Tokeny onchain-id v2.2.1
+# pins `pragma solidity 0.8.17` exactly and is vendored unmodified (ADR 0012), so it and
+# its one wrapper compile with 0.8.17; every other file compiles with 0.8.26. A global
+# `solc_version` would force one compiler on both, so the pins live here instead.
+compilation_restrictions = [
+    { paths = "lib/onchain-id/**", version = "=0.8.17" },
+    { paths = "src/identity/vendor/**", version = "=0.8.17" },
+    { paths = "src/{registry,compliance,tokens,anchoring,keys,lending,oracle,vault}/**", version = "=0.8.26" },
+    { paths = "src/identity/interfaces/**", version = "=0.8.26" },
+    { paths = "test/**", version = "=0.8.26" },
+    { paths = "script/**", version = "=0.8.26" },
+]
 
 # Enable the Solidity optimizer. 200 runs balances deployment cost against
 # call-site gas for functions that are called frequently (e.g. deposit,
