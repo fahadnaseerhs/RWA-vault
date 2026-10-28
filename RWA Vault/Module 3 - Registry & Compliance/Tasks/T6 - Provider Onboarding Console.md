@@ -29,7 +29,7 @@ updated: 2026-10-28
 - [x] **T6.0** ✅ Shared onboarding schema (`packages/types/src/onboarding.ts`, `schema/onboarding-input.schema.json`) and Ajv parity harness. Verified by the Researcher 2026-10-28 (see [[Threads/Thread - T6.0 Onboarding Schema & Parity]]).
 - [ ] **T6.1a** Foundry onboarding script `contracts/script/OnboardAsset.s.sol` (declarative JSON input, idempotent, named error translations). *(Queued after T5.1)*.
 - [ ] **T6.1b** UI page in `apps/ops-console` (React 18 + Vite + Viem per ADR 0026).
-- [ ] **T6.2** Unaided onboarding rehearsal (tester: Hassan or Fawaz, per [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal|Q22]]); protocol can be written now, run after T6.1a; documented in `docs/reports/M3-onboarding-rehearsal.md`.
+- [ ] **T6.2** Unaided onboarding rehearsal (tester: Hassan or Fawaz, per [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal|Q22]]); protocol written: [[Specs/T6.2 - Unaided Rehearsal Protocol]]; runs after T6.1a; documented in `docs/reports/M3-onboarding-rehearsal.md`.
 - [ ] **T6.3** Acceptance bypass test `contracts/test/registry/BypassTest.t.sol` (direct-contract bypass attempts rejected on-chain).
 
 Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T6.0 Onboarding Schema & Parity]]

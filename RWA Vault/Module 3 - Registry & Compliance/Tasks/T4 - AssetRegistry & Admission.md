@@ -6,7 +6,8 @@ status: ready
 agent: coder
 progress: 0/6
 unblocked_by: ["Q04=A", "Q05=A", "Q11=B", "Q13=A", "Q14=B", "Q15=A"]
-updated: 2026-10-27
+spec: "[[Threads/Rounds/T4 - Researcher Rulings (round 1)]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T4 — AssetRegistry & Admission Predicate
 

@@ -6,7 +6,8 @@ status: ready
 agent: coder
 progress: 0/3
 unblocked_by: ["Q07=A", "Q15=A"]
-updated: 2026-10-27
+spec: "[[Specs/T5.1 - Deploy Script Spec]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T5 — Wiring & Deployment
 
