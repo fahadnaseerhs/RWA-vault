@@ -29,12 +29,31 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:10 PKT · 🐞 Debugger → ⌨️ Coder, 🧭 Researcher · REPORT
+**Context:** T4.1 review of commit `21e3091` against `IAssetRegistry`, ADR 0018, ADR 0019 §1–§6, ADR 0025, Q17.
+**On Disk Now:** `contracts/src/registry/AssetRegistry.sol:153` → `if (s == AssetState.PENDING && a.reserve < intendedSupply) revert ReserveTooLow(...)` · `:177` → `uint256 supply = token == address(0) ? 0 : IERC20(token).totalSupply();` · Coder's run: `48 tests passed, 0 failed`. **Debugger rerun not done:** solc 0.8.26 download not yet allowed in the Debugger's environment.
+**Message:** Code review **PASS, no mechanical bugs found**. Check order, revert-writes-nothing (§1), LIVE re-attestation (§2), under-reserve accept + `UnderReserve` (§3), freeze agent / unfreeze owner (§4), `AssetIdMismatch` (§5), immutable owner and no proxy (ADR 0025) all match. Tests cover each revert with `_expectPendingUntouched()`, the τ boundary, fuzz on clauses 2 and 4.
+Added to the Coder's five readings for the 🧭 Researcher:
+6. `setAttestationSource` can swap sources while `_lastSeq` stays. A new source whose sequence starts at or below the old one makes every `admit` revert `StaleSequence` forever. Is that intended (source swap = new sequence must continue), or should a swap reset nothing and be documented?
+Test gaps for ⌨️ Coder (non-blocking): no test for reading 2 (LIVE re-attestation with no token bound, supply treated as 0); no `expectEmit` on `AssetAdmitted` for first admission.
+Carry to T5.1: the deploy script must call `setValuationWindow(24 hours)` (ADR 0018). Until it does, the window is 0 and every admission fails closed.
+**Action Needed:** 🧭 Researcher rules on readings 1–6. ⌨️ Coder adds the two tests when convenient. 🐞 Debugger reruns `forge test` once solc is available.
+**Unblocks:** T2.2 may bind to `AssetRegistry` at `21e3091`.
 ### 2026-10-28 11:40 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF
 **Context:** [[Threads/Rounds/T4 - Researcher Rulings (round 1)|T4 rulings round 1]] changes (a)–(d) and T4.3.
 **On Disk Now:** `IAssetRegistry.sol` → `error AssetRefMismatch(bytes32 assetId, bytes32 expected);` · `function valuationTsOf(bytes32 assetId) external view returns (uint64);` · `src/registry/CustodianAttestationSource.sol` (no `AssetRegistry` import) · `forge test` → `127 tests passed, 0 failed`.
 **Message:** (a) `ReserveTooLow` NatSpec now says first admission only. (b) `valuationTsOf` stored in `admit`. (c) `register` reverts `EmptyAssetId` on an empty ref and `AssetRefMismatch` on a slug/id mismatch. (d) `setAttestationSource` NatSpec documents that `lastSeq` survives a swap. Reading 2 comment added. Selector-distinctness test now covers 23 errors. T4.3 built to spec: submitter allow-list, `submitAttestation(att, envelopeHash)`, `SequenceNotIncreasing`, zero reserve accepted, integration test submit → admit → LIVE. New tests: `test_RegisterRejectsSlugMismatch`, `test_RegisterRejectsEmptyRef`, `test_ValuationTsOfRecordsAdmitted`, `test_SourceSwapKeepsLastSeq`, plus `CustodianAttestationSource.t.sol` (7).
 **Action Needed:** 🐞 Debugger re-reviews; 🧭 Researcher verifies T4.1–T4.3 acceptance.
 **Unblocks:** T5.1 can deploy the MS1 source.
+
+---
+
+### 2026-10-28 11:45 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-review of `65a55d2` (T4 round-1 rulings) and first review of T4.3. Coder's run: `127 tests passed, 0 failed`. Debugger rerun still pending solc.
+**On Disk Now:** `contracts/src/registry/AssetRegistry.sol` → `_valuationTs[assetId] = a.valuationTs;` in `admit`; `register` → `if (assetId != expected) revert AssetRefMismatch(assetId, expected);` · `contracts/src/registry/CustodianAttestationSource.sol` → `submitAttestation(att, envelopeHash)`: submitter-only, non-zero `assetId` and `envelopeHash`, strictly increasing `seq`, emits `AttestationSubmitted(..., envelopeHash, submitter)`.
+**Message:** **PASS.** Rulings applied as written. T4.3 matches ADR 0027 (no on-chain signature check, envelope hash recorded for M9, no clause 2–4 judgement, one-way seam per ADR 0017, immutable owner).
+**Action Needed:** 🧭 Researcher may VERIFY T4.1–T4.3 once forge is rerun independently.
+**Unblocks:** T3, T5.1
 
 ---
 
