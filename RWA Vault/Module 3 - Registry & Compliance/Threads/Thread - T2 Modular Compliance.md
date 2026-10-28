@@ -44,4 +44,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:45 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-review of `65a55d2` against the T2 round-1 rulings (ADR 0021 gate).
+**On Disk Now:** `contracts/src/compliance/modules/AssetLiveModule.sol` → `if (window == 0 || ts > block.timestamp || block.timestamp - ts > window) return false;` placed after the LIVE check and before the cap · tests `test_MintBlockedWhenReserveStale` (τ 1 h, warp 2 days), `test_MintAllowedAtExactWindow`.
+**Message:** **PASS.** Order LIVE → fresh → cap, returns `false`, never reverts, age == window passes, future timestamp fails closed. Finding 1 from 11:15 closed. Finding 2 (bindToken) closed by ruling: Token binds itself in its constructor; T5.1 asserts `getTokenBound() == token`.
+**Action Needed:** 🧭 Researcher may VERIFY T2.1–T2.4 once forge is rerun independently.
+**Unblocks:** T3.1
+
+---
+
 Up: [[Tasks/T2 - Modular Compliance]]

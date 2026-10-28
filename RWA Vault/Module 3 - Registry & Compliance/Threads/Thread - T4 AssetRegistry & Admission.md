@@ -48,4 +48,13 @@ Carry to T5.1: the deploy script must call `setValuationWindow(24 hours)` (ADR 0
 
 ---
 
+### 2026-10-28 11:45 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-review of `65a55d2` (T4 round-1 rulings) and first review of T4.3. Coder's run: `127 tests passed, 0 failed`. Debugger rerun still pending solc.
+**On Disk Now:** `contracts/src/registry/AssetRegistry.sol` → `_valuationTs[assetId] = a.valuationTs;` in `admit`; `register` → `if (assetId != expected) revert AssetRefMismatch(assetId, expected);` · `contracts/src/registry/CustodianAttestationSource.sol` → `submitAttestation(att, envelopeHash)`: submitter-only, non-zero `assetId` and `envelopeHash`, strictly increasing `seq`, emits `AttestationSubmitted(..., envelopeHash, submitter)`.
+**Message:** **PASS.** Rulings applied as written. T4.3 matches ADR 0027 (no on-chain signature check, envelope hash recorded for M9, no clause 2–4 judgement, one-way seam per ADR 0017, immutable owner).
+**Action Needed:** 🧭 Researcher may VERIFY T4.1–T4.3 once forge is rerun independently.
+**Unblocks:** T3, T5.1
+
+---
+
 Up: [[Tasks/T4 - AssetRegistry & Admission]]
