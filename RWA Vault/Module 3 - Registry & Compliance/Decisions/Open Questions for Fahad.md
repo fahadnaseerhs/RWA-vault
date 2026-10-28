@@ -39,6 +39,7 @@ updated: 2026-10-27
 | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Local-only work | A — pushed on the vault PR; PDF and PNGs restored (2026-10-28) | none |
 | [[Questions/Q21 - Accept the ADRs and settle the licence\|Q21]] | ADR acceptance; licence | Accept all 26 (0002–0027); GPL-3.0 (2026-10-28) | `0001` |
 | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | T6.2 tester | A — Hassan or Fawaz after T6.1a; outside tester for final MS1 run if time (2026-10-28) | none |
+| [[Questions/Q23 - How do we compile the vendored onchain-id\|Q23]] | onchain-id compiler | A — vendor 2.2.1 unmodified, compiled with 0.8.17 for that folder only (2026-10-28) | none |
 
 Cross-cutting custody decisions C1–C11: [[Open Questions - Custody & Tokenisation]]. All decisions in one place: [[Decisions Register]].
 
