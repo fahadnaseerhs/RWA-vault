@@ -27,4 +27,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:40 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF
+**Context:** [[Threads/Rounds/T2 - Researcher Rulings (round 1)|T2 rulings round 1]]: ADR 0021 mint-time freshness gate; T2.3 closed as rejected.
+**On Disk Now:** `AssetLiveModule.sol` → `if (window == 0 || ts > block.timestamp || block.timestamp - ts > window) return false;` (after LIVE, before the cap) · `forge test` → `127 tests passed, 0 failed`.
+**Message:** Order is LIVE → fresh → cap; every branch returns `false`. New tests: `test_MintBlockedWhenReserveStale` (τ = 1h, warp 2 days), `test_MintAllowedAtExactWindow` (age == window true, +1s false), `test_TransferAllowedWhenReserveStale`, `test_MintBlockedAfterUnfreezeUntilReattested`, `test_ShorterPerAssetWindowAppliesToMint`, `test_OwnerCanUnbindSquatterThenTokenBinds`. `bindToken` unchanged; T3's constructor will bind itself.
+**Action Needed:** 🐞 Debugger re-reviews alongside T3.
+**Unblocks:** T3.1
+
+---
+
 Up: [[Tasks/T2 - Modular Compliance]]

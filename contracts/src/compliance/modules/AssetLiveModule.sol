@@ -8,8 +8,9 @@ import {IAssetRegistry} from "../../registry/interfaces/IAssetRegistry.sol";
 
 /**
  * @title AssetLiveModule
- * @notice Vetoes a mint unless the token's asset is LIVE and the mint keeps
- *         `totalSupply <= reserve` (T2.2, ADR 0014, ADR 0019 §6).
+ * @notice Vetoes a mint unless the token's asset is LIVE, its reserve attestation is
+ *         fresh, and the mint keeps `totalSupply <= reserve` (T2.2, ADR 0014, ADR 0019 §6,
+ *         ADR 0021). Checks run in that order.
  * @dev Transfers and burns are never vetoed: a FROZEN or under-reserved asset blocks
  *      minting only. The module is stateless and plug-and-play; it resolves its asset
  *      through `registry.assetOfToken(compliance.getTokenBound())` (T0.6 §18.1), so an
@@ -77,6 +78,11 @@ contract AssetLiveModule is IModule {
         if (token == address(0)) return false;
         bytes32 assetId = registry.assetOfToken(token);
         if (!registry.isLive(assetId)) return false;
+
+        // ADR 0021: a stale reserve blocks minting. Age == window passes; a zero window never does.
+        uint64 ts = registry.valuationTsOf(assetId);
+        uint64 window = registry.valuationWindowOf(assetId);
+        if (window == 0 || ts > block.timestamp || block.timestamp - ts > window) return false;
 
         uint256 reserve = registry.reserveOf(assetId);
         uint256 supply = IERC20(token).totalSupply();
