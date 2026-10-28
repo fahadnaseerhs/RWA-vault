@@ -57,9 +57,9 @@ jobs:
       # These four commands are the "clean-clone bar" from CONTRIBUTING.md.
       # If any fails, Step 1 isn't finished and the PR can't merge.
       - run: pnpm lint # → pnpm -r run lint (recursive ESLint)
-      - run: pnpm typecheck # → pnpm -r run typecheck (tsc --build, project references)
+      - run: pnpm -r --filter '!@rwa-vault/ops-console' run typecheck # tsc --build, project references
       # The ops-console bundles pq-core's WASM package (pkg/), which only the pq-wasm job
-      # builds, so its vite build and tests run there instead (T6.1b ruling 2).
+      # builds, so its typecheck, vite build and tests run there instead (T6.1b ruling 2).
       - run: pnpm -r --filter '!@rwa-vault/ops-console' run build
       - run: pnpm -r --filter '!@rwa-vault/ops-console' run test
 
@@ -349,7 +349,7 @@ jobs:
 
       # T6.1b: the onboarding page and its tests need pkg/ from the step above. With CI set,
       # the WASM clause-1 test fails rather than skips if pkg/ is missing.
-      - name: Ops console builds against the WASM package
+      - name: Ops console typechecks and builds against the WASM package
         run: |
           pnpm --filter @rwa-vault/types build
           pnpm --filter @rwa-vault/pq-core build

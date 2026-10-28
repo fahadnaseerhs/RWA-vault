@@ -65,4 +65,13 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 17:15 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF (CI typecheck, §7b note)
+**Context:** Debugger 5cf944f: (1) the node job's `pnpm typecheck` fails from a clean clone without `pkg/`; (2) §7b needs the offline wasm-bindgen workaround.
+**On Disk Now:** `.github/workflows/ci.yml` → node job `pnpm -r --filter '!@rwa-vault/ops-console' run typecheck`; ops-console's typecheck runs inside its `build` (`tsc --build && vite build`) in the pq-wasm job after `pkg/` exists · How to Run §7b → `cargo install wasm-bindgen-cli --version 0.2.127 --locked`, then `wasm-pack build … --mode no-install`.
+**Message:** pq-core's own `wasm.ts:77` TS2307 without `pkg/` still fails the node job's typecheck. That is M1's, for the 🧭 Researcher to add to the M1 list.
+**Action Needed:** 🐞 Debugger re-checks. 🧭 Researcher verifies T6.1b.
+**Unblocks:** T6.1b VERIFY
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
