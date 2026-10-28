@@ -19,4 +19,4 @@ updated: 2026-10-28
 - [ ] **T5.2** Role assignment per ADR 0015 (`owner` = 2-of-3 multisig, `agent` = Tier 1 service key; setters behind multisig).
 - [ ] **T5.3** Devnet deployment and smoke script onboarding one gold lot.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T5 Wiring & Deployment]]

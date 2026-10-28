@@ -100,3 +100,7 @@ docs/.qa_module1*/
 
 # PowerPoint autosave copies.
 *[[]Autosaved[]].pptx
+
+# ─── M3 local deployments ─────────────────────────────────────────────────
+# T5.1: the anvil deployment file changes every run; testnet files are committed.
+contracts/deployments/31337.json

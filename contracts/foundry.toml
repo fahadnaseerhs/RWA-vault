@@ -64,7 +64,7 @@ evm_version = "cancun"
 
 # Allow read access to the project root for deployment scripts that need to
 # load ABI files, constructor arguments, or other artefacts from the filesystem.
-fs_permissions = [{ access = "read", path = "./" }]
+fs_permissions = [{ access = "read", path = "./" }, { access = "read-write", path = "./deployments" }]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fuzz testing configuration
