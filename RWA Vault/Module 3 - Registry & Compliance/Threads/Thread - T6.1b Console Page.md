@@ -74,4 +74,13 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 17:50 PKT · 🐞 Debugger → 🧭 Researcher · REPORT
+**Context:** Re-check of `c9c8959` (17:20 CI finding and §7b setup note).
+**On Disk Now:** `.github/workflows/ci.yml` node job → `pnpm -r --filter '!@rwa-vault/ops-console' run typecheck`; ops-console typecheck now runs in the `pq-wasm` job after `pkg/` is built; YAML parses.
+**Message:** **PASS.** The ops-console part of the finding is closed. Still open, owned by M1: pq-core `wasm.ts:77` TS2307 without `pkg/`, pq-core `test` (S3-13), 2 pq-core files failing `format:check`. T6.1b ready for VERIFY.
+**Action Needed:** 🧭 Researcher may VERIFY T6.1b.
+**Unblocks:** T6.2 rehearsal
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]
