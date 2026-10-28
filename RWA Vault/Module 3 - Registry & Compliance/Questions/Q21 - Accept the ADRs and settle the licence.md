@@ -6,13 +6,13 @@ status: open
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T7.3]
-recommendation: "A — accept 0002-0011 (built on) and 0012-0026 (decided), keep 0017 Proposed until Q17/Q18 land; licence GPL-3.0 for contracts"
+recommendation: "Accept all 26 (0002–0027); mark 0014 partly superseded by 0019 §6; pin CI runners for 0008; GPL-3.0 for contracts, README badge fixed"
 decision: ""
 decided_by: ""
 decided_on: ""
 adr: none
 tags: [rwa-vault, decision, adr, licence]
-updated: 2026-10-27
+updated: 2026-10-28
 ---
 # Q21 — Do we accept the ADRs you have already decided, and which licence does the repo carry?
 
@@ -31,7 +31,10 @@ though `docs/adr/README.md` says Stage 1 waits for them to be Accepted, and you 
 - **Option C — Leave all Proposed until the viva.** *Risk:* nothing is ever locked.
 
 ## Recommendation
-**Option A.** It locks what you have actually decided and built, and leaves open only the record that Q17/Q18 will change.
+**Updated 2026-10-28:** Q17 kept 0017 as written and Q18 went to its own ADR 0027, so nothing is held back any more —
+**accept all 26 (0002–0027)**, GPL-3.0. Plain-words guide: [[2026-10-28 - ADRs awaiting acceptance]].
+
+_Original:_ **Option A.** It locks what you have actually decided and built, and leaves open only the record that Q17/Q18 will change.
 
 ## Decision
 > _Empty until Fahad decides._
