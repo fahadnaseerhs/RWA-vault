@@ -16,7 +16,7 @@ updated: 2026-10-27
 | **T3** | [[Tasks/T3 - ERC-3643 Token\|ERC-3643 Permissioned Token]] | 🟢 Ready to Code | ⌨️ Coder | Q08, Q10, Q16 | ADR 0015, 0016 |
 | **T4** | [[Tasks/T4 - AssetRegistry & Admission\|AssetRegistry & Admission Predicate]] | 🟢 T4.1 ready · T4.2/T4.4 wait | ⌨️ Coder | Q13, Q14, Q15 · Q17, Q18 open | T4.1 ready |
 | **T5** | [[Tasks/T5 - Wiring & Deployment\|Wiring & Deployment]] | ⏳ Queued | ⌨️ Coder | Q07, Q15 | After T1–T4 tests pass |
-| **T6** | [[Tasks/T6 - Provider Onboarding Console\|Provider Onboarding Console]] | ⛔ Blocked · T6.0 in review | 🧭 Researcher | Q09, Q12 · Q17–Q22 open · T1–T5 | [[Threads/Thread - T6.0 Onboarding Schema & Parity\|Thread T6.0]] |
+| **T6** | [[Tasks/T6 - Provider Onboarding Console\|Provider Onboarding Console]] | ⛔ Blocked · T6.0 in review | 🧭 Researcher | Q09, Q12 · Q17–Q22 decided · T1–T5 | [[Threads/Thread - T6.0 Onboarding Schema & Parity\|Thread T6.0]] |
 | **T7** | [[Tasks/T7 - Acceptance & MS1 Readiness\|Acceptance & MS1 Readiness Gate]] | ⏳ Queued | 🧭 Researcher | All | Milestone 1 Gate |
 | **T8** | [[Tasks/T8 - Custodian Attestation Portal\|Custodian Attestation Portal]] | ⏳ Queued | 🧭 Researcher | C1 | Key separation |
 

@@ -34,10 +34,11 @@ A running record of decisions actually made for M3. Each entry: date, the decisi
 | 2026-10-28 | Q19 | **Task 6 order (Option A):** Researcher verifies T6.0 and writes the T6.2 protocol; Coder builds T1.1 → T4.1 → T2 → T3 → T5.1; then T6.1a → T6.3 → T6.1b | Fahad | none (sequencing) |
 | 2026-10-28 | Q20 | **Push all local-only work, restore the deleted PDF and PNGs (Option A)** — code and docs committed on the vault PR branch | Fahad | none |
 | 2026-10-28 | Q21 | **Accept ADRs 0002–0027; licence GPL-3.0** — 0014 marked partly superseded by 0019 §6; CI runners pinned per 0008; `LICENSE` added, README badge fixed | Fahad | `0001` (process) |
+| 2026-10-28 | Q22 | **T6.2 tester (Option A):** Hassan or Fawaz (non-author of T6), on devnet after T6.1a is green; an outside tester repeats it for the final MS1 dry run if time allows | Fahad | none |
 
 ## Still open
 
-One question raised on 2026-10-27 for Task 6 — **Q22** — is open (Q17–Q21 decided 2026-10-28, rows above). They are listed, with recommendations, in
+All Task 6 questions (Q17–Q22) were decided on 2026-10-28 (rows above). The index is
 [[Open Questions for Fahad]]; each lives in its own note in `Questions/`. C11 (production custodian) is deferred by
 agreement.
 
