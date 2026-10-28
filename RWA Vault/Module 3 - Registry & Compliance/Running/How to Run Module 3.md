@@ -106,11 +106,17 @@ cast call $(jq -r .token deployments/31337.json) 'totalSupply()(uint256)' --rpc-
 **Tests:** `forge test --match-path test/registry/OnboardAsset.t.sol` (stage 2) and `pnpm test:onboard` (stage 1, needs `pnpm pq:addon`).
 
 ## 8. The "bypass" demo (T6.3)
-Call `token.transfer` directly via `cast send` with an **unverified** recipient and confirm it reverts with `ReceiverNotVerified`:
+The chain refuses on its own; no script or console is involved. After §7 (the provider, anvil account 3, holds the lot), from `contracts/`:
 ```bash
-cast send $TOKEN "transfer(address,uint256)" $UNVERIFIED 1 --rpc-url http://localhost:8545 --private-key $PK
-# expect: execution reverted
+TOKEN=$(jq -r .token deployments/31337.json)
+UNVERIFIED=0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc   # anvil account 5, never KYC'd
+cast send $TOKEN "transfer(address,uint256)" $UNVERIFIED 1 --rpc-url local --private-key $M3_WALLET_PK
+# expect: Error: Failed to estimate gas: ... execution reverted: custom error 0x69d5fea9: ...
+#         ReceiverNotVerified(0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc)
 ```
+`0x69d5fea9` is `cast sig "ReceiverNotVerified(address)"`; cast prints the decoded name when it can read the project's build output. Nothing is sent, because the revert happens at gas estimation.
+
+The automated version is `forge test --match-path test/registry/BypassTest.t.sol` (AC-17 as corrected by the T3 spec §10): a direct transfer or mint to an unverified wallet → `ReceiverNotVerified`; a mint while the asset is PENDING or FROZEN, while its valuation is stale, or beyond its reserve → `TransferNotCompliant(0x0, to, amount)`; a transfer while the asset is FROZEN still succeeds (ADR 0019 §6).
 
 ## Where things live
 ```
