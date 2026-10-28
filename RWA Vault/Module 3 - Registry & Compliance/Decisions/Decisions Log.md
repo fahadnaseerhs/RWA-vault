@@ -42,6 +42,46 @@ All Task 6 questions (Q17–Q22) were decided on 2026-10-28 (rows above). The in
 [[Open Questions for Fahad]]; each lives in its own note in `Questions/`. C11 (production custodian) is deferred by
 agreement.
 
+### Open decisions awaiting Fahad — T0.7 (as of 2026-10-28)
+
+Moved here from the T0.7 thread on 2026-10-28. A thread is append-only, so a table that gets revised cannot live in
+one — later entries are appended *after* it and its own "appended here" promise becomes false, which is what happened.
+Threads hold entries; revisable tables belong in the task note, the spec, or here.
+
+| # | Decision | Recommended by Researcher | Blocks |
+| - | -------- | ------------------------- | ------ |
+| **D1** | May T0.7 be checkmarked as a spec while T0.8 is impossible? | Yes — complete as a spec, leave T0.8 open, make §8 a standing review item. Checkmarking T0.8 on the Researcher's own assertion would turn a later real review into a rubber stamp. | Formal closure of T0.7 |
+| **D2** | Reserve ADR `0028` as a stub now for the Phase 2 insurer design? | Yes — Q17 promises that work its own ADR, claim-by-file means the number exists only once committed, and a stub costs one file against the churn that caused three renumbers on 2026-10-27. | Nothing; prevents renumbering |
+| **D3** | Is the Tier 1 **submitter** key a separate address from the registry's **agent** key? | Separate addresses, same tier. ADR `0015` puts both at Tier 1 but never says whether they are one address; submitting an attestation and administering an asset are different acts, and one key means one compromise does both. | **T5.2 role assignment** |
+| **T0.8** | How is consumer sign-off satisfied when M4, M5 and M9 do not exist? | See the three options below. | Formal closure of T0 |
+
+#### T0.8 in full
+
+**Why it cannot be done as written.** `Tasks/T0 - Interface PR.md` asks for "consumer sign-off (M4, M5, M9 owners) on
+interface signatures", from the rule in `Modules/All Modules.md` — _"Open with an interface-only PR, approved by its
+consumers before any implementation."_ But M4 is 0%, M5 and M9 are not started, so no consumer exists that could say
+whether the signatures fit; and `Project Memory/Team.md` names Fahad, Hassan and Fawaz without recording any
+per-module owner, so "the M4 owner" is not yet a person. The task has neither a signatory nor a basis for signing.
+
+**Why it still matters.** ADR `0025` made M3's contracts immutable — plain deploys, no proxies — so an interface error
+is a redeploy and a migration, not an upgrade. And `IReserveAttestationSource` is the one interface a later module
+(M5, Phase 2) must implement exactly, written by someone who will not be in these conversations.
+
+- **(a) Name the three module owners now** and have each read `IAssetRegistry.sol` and `IReserveAttestationSource.sol`
+  against their own module's needs, recording a dated sign-off. Cheap and satisfies the rule — but a sign-off from
+  someone who has built nothing is weak evidence.
+- **(b) Defer T0.8 explicitly** until M4 and M5 start, reason recorded, re-opened as a gate on those modules. Honest
+  about sequencing; leaves M3's interfaces reviewed by nobody but their author.
+- **(c) Replace the signature with the conformance test.** `ReserveAttestationSourceConformance.t.sol` already exists
+  and is proved satisfiable by mutation, so a later M5 "signs off" by passing it. Matches the project's own rule that
+  the acceptance test must be runnable by a third party.
+
+**Recommendation: (c) with (a) alongside, and do not close T0.8 on the suite alone.** Two caveats from the Researcher
+decide the shape: the suite can only test what the interface can observe, so it covers **conformance, not whether M5's
+upstream data is honest**; and a passing suite says nothing about **whether `latest`/`hasAttestation` was the right
+shape to ask for in the first place**. So: executable sign-off for the mechanical half, a human for the design half,
+and §8's four assertions still need a real reviewer.
+
 **Carried work that is not a decision:**
 - **Q13's test carve-out must not be lost:** 24 h is the deployed default; T4.2's boundary tests set a short window
   through the setter and assert behaviour at whatever τ is configured, never a hard-coded 24 h.

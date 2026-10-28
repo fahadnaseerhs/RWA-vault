@@ -43,56 +43,6 @@ updated: 2026-10-28
 
 ---
 
-### Log of decisions raised by this task
-
-#### 2026-10-28 · 🎭 Custody session → 👤 Fahad · ASK — how is T0.8 consumer sign-off satisfied?
-
-**Context:** T0 stands at 7/8. T0.6 is verified, T0.7 is in progress, and **T0.8 — "consumer sign-off (M4, M5, M9
-owners) on interface signatures" — cannot be performed as written.** Logged here per Fahad's instruction that a
-decision is recorded whether or not he has answered.
-
-**On Disk Now:** `RWA Vault/Module 3 - Registry & Compliance/Tasks/T0 - Interface PR.md:23` →
-`- [ ] **T0.8** Consumer sign-off (M4, M5, M9 owners) on interface signatures.`
-The rule it comes from: `RWA Vault/Modules/All Modules.md:50` → _"Open with an **interface-only PR**, approved by its
-consumers before any implementation."_
-
-**Why it cannot be done as written:** M4 is 0%, M5 and M9 are not started, so no consumer exists that could tell us
-whether the signatures fit. `RWA Vault/Project Memory/Team.md` lists Fahad, Hassan and Fawaz but records **no
-per-module owner**, so "the M4 owner" is not yet a named person. The task therefore has neither a signatory nor a
-basis for signing.
-
-**Why it still matters, and more than usual here:** ADR `0025` made M3's contracts **immutable — plain deploys, no
-proxies**. An interface error is a redeploy and a migration, not an upgrade. And `IReserveAttestationSource` is the one
-interface a later module (M5, Phase 2) must implement *exactly*, written by someone who will not be in these
-conversations.
-
-**Options:**
-- **(a) Assign the three module owners by name now**, and have each read `IAssetRegistry.sol` and
-  `IReserveAttestationSource.sol` against their own module's needs, recording a dated sign-off in this thread.
-  *Cheap, honest, and satisfies the rule as written — but a sign-off from someone who has built nothing is weak
-  evidence.*
-- **(b) Defer T0.8 explicitly** until M4 and M5 start, with the reason recorded, and re-open it as a gate on those
-  modules rather than on M3. *Honest about the sequencing; leaves M3's interfaces unreviewed by anyone but their
-  author.*
-- **(c) Replace the signature with a conformance test.** Write the test suite M5 must pass to be a valid
-  `IReserveAttestationSource` — zeroed-struct handling, `assetId` cross-check, monotonic `seq`, unit basis — and treat
-  a passing implementation as the sign-off. *Converts a human promise into something executable, and matches the
-  project's own rule that "the acceptance test must be runnable by a third party". Most work of the three, and the
-  only one that still means something in Phase 2.*
-
-**Recommendation:** **(c), with (a) alongside** — name the owners now so the next review has a signatory, and build the
-conformance suite as part of T0.7 while the interface is still being specified rather than after T4 is built on it.
-
-**Blocks/Unblocks:** T0.8 blocks the formal closure of T0 and nothing else. It does not block T1–T5.
-
-**Status:** ⏳ Awaiting Fahad.
-
----
-
-_(further decisions appended here as they arise, whether or not Fahad has answered)_
-
----
-
 ### 2026-10-28 23:05 · 🧭 Researcher → ⌨️ Coder · HANDOFF (re-append — the 14:10 copy was lost to a concurrent write)
 
 **Context:** T0.7 spec complete — [[T0.7 - Reserve Attestation Source]]. You were right that this entry was missing: the file held 3 entries and `AC-T07` appeared nowhere in the repo. Re-appending in full. **Headline unchanged: the shared interface does not change** — not one signature, name or type.
@@ -142,3 +92,57 @@ Asserting state rather than mechanism is what makes this suite portable to an im
 - **AC-T07-8** C4b and C8 assert `latest()` is unchanged **field by field** and contain **no** `expectRevert`.
 
 **Blocks/Unblocks:** Unblocks T0.7's code half. Does not unblock T4.4.
+
+---
+
+### 2026-10-28 23:20 · ⌨️ Coder → 🧭 Researcher · HANDOFF
+
+**Context:** T0.7 D1 and D2 built against the 23:05 HANDOFF. D3 respected: no MS1 implementation written. Not checkmarked. D1 is **not committed** (the user reviews the diff first); D2 is already in `9091c0e`, and its committed content matches disk.
+**On Disk Now:**
+- `contracts/src/registry/interfaces/IReserveAttestationSource.sol:8-14` → `For MS1, admission clause 1 is verified off-chain (ADR 0027): the M2 verifier — or pqctl with M1's ML-DSA-65 verify until M2 exists — checks the custodian envelope, and an allow-listed Tier 1 submitter then records the decoded fields plus the envelope hash via the implementation's own submitAttestation. This contract verifies no signature. M9 anchors the hash, … The registry checks clauses 2-4 at admit.`
+- `…IReserveAttestationSource.sol:48-51` (`BadAttestationSig`) → `Under ADR 0027 no MS1 contract raises this: clause 1 is checked off-chain, and this error is the name the off-chain verifier's reporting path uses, so the operator sees the same sentence (T6 §3.4). It is reserved for a Phase 2 implementation that verifies on-chain. Never raised by the registry.`
+- `contracts/test/registry/ReserveAttestationSourceConformance.t.sol:43` → `function _attest(bytes32 assetId, uint256 reserve, uint64 seq, uint64 valuationTs) internal virtual returns (bool accepted);`
+**Message/Question/Finding:**
+- **AC-T07-1** ✅ `forge build --force` green, `forge fmt --check` green; `forge inspect … abi` captured before and after D1 → `cmp` identical.
+- **AC-T07-2** ✅ `"happens on the source at submit time"` count = 0; replacement cites ADR 0027 and says "This contract verifies no signature."
+- **AC-T07-3** ✅ see the `BadAttestationSig` quote above.
+- **AC-T07-4** ✅ `abstract`; `deploySource()` and `_attest(...) returns (bool accepted)`. Tests: C1 `test_LatestEchoesKey`, C2 `test_UnknownAssetReturnsZeroedStruct`, C3 `test_HasAttestationIsMonotonic`, C4a `test_SequenceStrictlyIncreasesPerAsset`, C4b `test_NonIncreasingSequenceDoesNotTakeEffect`, C5 `test_ViewsNeverRevert(bytes32)` (fuzzed), C6 `test_ReserveUnitIsFineGrams`, C7 `test_AssetsAreIsolated`, C8 `test_NoFutureValuation`, C9 `test_InterfaceIsReadOnly`.
+- **AC-T07-5** ✅ `forge test` ran only `AssetRegistryInterface` (6/6); zero tests from the conformance contract.
+- **AC-T07-6** ✅ The throwaway file was run, then deleted (never committed). Mock subclasses using `try … catch → false`:
+  - **Correct, refuses by reverting:** 10/10.
+  - **Correct, refuses by silently ignoring:** 10/10. This is the portability property: both refusal styles conform.
+  - **Mutation runs:**
+    - Mis-keyed source (every asset in one slot): fails C1, C2, C7 on `assetId` assertions, and C4a.
+    - Mis-keyed source with no seq guard: fails C1, C2, C4a, C4b, C7.
+    - Stale-seq source: fails C4b (`reserve changed`).
+- **AC-T07-7** ✅ C2 asserts the full zero struct and `assetId == bytes32(0)` explicitly.
+- **AC-T07-8** ✅ `expectRevert` count in the file = 0. C4b and C8 use `_assertSame` field by field. A reverting `_attest` is routed through an external self-call and treated as a refusal.
+
+**Where the spec was silent (PROVISIONAL):**
+1. **C4b's test name** `test_NonIncreasingSequenceDoesNotTakeEffect` is mine; §7 named only the original C4. C4a kept `test_SequenceStrictlyIncreasesPerAsset`.
+2. **C9 is a real test**, not "by construction": `type(IReserveAttestationSource).interfaceId == latest.selector ^ hasAttestation.selector`. This fails if `submitAttestation` (or anything else) is ever added to the shared interface. Name `test_InterfaceIsReadOnly` is mine.
+3. **C7's sequence numbers** (B at 3, A at 4 and 9) are chosen so a mis-keyed source *accepts* A and overwrites B. The isolation assertion then catches it directly, rather than relying on a seq refusal.
+4. **C5 renamed** from my draft `testFuzz_ViewsNeverRevert` to §7's `test_ViewsNeverRevert`. It takes a `bytes32`, so Forge still fuzzes it.
+5. **§5's requirements 1–2** (`hasAttestation` never regresses; zeroed `assetId == 0`) are tested (C2, C3) but not added to `latest`/`hasAttestation` NatSpec, because D1 named only the header and `BadAttestationSig`. Say if you want them in the comments too.
+6. **No `nonce`** appears anywhere in the M3 interfaces or tests, consistent with §4.1.
+**Blocks/Unblocks:** T0.7 code half complete, pending Debugger and Researcher verification. Does not unblock T4.4.
+
+
+---
+
+### 2026-10-28 23:40 · ⌨️ Coder → 🧭 Researcher · HANDOFF
+
+**Context:** Provisional 5 ruling: document §5 requirement 2 on `latest()`. Comments only. Still uncommitted for the user's review.
+**On Disk Now:** `contracts/src/registry/interfaces/IReserveAttestationSource.sol:59-61` → `In the zeroed case assetId MUST be bytes32(0), never the queried key, so a caller that skips {hasAttestation} but cross-checks assetId still fails closed (AssetIdMismatch).`
+**Message/Question/Finding:** `forge build --force` green · `forge fmt --check` green · `forge inspect … abi` vs the pre-D1 baseline → `cmp` identical (AC-T07-1 still holds) · `forge test` 6/6, conformance contract still contributes zero. Requirement 1 left as is, per the ruling.
+**Blocks/Unblocks:** Ready for the Debugger gate, then Researcher checkmark.
+
+---
+
+### 2026-10-28 · 🎭 Custody session → 🧭 Researcher · REPORT
+
+**Context:** The "Log of decisions raised by this task" table has been removed from this thread. It was mine, added 2026-10-28, and it was the living table your append rule's third clause describes — three entries were appended *after* it, so its own promise that decisions would be "appended here" was already false.
+**On Disk Now:** `RWA Vault/Module 3 - Registry & Compliance/Decisions/Decisions Log.md` → section `### Open decisions awaiting Fahad — T0.7 (as of 2026-10-28)`, holding D1, D2, D3 and T0.8 in full.
+**Message/Finding:** This was the one deliberate rewrite of this thread, done while all three sessions were quiet rather than mid-append, and it is the last. From here this file is only ever extended with a true shell append — this entry was written that way. A thread holds entries; a table that gets revised belongs in the task note, the spec, or the decisions register. Nothing was lost: the entry count was asserted before and after, and the guard caught a false positive first, which is the only reason I checked twice.
+**Blocks/Unblocks:** Unblocks nothing. Removes a structure that would have kept corrupting on every append.
+
