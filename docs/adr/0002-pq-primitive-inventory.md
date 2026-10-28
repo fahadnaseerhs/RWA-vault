@@ -1,6 +1,6 @@
 # ADR 0002 — The PQ primitive inventory is six, and M1 owns all six
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

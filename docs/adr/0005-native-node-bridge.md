@@ -1,6 +1,6 @@
 # ADR 0005 — Native Node bridge: an N-API addon via napi-rs, plus a separate offline CLI
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

@@ -1,6 +1,6 @@
 # ADR 0008 — Supported platforms and the M1 CI matrix
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

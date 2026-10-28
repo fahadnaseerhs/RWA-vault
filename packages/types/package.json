@@ -10,9 +10,21 @@
     "build": "tsc --build tsconfig.json",
     "typecheck": "tsc --build tsconfig.json",
     "lint": "eslint src",
-    "test": "echo \"[@rwa-vault/types] no tests yet\""
+    "test": "node --test dist/__tests__/onboarding.test.js dist/__tests__/parity.test.js"
   },
   "devDependencies": {
-    "@rwa-vault/config": "workspace:*"
+    "@rwa-vault/config": "workspace:*",
+    "ajv": "^8.20.0"
+  },
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schema/onboarding-input.schema.json": "./schema/onboarding-input.schema.json"
   }
 }

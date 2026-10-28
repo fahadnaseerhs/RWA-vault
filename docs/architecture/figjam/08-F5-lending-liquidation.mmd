@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  actor I as Investor
+  participant W as PWA
+  participant CM as CollateralManager
+  participant LP as LendingPool
+  participant PO as PriceOracle
+  participant RE as risk-engine M6
+  participant RB as ReserveBuffer
+  participant L as Liquidator
+  I->>W: lock vault shares, request loan
+  W->>CM: Falcon-signed borrow intent via pq-verifier
+  CM->>PO: last committed price p
+  CM->>CM: HF = q x p x lambda / D, post-borrow HF at least 1.15
+  CM->>LP: borrow, debt scaled by global index
+  PO-->>RE: price tick via Redis Stream
+  RE->>RE: recompute HF for every position
+  alt HF between 1.00 and 1.15
+    RE-->>W: alert borrower
+  else HF between 0.95 and 1.00
+    RE->>RB: propose buffer claim
+    RB->>RB: cap 0.40 x B per epoch, one claim per position
+  else HF below 0.95
+    RE->>L: propose liquidation
+    L->>CM: re-derive HF on-chain, revert if engine wrong
+    L->>LP: repay up to 50 pct of debt, bonus decays over 20 blocks
+  end

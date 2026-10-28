@@ -1,0 +1,983 @@
+<title>QORA System Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: engineering drawing set — a title block, then numbered sheets (system, modules, flows, blocks, stack, contracts, schedule) */
+:root{
+  --bg:#eef1f4; --paper:#ffffff; --ink:#15212c; --muted:#596a79; --rule:#c5cfd8; --faint:#e3e8ed;
+  --accent:#1d5fc4; --accent-soft:#dbe7f8;
+  --b-client:#e6f0fb; --b-svc:#e5f4ec; --b-chain:#efe9fa; --b-found:#faf0e0; --b-eval:#eceff2;
+  --st-done:#2a8a55; --st-prog:#1d6ad6; --st-scaf:#c08310; --st-todo:#8794a1; --on-st:#ffffff;
+  --z1:#f6d4d0; --z2:#f9e0c8; --z3:#f8edc2; --z4:#e6eef8; --z5:#d8efe0;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1319; --paper:#141c24; --ink:#e2e8ee; --muted:#93a2b0; --rule:#2d3a47; --faint:#1c2630;
+  --accent:#6ea6ff; --accent-soft:#1b2c45;
+  --b-client:#132338; --b-svc:#11281d; --b-chain:#20193a; --b-found:#2c2312; --b-eval:#1a2129;
+  --st-done:#4cc184; --st-prog:#6ea6ff; --st-scaf:#e9b04a; --st-todo:#7d8a97; --on-st:#0d1319;
+  --z1:#4a2421; --z2:#4a3319; --z3:#443c17; --z4:#1d2c40; --z5:#173826;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1319; --paper:#141c24; --ink:#e2e8ee; --muted:#93a2b0; --rule:#2d3a47; --faint:#1c2630;
+  --accent:#6ea6ff; --accent-soft:#1b2c45;
+  --b-client:#132338; --b-svc:#11281d; --b-chain:#20193a; --b-found:#2c2312; --b-eval:#1a2129;
+  --st-done:#4cc184; --st-prog:#6ea6ff; --st-scaf:#e9b04a; --st-todo:#7d8a97; --on-st:#0d1319;
+  --z1:#4a2421; --z2:#4a3319; --z3:#443c17; --z4:#1d2c40; --z5:#173826;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:24px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:24px;font-weight:600}
+h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:72ch}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+
+/* title block */
+.titleblock{background:var(--paper);border:1.5px solid var(--ink);display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
+.tb-main{padding:22px 24px;display:flex;flex-direction:column;gap:10px;border-right:1.5px solid var(--ink)}
+.tb-meta{display:grid;grid-template-columns:1fr 1fr}
+.tb-meta div{padding:10px 14px;border-bottom:1px solid var(--rule);border-left:1px solid var(--rule);display:flex;flex-direction:column;gap:2px;min-width:0}
+.tb-meta div:nth-child(odd){border-left:0}
+.tb-meta b{font-family:var(--f-mono);font-weight:500;font-size:13px;overflow-wrap:anywhere}
+@media (max-width:760px){.titleblock{grid-template-columns:1fr}.tb-main{border-right:0;border-bottom:1.5px solid var(--ink)}}
+
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 8px}
+nav.toc a{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);text-decoration:none;border:1px solid var(--rule);background:var(--paper);padding:5px 10px;border-radius:3px}
+nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+
+.sheet{background:var(--paper);border:1px solid var(--rule);padding:24px;display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.sheet-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border-bottom:1.5px solid var(--ink);padding-bottom:10px}
+.sheet-no{font-family:var(--f-mono);font-size:12px;color:var(--paper);background:var(--ink);padding:2px 8px}
+@media (max-width:600px){.sheet{padding:16px}}
+
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll svg{display:block;min-width:980px;width:100%;height:auto}
+.scroll.narrow svg{min-width:760px}
+figcaption{font-size:13.5px;color:var(--muted);max-width:90ch}
+figcaption b{color:var(--ink);font-weight:600}
+
+/* status */
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.d-done{background:var(--st-done)}.d-prog{background:var(--st-prog)}.d-scaf{background:var(--st-scaf)}.d-todo{background:var(--st-todo)}
+.pill{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:10px;color:var(--on-st);white-space:nowrap}
+.p-done{background:var(--st-done)}.p-prog{background:var(--st-prog)}.p-scaf{background:var(--st-scaf)}.p-todo{background:var(--st-todo)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{border:1px solid var(--rule);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--f-display);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+
+/* SVG styling (page CSS reaches inline SVG) */
+svg text{fill:var(--ink);font-family:var(--f-body)}
+svg .t-title{font-family:var(--f-display);font-weight:600;font-size:14px}
+svg .t-band{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;fill:var(--muted)}
+svg .t-line{font-family:var(--f-mono);font-size:10.6px;fill:var(--ink)}
+svg .t-small{font-size:11px;fill:var(--muted)}
+svg .t-lbl{font-size:11px;fill:var(--ink);font-family:var(--f-mono)}
+svg .t-pill{font-family:var(--f-mono);font-size:10px;fill:var(--on-st);font-weight:500}
+svg .box{fill:var(--paper);stroke:var(--ink);stroke-width:1.2}
+svg .actor{fill:var(--faint);stroke:var(--ink);stroke-width:1;stroke-dasharray:4 3}
+svg .chip{fill:var(--faint);stroke:var(--rule);stroke-width:1}
+svg .band-client{fill:var(--b-client)} svg .band-svc{fill:var(--b-svc)} svg .band-chain{fill:var(--b-chain)} svg .band-found{fill:var(--b-found)} svg .band-eval{fill:var(--b-eval)}
+svg .band{stroke:var(--rule);stroke-width:1}
+svg .edge{stroke:var(--ink);stroke-width:1.3;fill:none}
+svg .edge-acc{stroke:var(--accent);stroke-width:2.4;fill:none}
+svg .edge-dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+svg .ah{fill:var(--ink)} svg .ah-acc{fill:var(--accent)} svg .ah-muted{fill:var(--muted)}
+svg .s-done{fill:var(--st-done)} svg .s-prog{fill:var(--st-prog)} svg .s-scaf{fill:var(--st-scaf)} svg .s-todo{fill:var(--st-todo)}
+svg .grid{stroke:var(--faint);stroke-width:1}
+svg .gate{stroke:var(--accent);stroke-width:1.4;stroke-dasharray:4 3}
+svg .z1{fill:var(--z1)} svg .z2{fill:var(--z2)} svg .z3{fill:var(--z3)} svg .z4{fill:var(--z4)} svg .z5{fill:var(--z5)}
+svg .zline{stroke:var(--ink);stroke-width:1.5}
+
+/* mermaid */
+pre.mermaid{background:var(--paper);border:1px solid var(--faint);margin:0;padding:12px;overflow-x:auto;font-family:var(--f-mono);font-size:12px;text-align:center}
+
+/* module blocks */
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:14px}
+.mod{border:1px solid var(--rule);display:flex;flex-direction:column;min-width:0}
+.mod-h{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--faint);flex-wrap:wrap}
+.mod-id{font-family:var(--f-mono);font-weight:500;font-size:13px;background:var(--ink);color:var(--paper);padding:1px 7px}
+.mod-h h3{flex:1 1 auto;min-width:0}
+.ipo{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1.25fr) 22px minmax(0,1fr);align-items:stretch;padding:12px 14px 4px}
+.ipo>div:not(.arr){border:1px solid var(--rule);padding:8px 10px;font-size:13px;line-height:1.45;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ipo .lab{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.ipo ul{margin:0;padding-left:16px}
+.ipo li{margin:1px 0}
+.ipo .proc{background:var(--accent-soft);border-color:var(--accent)!important}
+.arr{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px}
+@media (max-width:640px){.ipo{grid-template-columns:1fr}.arr{transform:rotate(90deg);height:18px}}
+.mod-f{padding:8px 14px 12px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.stack{display:flex;flex-wrap:wrap;gap:5px}
+.stack span{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--rule);padding:1px 7px;border-radius:2px;background:var(--paper)}
+.done-when{color:var(--muted)}
+.done-when b{color:var(--ink);font-weight:600}
+.bar{height:6px;background:var(--faint);position:relative}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--st-prog)}
+
+/* tables */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--faint);vertical-align:top}
+th{font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+
+/* stack cake */
+.cake{display:flex;flex-direction:column;gap:6px}
+.layer{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule)}
+.layer>div{padding:10px 12px;min-width:0}
+.layer .ln{font-family:var(--f-display);font-weight:600;font-size:15px;display:flex;flex-direction:column;gap:2px}
+.layer .ln small{font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted)}
+.layer .why{font-size:13px;color:var(--muted);border-left:1px solid var(--rule)}
+.l-client{background:var(--b-client)}.l-svc{background:var(--b-svc)}.l-data{background:var(--b-eval)}.l-chain{background:var(--b-chain)}.l-found{background:var(--b-found)}.l-tool{background:var(--faint)}
+@media (max-width:760px){.layer{grid-template-columns:1fr}.layer .why{border-left:0;border-top:1px solid var(--rule)}}
+
+.flowgrid{display:flex;flex-direction:column;gap:22px}
+.flow{display:flex;flex-direction:column;gap:8px}
+.flow-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tag{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--accent);color:var(--accent);padding:0 6px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+
+<header class="titleblock">
+  <div class="tb-main">
+    <span class="eyebrow">Final Year Project · Architecture drawing set</span>
+    <h1>QORA / RWA-Vault System Blueprint</h1>
+    <p>Post-quantum anchored protocol for tokenised real-world assets with collateralised micro-lending at the PKR 1,000 scale. This set shows every block of the system, what goes in and comes out of each, how those outputs connect, and the technology under each block. Sandbox posture: mock fiat leg, test-net tokens, no real funds.</p>
+    <div class="legend" aria-label="Status legend">
+      <span><i class="dot d-done"></i>Mostly done</span>
+      <span><i class="dot d-prog"></i>In progress</span>
+      <span><i class="dot d-scaf"></i>Interfaces / skeleton only</span>
+      <span><i class="dot d-todo"></i>Not started</span>
+    </div>
+  </div>
+  <div class="tb-meta">
+    <div><span class="eyebrow">Revision</span><b>A</b></div>
+    <div><span class="eyebrow">Date</span><b>2026-10-16</b></div>
+    <div><span class="eyebrow">Branch</span><b>feat/finance-modules</b></div>
+    <div><span class="eyebrow">Commit</span><b>0b2dd0e</b></div>
+    <div><span class="eyebrow">Target chain</span><b>Arbitrum Sepolia</b></div>
+    <div><span class="eyebrow">Modules</span><b>M0 – M11</b></div>
+    <div style="grid-column:1/-1;border-left:0"><span class="eyebrow">Team</span><b>Fahad 403897 · Hassan 482073 · Fawaz 473423</b></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sheets">
+  <a href="#status">0 Status</a>
+  <a href="#system">1 System architecture</a>
+  <a href="#deps">2 Module map</a>
+  <a href="#flows">3 Process flows</a>
+  <a href="#blocks">4 Module blocks</a>
+  <a href="#stack">5 Tech stack</a>
+  <a href="#contracts">6 Data contracts</a>
+  <a href="#schedule">7 Schedule &amp; gates</a>
+</nav>
+
+<!-- ============ 0 STATUS ============ -->
+<section class="sheet" id="status">
+  <div class="sheet-head"><span class="sheet-no">SHEET 0</span><h2>Where the build stands</h2><span class="muted">as of 2026-10-16</span></div>
+  <div class="kpis">
+    <div class="kpi"><b>12</b><span>modules, 4 phases, 13 two-week sprints</span></div>
+    <div class="kpi"><b>53 / 102</b><span>M1 PQ Core tasks done (Stages 0–3 complete)</span></div>
+    <div class="kpi"><b>6</b><span>NIST PQ primitives building natively and in WASM</span></div>
+    <div class="kpi"><b>11</b><span>ADRs recorded in <code>docs/adr/</code></span></div>
+    <div class="kpi"><b>MS1</b><span>next gate, week 6: gold lot tokenised against an attested reserve</span></div>
+  </div>
+  <p>The critical path is <b>M0 → M1 → M2</b>: almost every later module consumes M2's signed envelope. M1 now has its native Node addon and WASM adapter, which unblocks M2's verification service. M3 has its ERC-3643 interface suite and acceptance spec scaffolded and is waiting on design decisions before implementation.</p>
+</section>
+
+<!-- ============ 1 SYSTEM ============ -->
+<section class="sheet" id="system">
+  <div class="sheet-head"><span class="sheet-no">SHEET 1</span><h2>System architecture, actor to silicon</h2></div>
+  <p>Read top to bottom: people use clients; clients send signed requests to stateless off-chain services; services commit results to contracts on Arbitrum Sepolia; everything rests on the M1 post-quantum crypto core and M0 infrastructure. The module tag on each block is coloured by build status.</p>
+  <figure>
+    <div class="scroll">
+<svg viewBox="0 0 1220 936" role="img" aria-label="Layered system architecture: actors, clients, off-chain services, on-chain contracts and the post-quantum foundation, with the labelled data flows between them">
+<defs>
+  <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-acc"/></marker>
+  <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-muted"/></marker>
+</defs>
+
+<!-- ACTORS -->
+<rect class="actor" x="50" y="14" width="444" height="40" rx="20"/><text x="272" y="39" text-anchor="middle" class="t-title">Investor (retail, PKR 1,000 scale)</text>
+<rect class="actor" x="514" y="14" width="212" height="40" rx="20"/><text x="620" y="39" text-anchor="middle" class="t-title">Auditor / third party</text>
+<rect class="actor" x="746" y="14" width="212" height="40" rx="20"/><text x="852" y="39" text-anchor="middle" class="t-title">Asset provider · Custodian</text>
+<rect class="actor" x="978" y="14" width="212" height="40" rx="20"/><text x="1084" y="39" text-anchor="middle" class="t-title">Ops / risk admin</text>
+<line class="edge" x1="272" y1="54" x2="272" y2="96" marker-end="url(#a1)"/>
+<line class="edge" x1="620" y1="54" x2="620" y2="96" marker-end="url(#a1)"/>
+<line class="edge" x1="852" y1="54" x2="852" y2="96" marker-end="url(#a1)"/>
+<line class="edge" x1="1084" y1="54" x2="1084" y2="96" marker-end="url(#a1)"/>
+
+<!-- BAND L4 CLIENTS -->
+<rect class="band band-client" x="40" y="70" width="1160" height="148"/>
+<text x="52" y="86" class="t-band">L4 · CLIENTS</text>
+<rect class="box" x="50" y="98" width="444" height="108"/>
+<text x="62" y="120" class="t-title">Investor PWA</text>
+<rect class="s-todo" x="438" y="106" width="48" height="18" rx="9"/><text x="462" y="119" text-anchor="middle" class="t-pill">M10</text>
+<text x="62" y="144" class="t-line">React 18 · TypeScript · viem · TanStack Query</text>
+<text x="62" y="162" class="t-line">Falcon-512 signer in WASM, key kept in IndexedDB</text>
+<text x="62" y="180" class="t-line">flows: deposit · lock · borrow · repay · get proof</text>
+<text x="62" y="198" class="t-line">the private key never leaves the device</text>
+
+<rect class="box" x="514" y="98" width="212" height="108"/>
+<text x="526" y="120" class="t-title">Offline verifier</text>
+<rect class="s-todo" x="670" y="106" width="48" height="18" rx="9"/><text x="694" y="119" text-anchor="middle" class="t-pill">M9</text>
+<text x="526" y="144" class="t-line">Rust CLI, no network</text>
+<text x="526" y="162" class="t-line">leaf → proof → root</text>
+<text x="526" y="180" class="t-line">root vs PQAnchor epoch</text>
+
+<rect class="box" x="746" y="98" width="212" height="108"/>
+<text x="758" y="120" class="t-title">Provider console</text>
+<rect class="s-scaf" x="902" y="106" width="48" height="18" rx="9"/><text x="926" y="119" text-anchor="middle" class="t-pill">M3</text>
+<text x="758" y="144" class="t-line">onboard lot, metadata</text>
+<text x="758" y="162" class="t-line">valuation basis</text>
+<text x="758" y="180" class="t-line">trigger attestation</text>
+
+<rect class="box" x="978" y="98" width="212" height="108"/>
+<text x="990" y="120" class="t-title">Ops console</text>
+<rect class="s-todo" x="1134" y="106" width="48" height="18" rx="9"/><text x="1158" y="119" text-anchor="middle" class="t-pill">M10</text>
+<text x="990" y="144" class="t-line">HF monitor, positions</text>
+<text x="990" y="162" class="t-line">liquidation queue</text>
+<text x="990" y="180" class="t-line">oracle health</text>
+
+<!-- clients -> services -->
+<line class="edge" x1="156" y1="206" x2="156" y2="270" marker-end="url(#a1)"/><text x="162" y="242" class="t-lbl">PKR order</text>
+<line class="edge-acc" x1="398" y1="206" x2="398" y2="270" marker-end="url(#a2)"/><text x="404" y="242" class="t-lbl">signed PQEnvelope</text>
+<line class="edge" x1="620" y1="270" x2="620" y2="208" marker-end="url(#a1)"/><text x="626" y="242" class="t-lbl">proof bundle</text>
+<line class="edge-acc" x1="852" y1="206" x2="852" y2="270" marker-end="url(#a2)"/><text x="858" y="242" class="t-lbl">reserve attestation</text>
+<line class="edge" x1="1084" y1="270" x2="1084" y2="208" marker-end="url(#a1)"/><text x="1090" y="242" class="t-lbl">HF alerts</text>
+
+<!-- BAND L3 SERVICES -->
+<rect class="band band-svc" x="40" y="246" width="1160" height="176"/>
+<text x="52" y="262" class="t-band">L3 · OFF-CHAIN SERVICES · NestJS / Node 22</text>
+<!-- settlement -->
+<rect class="box" x="50" y="272" width="212" height="140"/>
+<text x="62" y="294" class="t-title">settlement-rail</text>
+<rect class="s-todo" x="206" y="280" width="48" height="18" rx="9"/><text x="230" y="293" text-anchor="middle" class="t-pill">M8</text>
+<text x="62" y="318" class="t-line">IFiatRail seam (mock)</text>
+<text x="62" y="336" class="t-line">PKR debit → test USDC</text>
+<text x="62" y="354" class="t-line">double-entry ledger</text>
+<text x="62" y="372" class="t-line">  └ PostgreSQL 16</text>
+<text x="62" y="390" class="t-line">reconciliation job</text>
+<!-- verifier -->
+<rect class="box" x="282" y="272" width="212" height="140"/>
+<text x="294" y="294" class="t-title">pq-verifier</text>
+<rect class="s-scaf" x="438" y="280" width="48" height="18" rx="9"/><text x="462" y="293" text-anchor="middle" class="t-pill">M2</text>
+<text x="294" y="318" class="t-line">7 named checks, fixed order</text>
+<text x="294" y="336" class="t-line">verify() via napi addon</text>
+<text x="294" y="354" class="t-line">nonce compare-and-incr.</text>
+<text x="294" y="372" class="t-line">  └ PostgreSQL 16</text>
+<text x="294" y="390" class="t-line">holds no signing keys</text>
+<!-- anchor -->
+<rect class="box" x="514" y="272" width="212" height="140"/>
+<text x="526" y="294" class="t-title">anchor-batcher</text>
+<rect class="s-todo" x="670" y="280" width="48" height="18" rx="9"/><text x="694" y="293" text-anchor="middle" class="t-pill">M9</text>
+<text x="526" y="318" class="t-line">leaves from Redis Stream</text>
+<text x="526" y="336" class="t-line">60 s epoch, arrival order</text>
+<text x="526" y="354" class="t-line">sorted-pair Keccak tree</text>
+<text x="526" y="372" class="t-line">proof service</text>
+<text x="526" y="390" class="t-line">  └ {leaf, proof, epoch}</text>
+<!-- oracle -->
+<rect class="box" x="746" y="272" width="212" height="140"/>
+<text x="758" y="294" class="t-title">oracle workers</text>
+<rect class="s-todo" x="902" y="280" width="48" height="18" rx="9"/><text x="926" y="293" text-anchor="middle" class="t-pill">M5</text>
+<text x="758" y="318" class="t-line">5 sources ∥, 3 s timeout</text>
+<text x="758" y="336" class="t-line">quorum ≥ 3 → median</text>
+<text x="758" y="354" class="t-line">±10 % vs 30-min TWAP</text>
+<text x="758" y="372" class="t-line">sign round: ML-DSA-44</text>
+<text x="758" y="390" class="t-line">refuse, never extrapolate</text>
+<!-- risk -->
+<rect class="box" x="978" y="272" width="212" height="140"/>
+<text x="990" y="294" class="t-title">risk-engine</text>
+<rect class="s-todo" x="1134" y="280" width="48" height="18" rx="9"/><text x="1158" y="293" text-anchor="middle" class="t-pill">M6</text>
+<text x="990" y="318" class="t-line">Redis consumer groups</text>
+<text x="990" y="336" class="t-line">HF = f(q, p, λ, D)</text>
+<text x="990" y="354" class="t-line">alert at HF &lt; 1.15</text>
+<text x="990" y="372" class="t-line">proposes liquidations</text>
+<text x="990" y="390" class="t-line">holds no authority</text>
+<!-- service-to-service -->
+<line class="edge" x1="494" y1="342" x2="512" y2="342" marker-end="url(#a1)"/>
+<line class="edge" x1="958" y1="342" x2="976" y2="342" marker-end="url(#a1)"/>
+
+<!-- services -> chain -->
+<line class="edge" x1="156" y1="412" x2="156" y2="476" marker-end="url(#a1)"/><text x="162" y="448" class="t-lbl">test USDC</text>
+<line class="edge" x1="360" y1="476" x2="360" y2="414" marker-end="url(#a1)"/><text x="354" y="448" text-anchor="end" class="t-lbl">resolveKey()</text>
+<line class="edge-acc" x1="440" y1="412" x2="440" y2="476" marker-end="url(#a2)"/><text x="446" y="442" class="t-lbl">verified</text><text x="446" y="456" class="t-lbl">intent</text>
+<line class="edge" x1="620" y1="412" x2="620" y2="476" marker-end="url(#a1)"/><text x="626" y="448" class="t-lbl">root / 60 s</text>
+<line class="edge" x1="852" y1="412" x2="852" y2="476" marker-end="url(#a1)"/><text x="858" y="448" class="t-lbl">signed round</text>
+<line class="edge" x1="1084" y1="412" x2="1084" y2="476" marker-end="url(#a1)"/><text x="1090" y="442" class="t-lbl">liquidation</text><text x="1090" y="456" class="t-lbl">proposal</text>
+
+<!-- BAND L2 CHAIN -->
+<rect class="band band-chain" x="40" y="452" width="1160" height="206"/>
+<text x="52" y="468" class="t-band">L2 · ON-CHAIN · Solidity 0.8.26 · Foundry · Arbitrum Sepolia</text>
+<!-- vault -->
+<rect class="box" x="50" y="478" width="212" height="170"/>
+<text x="62" y="500" class="t-title">Vault</text>
+<rect class="s-todo" x="206" y="486" width="48" height="18" rx="9"/><text x="230" y="499" text-anchor="middle" class="t-pill">M4</text>
+<text x="62" y="524" class="t-line">AssetVault (ERC-4626)</text>
+<text x="62" y="542" class="t-line">virtual offset σ = 10⁶</text>
+<text x="62" y="560" class="t-line">floor on deposit/mint</text>
+<text x="62" y="578" class="t-line">ceil on withdraw/redeem</text>
+<text x="62" y="596" class="t-line">holds ERC-3643 units</text>
+<text x="62" y="614" class="t-line">issues vault shares</text>
+<!-- registry -->
+<rect class="box" x="282" y="478" width="212" height="170"/>
+<text x="294" y="500" class="t-title">Registry &amp; keys</text>
+<rect class="s-scaf" x="406" y="486" width="80" height="18" rx="9"/><text x="446" y="499" text-anchor="middle" class="t-pill">M2 · M3</text>
+<text x="294" y="524" class="t-line">PQKeyRegistry (3 tiers)</text>
+<text x="294" y="542" class="t-line">AssetRegistry state mach.</text>
+<text x="294" y="560" class="t-line">ERC-3643 token (T-REX)</text>
+<text x="294" y="578" class="t-line">IdentityRegistry</text>
+<text x="294" y="596" class="t-line">  └ ONCHAINID claims</text>
+<text x="294" y="614" class="t-line">ModularCompliance</text>
+<text x="294" y="632" class="t-line">supply ≤ reserve, always</text>
+<!-- anchor -->
+<rect class="box" x="514" y="478" width="212" height="170"/>
+<text x="526" y="500" class="t-title">Anchor</text>
+<rect class="s-todo" x="636" y="486" width="82" height="18" rx="9"/><text x="677" y="499" text-anchor="middle" class="t-pill">M9 · M1-S6</text>
+<text x="526" y="524" class="t-line">PQAnchor (immutable)</text>
+<text x="526" y="542" class="t-line">{root, leafCount, epoch}</text>
+<text x="526" y="560" class="t-line">~43k gas per epoch</text>
+<text x="526" y="578" class="t-line">roots never overwritten</text>
+<text x="526" y="596" class="t-line">FalconVerifier</text>
+<text x="526" y="614" class="t-line">  └ ETHFALCON, disputes</text>
+<!-- oracle -->
+<rect class="box" x="746" y="478" width="212" height="170"/>
+<text x="758" y="500" class="t-title">Oracle</text>
+<rect class="s-todo" x="902" y="486" width="48" height="18" rx="9"/><text x="926" y="499" text-anchor="middle" class="t-pill">M5</text>
+<text x="758" y="524" class="t-line">PriceOracle</text>
+<text x="758" y="542" class="t-line">re-checks signer role</text>
+<text x="758" y="560" class="t-line">monotonic roundId</text>
+<text x="758" y="578" class="t-line">heartbeat 60 s (gold)</text>
+<text x="758" y="596" class="t-line">stale → freeze borrows,</text>
+<text x="758" y="614" class="t-line">  never block repay</text>
+<!-- lending -->
+<rect class="box" x="978" y="478" width="212" height="170"/>
+<text x="990" y="500" class="t-title">Lending</text>
+<rect class="s-todo" x="1108" y="486" width="74" height="18" rx="9"/><text x="1145" y="499" text-anchor="middle" class="t-pill">M6 · M7</text>
+<text x="990" y="524" class="t-line">LendingPool</text>
+<text x="990" y="542" class="t-line">  └ global borrow index</text>
+<text x="990" y="560" class="t-line">CollateralManager (HF)</text>
+<text x="990" y="578" class="t-line">ReserveBuffer κ=0.40·B</text>
+<text x="990" y="596" class="t-line">Liquidator φ = 0.50</text>
+<text x="990" y="614" class="t-line">  └ bonus decays 20 blk</text>
+<text x="990" y="632" class="t-line">post-borrow HF ≥ 1.15</text>
+<!-- chain internal -->
+<line class="edge" x1="282" y1="560" x2="264" y2="560" marker-end="url(#a1)"/>
+<line class="edge" x1="958" y1="560" x2="976" y2="560" marker-end="url(#a1)"/>
+
+<!-- BAND L1 FOUNDATION -->
+<rect class="band band-found" x="40" y="688" width="1160" height="156"/>
+<text x="52" y="704" class="t-band">L1 · FOUNDATION · cryptography, encoding, infrastructure</text>
+<rect class="box" x="50" y="714" width="444" height="120"/>
+<text x="62" y="736" class="t-title">PQ Core · @rwa-vault/pq-core</text>
+<rect class="s-prog" x="438" y="722" width="48" height="18" rx="9"/><text x="462" y="735" text-anchor="middle" class="t-pill">M1</text>
+<text x="62" y="760" class="t-line">Rust crate · vendored PQClean C + slh-dsa crate</text>
+<text x="62" y="778" class="t-line">Falcon-512 · ML-DSA-44/65 · SLH-DSA · ML-KEM-768/1024</text>
+<rect class="chip" x="58" y="792" width="136" height="30" rx="3"/><text x="126" y="811" text-anchor="middle" class="t-line">napi-rs → Node</text>
+<rect class="chip" x="202" y="792" width="146" height="30" rx="3"/><text x="275" y="811" text-anchor="middle" class="t-line">wasm-bindgen → PWA</text>
+<rect class="chip" x="356" y="792" width="130" height="30" rx="3"/><text x="421" y="811" text-anchor="middle" class="t-line">pqctl → offline</text>
+
+<rect class="box" x="514" y="714" width="212" height="120"/>
+<text x="526" y="736" class="t-title">envelope-codec</text>
+<rect class="s-scaf" x="670" y="722" width="48" height="18" rx="9"/><text x="694" y="735" text-anchor="middle" class="t-pill">M2</text>
+<text x="526" y="760" class="t-line">PQEnvelope, 10 fields</text>
+<text x="526" y="778" class="t-line">TS + Rust, byte-identical</text>
+<text x="526" y="796" class="t-line">sign bytes: sig zeroed</text>
+<text x="526" y="814" class="t-line">leaf = keccak256(env)</text>
+
+<rect class="box" x="746" y="714" width="212" height="120"/>
+<text x="758" y="736" class="t-title">Key hierarchy</text>
+<rect class="s-scaf" x="902" y="722" width="48" height="18" rx="9"/><text x="926" y="735" text-anchor="middle" class="t-pill">M2</text>
+<text x="758" y="760" class="t-line">T0 SLH-DSA root, offline</text>
+<text x="758" y="778" class="t-line">T1 ML-DSA-65 services</text>
+<text x="758" y="796" class="t-line">T2 Falcon-512 devices</text>
+<text x="758" y="814" class="t-line">rotate · revoke, no delete</text>
+
+<rect class="box" x="978" y="714" width="212" height="120"/>
+<text x="990" y="736" class="t-title">Devnet &amp; CI</text>
+<rect class="s-done" x="1134" y="722" width="48" height="18" rx="9"/><text x="1158" y="735" text-anchor="middle" class="t-pill">M0</text>
+<text x="990" y="760" class="t-line">pnpm workspace monorepo</text>
+<text x="990" y="778" class="t-line">Docker: Anvil·PG16·Redis7</text>
+<text x="990" y="796" class="t-line">GitHub Actions CI</text>
+<text x="990" y="814" class="t-line">Foundry · OpenZeppelin 5</text>
+
+<!-- M1 runtime rail -->
+<path class="edge-dash" d="M50,770 L22,770 L22,150 L48,150" marker-end="url(#a3)"/>
+<path class="edge-dash" d="M22,340 L48,340" marker-end="url(#a3)"/>
+<text transform="translate(16,560) rotate(-90)" text-anchor="middle" class="t-small">M1 adapters: WASM → PWA · napi → services</text>
+
+<!-- M11 -->
+<rect class="band band-eval" x="40" y="862" width="1160" height="62"/>
+<rect class="s-todo" x="52" y="884" width="48" height="18" rx="9"/><text x="76" y="897" text-anchor="middle" class="t-pill">M11</text>
+<text x="112" y="889" class="t-title">Evaluation harness, measures every layer above</text>
+<text x="112" y="909" class="t-line">ECDSA control build (AUTH_MODE) · Foundry gas snapshots · anchoring curve n = 1…4,096 · k6 p50/p95 · 10,000-path GBM · oracle attack suite · Python 3.12</text>
+</svg>
+    </div>
+    <figcaption><b>How outputs become the product.</b> A user action leaves the PWA as a Falcon-512-signed <code>PQEnvelope</code> (blue path). The pq-verifier accepts it only after seven named checks, then the contract executes it and the envelope hash goes into the epoch Merkle tree; one root per 60 s is written to <code>PQAnchor</code> for about 43k gas regardless of how many events it covers. Prices take a parallel path: five sources → ML-DSA-44-signed round → <code>PriceOracle</code> → lending contracts and, through a Redis Stream, the risk engine. Off-chain services never hold authority: the chain re-checks every proposal.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 2 DEPS ============ -->
+<section class="sheet" id="deps">
+  <div class="sheet-head"><span class="sheet-no">SHEET 2</span><h2>Module map and critical path</h2></div>
+  <figure>
+    <div class="scroll">
+<svg viewBox="0 0 1110 470" role="img" aria-label="Module dependency graph by phase: M0 to M1 to M2 is the critical path, M2 feeds M3, M5 and M9, and all modules feed the M11 evaluation">
+<defs>
+  <marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  <marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-acc"/></marker>
+  <marker id="b3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah-muted"/></marker>
+</defs>
+<text x="40" y="24" class="t-band">PHASE 1 · WK 1–6 · GATE MS1</text>
+<text x="330" y="24" class="t-band">PHASE 2 · WK 7–11 · GATE MS2</text>
+<text x="620" y="24" class="t-band">PHASE 3 · WK 12–19 · GATE MS3</text>
+<text x="900" y="24" class="t-band">PHASE 4 · WK 20–24 · MS4</text>
+<line class="grid" x1="300" y1="12" x2="300" y2="460"/><line class="grid" x1="590" y1="12" x2="590" y2="460"/><line class="grid" x1="880" y1="12" x2="880" y2="460"/>
+
+<!-- P1 -->
+<rect class="box" x="40" y="50" width="210" height="52"/><circle cx="234" cy="66" r="6" class="s-done"/>
+<text x="52" y="72" class="t-title">M0 Foundation &amp; Devnet</text><text x="52" y="91" class="t-small">sprint 1 · mostly done</text>
+<rect class="box" x="40" y="128" width="210" height="52"/><circle cx="234" cy="144" r="6" class="s-prog"/>
+<text x="52" y="150" class="t-title">M1 PQ Core</text><text x="52" y="169" class="t-small">sprint 1–2 · 53/102 tasks</text>
+<rect class="box" x="40" y="206" width="210" height="52"/><circle cx="234" cy="222" r="6" class="s-scaf"/>
+<text x="52" y="228" class="t-title">M2 PQ-PKI &amp; Envelope</text><text x="52" y="247" class="t-small">sprint 2–3 · skeleton</text>
+<rect class="box" x="40" y="284" width="210" height="52"/><circle cx="234" cy="300" r="6" class="s-scaf"/>
+<text x="52" y="306" class="t-title">M3 Registry &amp; Compliance</text><text x="52" y="325" class="t-small">sprint 3 · interfaces</text>
+<rect class="box" x="40" y="362" width="210" height="52"/><circle cx="234" cy="378" r="6" class="s-todo"/>
+<text x="52" y="384" class="t-title">M4 Vault Accounting</text><text x="52" y="403" class="t-small">sprint 3 · not started</text>
+<line class="edge-acc" x1="145" y1="102" x2="145" y2="126" marker-end="url(#b2)"/>
+<line class="edge-acc" x1="145" y1="180" x2="145" y2="204" marker-end="url(#b2)"/>
+<line class="edge" x1="145" y1="258" x2="145" y2="282" marker-end="url(#b1)"/>
+<line class="edge" x1="145" y1="336" x2="145" y2="360" marker-end="url(#b1)"/>
+
+<!-- P2 -->
+<rect class="box" x="330" y="206" width="210" height="52"/><circle cx="524" cy="222" r="6" class="s-todo"/>
+<text x="342" y="228" class="t-title">M9 Anchoring &amp; Audit</text><text x="342" y="247" class="t-small">sprint 4–5</text>
+<rect class="box" x="330" y="284" width="210" height="52"/><circle cx="524" cy="300" r="6" class="s-todo"/>
+<text x="342" y="306" class="t-title">M5 Oracle &amp; PoR</text><text x="342" y="325" class="t-small">sprint 4–5</text>
+<rect class="box" x="330" y="362" width="210" height="52"/><circle cx="524" cy="378" r="6" class="s-todo"/>
+<text x="342" y="384" class="t-title">M8 Settlement Rail</text><text x="342" y="403" class="t-small">sprint 4 · mock fiat</text>
+<line class="edge-acc" x1="250" y1="226" x2="328" y2="226" marker-end="url(#b2)"/>
+<line class="edge-acc" x1="250" y1="244" x2="328" y2="292" marker-end="url(#b2)"/>
+<line class="edge" x1="250" y1="314" x2="328" y2="314" marker-end="url(#b1)"/>
+<line class="edge" x1="250" y1="388" x2="328" y2="388" marker-end="url(#b1)"/>
+<text x="262" y="218" class="t-small">envelope</text>
+
+<!-- P3 -->
+<rect class="box" x="620" y="50" width="210" height="52"/><circle cx="814" cy="66" r="6" class="s-todo"/>
+<text x="632" y="72" class="t-title">M10 Clients</text><text x="632" y="91" class="t-small">sprint 7–10 · shells exist</text>
+<rect class="box" x="620" y="284" width="210" height="52"/><circle cx="814" cy="300" r="6" class="s-todo"/>
+<text x="632" y="306" class="t-title">M6 Risk Engine</text><text x="632" y="325" class="t-small">sprint 7–8</text>
+<rect class="box" x="620" y="362" width="210" height="52"/><circle cx="814" cy="378" r="6" class="s-todo"/>
+<text x="632" y="384" class="t-title">M7 Lending &amp; Liquidation</text><text x="632" y="403" class="t-small">sprint 8–10</text>
+<line class="edge" x1="540" y1="310" x2="618" y2="310" marker-end="url(#b1)"/>
+<line class="edge" x1="540" y1="328" x2="618" y2="376" marker-end="url(#b1)"/>
+<line class="edge" x1="725" y1="336" x2="725" y2="360" marker-end="url(#b1)"/>
+<text x="552" y="302" class="t-small">prices</text>
+<path class="edge" d="M145,414 L145,444 L725,444 L725,416" marker-end="url(#b1)"/>
+<text x="400" y="438" class="t-small">locked vault shares (M4) → M6 risk and M7 lending</text>
+<path class="edge-dash" d="M830,388 L860,388 L860,76 L832,76" marker-end="url(#b3)"/>
+<text transform="translate(872,232) rotate(-90)" text-anchor="middle" class="t-small">frozen interfaces of M3 · M4 · M7</text>
+
+<!-- P4 -->
+<rect class="box" x="900" y="50" width="190" height="364"/><circle cx="1074" cy="66" r="6" class="s-todo"/>
+<text x="912" y="72" class="t-title">M11 Evaluation</text>
+<text x="912" y="91" class="t-small">sprint 11–13</text>
+<text x="912" y="122" class="t-line">needs M0–M10 complete</text>
+<text x="912" y="152" class="t-line">ECDSA control build</text>
+<text x="912" y="170" class="t-line">  one-flag difference</text>
+<text x="912" y="200" class="t-line">gas: anchoring curve</text>
+<text x="912" y="218" class="t-line">  break-even n* ≈ 14</text>
+<text x="912" y="248" class="t-line">RQ2 latency p50/p95</text>
+<text x="912" y="266" class="t-line">  1 / 10 / 100 users</text>
+<text x="912" y="296" class="t-line">RQ3 oracle attacks</text>
+<text x="912" y="326" class="t-line">RQ4 buffer study</text>
+<text x="912" y="344" class="t-line">  2020/2024 gold +</text>
+<text x="912" y="362" class="t-line">  10k GBM paths</text>
+<text x="912" y="392" class="t-line">→ thesis tables §VII</text>
+<line class="edge" x1="884" y1="232" x2="898" y2="232" marker-end="url(#b1)"/>
+</svg>
+    </div>
+    <figcaption><b>Blue edges are the critical path.</b> M2's signed envelope is consumed by M3 (custodian attestations), M5 (signed price rounds) and M9 (Merkle leaves), so a delay in M1 or M2 moves every later gate. Rule for every module: an interface-only PR approved by its consumers before implementation, an acyclic dependency set, and an acceptance test a third party can run.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3 FLOWS ============ -->
+<section class="sheet" id="flows">
+  <div class="sheet-head"><span class="sheet-no">SHEET 3</span><h2>Process flows</h2><span class="muted">each flow is one milestone demo</span></div>
+  <div class="flowgrid">
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F1 · MS1</span><h3>Asset onboarding: a gold lot becomes a token</h3></div>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor P as Asset provider
+  participant PC as Provider console
+  actor C as Custodian
+  participant V as pq-verifier (M2)
+  participant AR as AssetRegistry (M3)
+  participant T as ERC-3643 token
+  participant B as anchor-batcher (M9)
+  P->>PC: lot metadata, valuation basis, custodian
+  PC->>AR: register(asset) puts it in PENDING
+  C->>C: sign reserve attestation with ML-DSA-65 (Tier 1 key)
+  C->>V: PQEnvelope action=attest, seq, reserveAmount
+  V->>V: 7 named checks, nonce compare-and-increment in PostgreSQL
+  V->>B: envelope hash as a leaf (Redis Stream)
+  V->>AR: submit verified attestation
+  AR->>AR: 4 clauses — signature valid, seq increasing, reserve ≥ supply, valuation fresh
+  alt all four clauses hold
+    AR->>AR: PENDING to LIVE
+    AR->>T: minting allowed while attestedSupply ≤ reserveAmount
+  else any clause fails
+    AR-->>PC: revert names the failed clause, asset stays PENDING
+  end
+  B->>B: next epoch root goes to PQAnchor
+</pre>
+    </div>
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F1b</span><h3>AssetRegistry state machine</h3></div>
+<pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --> UNREGISTERED
+  UNREGISTERED --> PENDING: register(metadata)
+  PENDING --> LIVE: admit, 4-clause predicate passes
+  PENDING --> UNREGISTERED: reject
+  LIVE --> FROZEN: freeze by agent
+  FROZEN --> LIVE: unfreeze
+</pre>
+      <p class="muted" style="font-size:13.5px">Minting is possible only in LIVE. Invariant checked on every mint and every attestation: <code>attestedSupply ≤ reserveAmount</code>.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F2 · MS2</span><h3>Investment: PKR 5,000 deposit to an offline-verifiable proof</h3></div>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor I as Investor
+  participant W as PWA + WASM signer
+  participant S as settlement-rail (M8)
+  participant V as pq-verifier (M2)
+  participant VA as AssetVault (M4)
+  participant IR as IdentityRegistry (M3)
+  participant B as anchor-batcher (M9)
+  participant A as PQAnchor
+  I->>W: deposit PKR 5,000
+  W->>S: onRamp(account, PKR amount)
+  S->>S: double-entry ledger, PKR debit equals USDC credit
+  S->>VA: test-net USDC credited
+  W->>W: build PQEnvelope, sign with Falcon-512 (key in IndexedDB)
+  W->>V: envelope + 666-byte signature
+  V->>V: allow-list, key, domain, clock, nonce, signature, payload
+  V->>VA: execute deposit intent
+  VA->>IR: is the investor verified? (ONCHAINID claim)
+  VA->>VA: shares = floor(assets × (supply + 10⁶) / (totalAssets + 1))
+  VA-->>W: shares minted, rounded against the depositor
+  V->>B: leaf = keccak256(envelope)
+  B->>A: root, leafCount, epoch within 60 s
+  W->>B: request proof
+  B-->>W: leaf, proof, epoch
+  Note over W,A: The Rust CLI verifies the proof offline against the on-chain root
+</pre>
+    </div>
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F3</span><h3>Envelope verification: seven checks, first failure wins</h3></div>
+<pre class="mermaid">
+flowchart LR
+  E[PQEnvelope + signature] --> C1{1 algorithm allowed for action}
+  C1 -- pass --> C2{2 signer key active, not revoked}
+  C2 -- pass --> C3{3 domain: chainId, contract, action}
+  C3 -- pass --> C4{4 now inside validFrom..validTo}
+  C4 -- pass --> C5{5 nonce = stored + 1}
+  C5 -- pass --> C6{6 signature over zeroed envelope}
+  C6 -- pass --> C7{7 payloadHash = executed payload}
+  C7 -- pass --> OK([accept: execute + leaf to M9])
+  C1 -- fail --> X([reject with the check name])
+  C2 -- fail --> X
+  C3 -- fail --> X
+  C4 -- fail --> X
+  C5 -- fail --> X
+  C6 -- fail --> X
+  C7 -- fail --> X
+</pre>
+      <p class="muted" style="font-size:13.5px">Cheap checks run first; the signature check (calls M1 <code>verify</code> through the Node addon) runs late. The adversarial replay suite asserts the <i>name</i> of the failed check, not just a rejection.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F4</span><h3>Oracle round: five sources to one committed price</h3></div>
+<pre class="mermaid">
+flowchart LR
+  S1[Source 1] &amp; S2[Source 2] &amp; S3[Source 3] &amp; S4[Source 4] &amp; S5[Source 5] --> P[Poll in parallel, 3 s timeout]
+  P --> D[Drop invalid or stale]
+  D --> Q{Quorum ≥ 3}
+  Q -- no --> R([Refuse: no round committed])
+  Q -- yes --> M[Median]
+  M --> T{Within ±10 % of 30-min TWAP}
+  T -- no --> R
+  T -- yes --> N{roundId and timestamp increase}
+  N -- no --> R
+  N -- yes --> SG[Sign round with ML-DSA-44]
+  SG --> PO[(PriceOracle.sol)]
+  PO --> X[Redis Stream price ticks to risk-engine]
+</pre>
+      <p class="muted" style="font-size:13.5px">The order is the security property: taking the median before the deviation test stops one corrupted feed from deciding whether a round is accepted. A stale price freezes new borrows but never blocks repay or withdraw.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-h"><span class="tag">F5 · MS3</span><h3>Lending: borrow, price drop, buffer or liquidation</h3></div>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor I as Investor
+  participant W as PWA
+  participant CM as CollateralManager
+  participant LP as LendingPool
+  participant PO as PriceOracle
+  participant RE as risk-engine (M6)
+  participant RB as ReserveBuffer
+  participant L as Liquidator
+  I->>W: lock vault shares, request loan
+  W->>CM: Falcon-signed borrow intent (through pq-verifier)
+  CM->>PO: last committed price p
+  CM->>CM: HF = q × p × λ / D, require post-borrow HF ≥ 1.15
+  CM->>LP: borrow, debt scaled by the global index
+  PO-->>RE: price tick (Redis Stream)
+  RE->>RE: recompute HF for every position
+  alt 1.00 ≤ HF and HF below 1.15
+    RE-->>W: alert borrower
+  else 0.95 ≤ HF and HF below 1.00
+    RE->>RB: propose buffer claim
+    RB->>RB: per-epoch cap κ = 0.40 × B, one claim per position
+  else HF below 0.95
+    RE->>L: propose liquidation
+    L->>CM: re-derive HF on-chain, revert if engine was wrong
+    L->>LP: repay up to φ = 0.50 of debt, bonus decays over 20 blocks
+  end
+</pre>
+    </div>
+
+    <figure>
+      <div class="flow-h"><span class="tag">F5b</span><h3>Health-factor bands</h3></div>
+      <div class="scroll narrow">
+<svg viewBox="0 0 1120 150" role="img" aria-label="Health factor scale from 0.85 to 1.30 with five bands: full closure below 0.90, liquidation 0.90 to 0.95, reserve buffer 0.95 to 1.00, alert 1.00 to 1.15, safe at 1.15 and above">
+<rect class="z1" x="60" y="34" width="111.1" height="50"/>
+<rect class="z2" x="171.1" y="34" width="111.1" height="50"/>
+<rect class="z3" x="282.2" y="34" width="111.1" height="50"/>
+<rect class="z4" x="393.3" y="34" width="333.4" height="50"/>
+<rect class="z5" x="726.7" y="34" width="333.3" height="50"/>
+<text x="115.5" y="55" text-anchor="middle" class="t-title">Full closure</text><text x="115.5" y="73" text-anchor="middle" class="t-lbl">φ → 1, socialise</text>
+<text x="226.6" y="55" text-anchor="middle" class="t-title">Liquidation</text><text x="226.6" y="73" text-anchor="middle" class="t-lbl">φ = 0.50</text>
+<text x="337.7" y="55" text-anchor="middle" class="t-title">Reserve buffer</text><text x="337.7" y="73" text-anchor="middle" class="t-lbl">κ = 0.40·B</text>
+<text x="560" y="55" text-anchor="middle" class="t-title">Alert borrower, no new borrow</text><text x="560" y="73" text-anchor="middle" class="t-lbl">risk-engine notifies</text>
+<text x="893" y="55" text-anchor="middle" class="t-title">Safe</text><text x="893" y="73" text-anchor="middle" class="t-lbl">origination bound</text>
+<line class="zline" x1="171.1" y1="28" x2="171.1" y2="90"/><line class="zline" x1="282.2" y1="28" x2="282.2" y2="90"/><line class="zline" x1="393.3" y1="28" x2="393.3" y2="90"/><line class="zline" x1="726.7" y1="28" x2="726.7" y2="90"/>
+<line class="edge" x1="60" y1="96" x2="1060" y2="96"/>
+<g class="t-lbl">
+<line class="edge" x1="60" y1="96" x2="60" y2="102"/><text x="60" y="116" text-anchor="middle">0.85</text>
+<line class="edge" x1="171.1" y1="96" x2="171.1" y2="102"/><text x="171.1" y="116" text-anchor="middle">0.90</text>
+<line class="edge" x1="282.2" y1="96" x2="282.2" y2="102"/><text x="282.2" y="116" text-anchor="middle">0.95</text>
+<line class="edge" x1="393.3" y1="96" x2="393.3" y2="102"/><text x="393.3" y="116" text-anchor="middle">1.00</text>
+<line class="edge" x1="504.4" y1="96" x2="504.4" y2="102"/><text x="504.4" y="116" text-anchor="middle">1.05</text>
+<line class="edge" x1="615.6" y1="96" x2="615.6" y2="102"/><text x="615.6" y="116" text-anchor="middle">1.10</text>
+<line class="edge" x1="726.7" y1="96" x2="726.7" y2="102"/><text x="726.7" y="116" text-anchor="middle">1.15</text>
+<line class="edge" x1="837.8" y1="96" x2="837.8" y2="102"/><text x="837.8" y="116" text-anchor="middle">1.20</text>
+<line class="edge" x1="948.9" y1="96" x2="948.9" y2="102"/><text x="948.9" y="116" text-anchor="middle">1.25</text>
+<line class="edge" x1="1060" y1="96" x2="1060" y2="102"/><text x="1060" y="116" text-anchor="middle">1.30</text>
+</g>
+<text x="60" y="20" class="t-band">HEALTH FACTOR  HF = Σ(q·p·λ) / D</text>
+<text x="560" y="140" text-anchor="middle" class="t-small">q = locked shares · p = last committed price · λ = liquidation threshold · D = debt from the global borrow index</text>
+</svg>
+      </div>
+      <figcaption>Constants match <code>services/risk-engine</code>: origination 1.15, solvency 1.00, liquidation 0.95, full closure 0.90. The buffer absorbs transient shocks without hiding sustained under-collateralisation; a liquidation must strictly raise HF.</figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<!-- ============ 4 BLOCKS ============ -->
+<section class="sheet" id="blocks">
+  <div class="sheet-head"><span class="sheet-no">SHEET 4</span><h2>Module blocks: input → process → output</h2></div>
+  <p>Each block lists what the module consumes (and from which module), what it does, what it produces (and for whom), its stack, and the acceptance test that closes it.</p>
+  <div class="mods">
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M0</span><h3>Foundation &amp; Devnet</h3><span class="pill p-done">Mostly done</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Nothing (entry point)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>pnpm monorepo: apps, packages, services, contracts</li><li>Foundry project, Docker devnet</li><li>CI: forge build/test/fmt, invariants, pq-native, pq-wasm</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Local chain 31337, PostgreSQL, Redis for every module</li><li>Green CI gate on every PR</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>pnpm</span><span>Docker Compose</span><span>Foundry</span><span>GitHub Actions</span><span>Node 22</span></div>
+        <div class="done-when"><b>Done when:</b> one-command devnet on a clean clone, CI green. <b>Left:</b> Arbitrum Sepolia deploy scripts, branch protection.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M1</span><h3>PQ Core</h3><span class="pill p-prog">53 / 102</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:52%"></i></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>NIST algorithms: PQClean C, <code>slh-dsa</code> crate</li><li>KAT / ACVP test vectors</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Rust traits <code>SignatureScheme</code>, <code>KemScheme</code></li><li>Fail-closed RNG, zeroised secret types</li><li>Adapters: napi-rs (Node), wasm-bindgen (browser), <code>pqctl</code> (offline)</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li><code>PqCoreApi</code>: keygen, sign, verify, KEM → M2, M5, M9, M10</li><li>FalconVerifier.sol + gas report (Stage 6)</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Rust</span><span>PQClean C via cc</span><span>napi-rs</span><span>wasm-bindgen</span><span>TypeScript</span></div>
+        <div class="done-when"><b>Done when:</b> all CAVP vectors pass in native and WASM, Falcon verifier gas report published. <b>Next:</b> Stage 4 conformance, Stage 5 benchmarks.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M2</span><h3>PQ-PKI &amp; Envelope</h3><span class="pill p-scaf">Skeleton</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li><code>PqCoreApi</code> via napi addon (M1)</li><li>Signed intents and attestations</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>PQKeyRegistry: T0 SLH-DSA, T1 ML-DSA-65, T2 Falcon-512</li><li>Rotate with overlap, revoke without delete</li><li>Canonical codec, 7-check verifier, nonce CAS</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Accept, or reject with check name → M3, M5, M7</li><li>Envelope hashes → M9 leaves</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Solidity</span><span>NestJS</span><span>PostgreSQL 16</span><span>TS + Rust codec</span></div>
+        <div class="done-when"><b>Done when:</b> rotation and revocation work end to end; the replay suite rejects every attack at its named check.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M3</span><h3>Registry &amp; Compliance</h3><span class="pill p-scaf">Interfaces</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Verified custodian attestation (M2)</li><li>Provider metadata, valuation</li><li>ONCHAINID identity claims</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>AssetRegistry state machine</li><li>4-clause admission predicate on-chain</li><li>ERC-3643 transfers gated by IdentityRegistry + compliance</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>LIVE asset + permissioned token → M4, M5</li><li>Provider console → M10</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Solidity 0.8.26</span><span>ERC-3643 T-REX</span><span>ERC-734/735</span><span>Foundry</span></div>
+        <div class="done-when"><b>Done when:</b> a provider onboards a gold lot unaided, and a direct-contract transfer that bypasses the API is refused.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M4</span><h3>Vault Accounting</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>ERC-3643 units of a LIVE asset (M3)</li><li>Test USDC from M8</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>ERC-4626 with <code>_decimalsOffset() = 6</code></li><li>Floor in, ceiling out, always in the pool's favour</li><li>Donation-attack hardening (cost ≈ 10⁶ × target)</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Vault shares → collateral for M6, M7</li><li>Balances → M10</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Solidity</span><span>OpenZeppelin ERC4626</span><span>Foundry fuzz</span><span>Halmos</span></div>
+        <div class="done-when"><b>Done when:</b> 10⁶ fuzzed sequences show no inflation or rounding violation, and the Halmos proof passes.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M5</span><h3>Oracle &amp; Proof-of-Reserve</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>5 independent price sources</li><li>Custodian re-attestations (M2 envelopes)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Ordered pipeline: drop stale → quorum → median → TWAP gate → monotonic</li><li>Sign round with ML-DSA-44</li><li>Refuse rather than extrapolate</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Committed rounds in PriceOracle → M6, M7</li><li>Reserve freshness → M3</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>NestJS workers</span><span>Redis 7</span><span>Solidity</span><span>ML-DSA-44</span></div>
+        <div class="done-when"><b>Done when:</b> an injected malicious source is flagged and the median doesn't move; each Experiment C check rejects at the right clause.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M8</span><h3>Settlement Rail (mock)</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>PKR order from the PWA</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li><code>IFiatRail</code>: the one seam to a future licensed provider</li><li>Double-entry ledger, deterministic delay, injectable failures</li><li>Reconciliation job</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Test-net USDC into AssetVault (M4)</li><li>Balanced ledger entries</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>NestJS</span><span>PostgreSQL 16</span></div>
+        <div class="done-when"><b>Done when:</b> 1,000 randomised orders leave the ledger balanced, even with injected failures.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M9</span><h3>Anchoring &amp; Audit</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Envelope hashes from M2 (Redis Stream)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Sorted-pair Keccak-256 tree per 60 s epoch</li><li>Write <code>{root, leafCount, epoch}</code> once</li><li>Gap handling after a stall</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>On-chain roots in PQAnchor</li><li>Proof bundles → auditor's offline CLI</li><li>Gas data → M11</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Node</span><span>Redis Streams</span><span>Solidity (immutable)</span><span>OZ MerkleProof</span><span>Rust CLI</span></div>
+        <div class="done-when"><b>Done when:</b> a proof verifies on a machine that never contacted the platform; epochs strictly increase; no root is overwritten.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M6</span><h3>Risk Engine</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Price ticks (M5)</li><li>Locked shares (M4), debt (M7)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>HF as a pure function of (q, p, λ, D)</li><li>Redis consumer groups, at-least-once</li><li>Recompute on every accepted tick</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Alerts at HF &lt; 1.15 → M10</li><li>Liquidation and buffer proposals → M7</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>TypeScript workers</span><span>Redis Streams</span><span>k6</span></div>
+        <div class="done-when"><b>Done when:</b> p95 sweep under 500 ms at 10,000 positions; a stopped engine delays liquidations but never causes a wrong one.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M7</span><h3>Lending &amp; Liquidation</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Collateral shares (M4)</li><li>Committed prices (M5)</li><li>Proposals (M6)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Global borrow index, O(1) per user; rate kink at U* = 80 %</li><li>ReserveBuffer band 0.95–1.00</li><li>Liquidator φ = 0.50, β decays over 20 blocks</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Loans in test USDC</li><li>Liquidations with zero bad debt → M10, M11</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Solidity</span><span>Foundry invariants</span><span>Echidna</span></div>
+        <div class="done-when"><b>Done when:</b> 10,000-path Monte Carlo at 3σ gives zero bad debt; the buffer cuts transient-shock liquidations (Experiment B).</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M10</span><h3>Clients</h3><span class="pill p-todo">Shells only</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>Frozen ABIs of M3, M4, M7</li><li>WASM signer (M1)</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Investor PWA: deposit, borrow, repay signed in-browser</li><li>Provider and ops consoles</li><li>ABI-typed bindings: a contract change is a compile error</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Full investor journey, deposit to liquidation visibility</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>React 18</span><span>TypeScript</span><span>viem</span><span>TanStack Query</span><span>IndexedDB</span></div>
+        <div class="done-when"><b>Done when:</b> a non-technical tester completes the full journey without help.</div>
+      </div>
+    </article>
+
+    <article class="mod">
+      <div class="mod-h"><span class="mod-id">M11</span><h3>Evaluation Harness</h3><span class="pill p-todo">Not started</span></div>
+      <div class="ipo">
+        <div><span class="lab">Input</span><ul><li>M0–M10 feature-complete</li><li>ECDSA-only control build</li></ul></div><div class="arr">→</div>
+        <div class="proc"><span class="lab">Process</span><ul><li>Gas snapshots, anchoring curve n = 1…4,096, break-even vs <code>ecrecover</code></li><li>k6 latency at 1/10/100 users</li><li>Gold drawdown replays + 10k GBM paths; oracle attacks</li></ul></div><div class="arr">→</div>
+        <div><span class="lab">Output</span><ul><li>Measured research-question tables</li><li>Reproduction scripts, dataset, thesis</li></ul></div>
+      </div>
+      <div class="mod-f">
+        <div class="stack"><span>Python 3.12</span><span>Foundry gas</span><span>k6</span></div>
+        <div class="done-when"><b>Done when:</b> every table in §VII of the proposal is filled from measured runs, not projections.</div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ 5 STACK ============ -->
+<section class="sheet" id="stack">
+  <div class="sheet-head"><span class="sheet-no">SHEET 5</span><h2>Technology stack by layer</h2></div>
+  <div class="cake">
+    <div class="layer l-client"><div class="ln">L4 Clients<small>apps/client · apps/ops-console</small></div><div class="stack"><span>React 18 PWA</span><span>TypeScript</span><span>viem</span><span>TanStack Query</span><span>WASM pq-core</span><span>IndexedDB</span></div><div class="why">Signing happens in the browser, so the user's PQ key never reaches a server.</div></div>
+    <div class="layer l-svc"><div class="ln">L3 Services<small>services/*</small></div><div class="stack"><span>NestJS</span><span>Node 22 LTS</span><span>napi-rs addon</span><span>TypeScript</span></div><div class="why">Five stateless services: pq-verifier, oracle, risk-engine, settlement-rail, anchor-batcher. None holds authority over funds.</div></div>
+    <div class="layer l-data"><div class="ln">Data<small>infra/docker-compose.yml</small></div><div class="stack"><span>PostgreSQL 16</span><span>Redis 7 Streams</span></div><div class="why">PostgreSQL: nonces, ledger, attestation history. Redis Streams: price ticks and envelope leaves, at-least-once.</div></div>
+    <div class="layer l-chain"><div class="ln">L2 Contracts<small>contracts/src</small></div><div class="stack"><span>Solidity 0.8.26</span><span>Foundry</span><span>OpenZeppelin 5</span><span>ERC-3643</span><span>ERC-4626</span><span>Aave V3 patterns</span><span>Arbitrum Sepolia</span></div><div class="why">The chain is the system of record and re-checks every claim the off-chain layer makes.</div></div>
+    <div class="layer l-found"><div class="ln">L1 PQ crypto<small>packages/pq-core</small></div><div class="stack"><span>Rust</span><span>PQClean C (vendored)</span><span>slh-dsa</span><span>wasm32-unknown-unknown</span><span>napi-rs</span><span>pqctl</span></div><div class="why">One crate, two targets: native for servers, WASM for browsers. Vendored PQClean replaced liboqs (ADR 0003).</div></div>
+    <div class="layer l-tool"><div class="ln">Tooling &amp; QA<small>.github · eval</small></div><div class="stack"><span>pnpm workspaces</span><span>GitHub Actions</span><span>Docker</span><span>Echidna</span><span>Halmos</span><span>k6</span><span>Python 3.12</span></div><div class="why">Invariants, fuzzing and symbolic proofs on contracts; load tests and statistics for evaluation.</div></div>
+  </div>
+</section>
+
+<!-- ============ 6 CONTRACTS ============ -->
+<section class="sheet" id="contracts">
+  <div class="sheet-head"><span class="sheet-no">SHEET 6</span><h2>Data contracts that glue the blocks</h2></div>
+  <h3>PQEnvelope: what each field stops</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Field</th><th>Attack it removes</th><th>Enforced by check</th></tr></thead>
+    <tbody>
+      <tr><td><code>version</code></td><td>Ambiguous format in the signed bytes</td><td>Codec rejects unknown versions</td></tr>
+      <tr><td><code>algorithm</code></td><td>Downgrade to a retired primitive</td><td>1 · algorithm allowed for action</td></tr>
+      <tr><td><code>signer</code></td><td>Signing with an unregistered or revoked key</td><td>2 · signer resolves to active key</td></tr>
+      <tr><td><code>chainId</code> · <code>contract</code> · <code>action</code></td><td>Cross-chain, cross-contract and action-substitution replay</td><td>3 · domain separator matches</td></tr>
+      <tr><td><code>validFrom</code> · <code>validTo</code></td><td>Delayed execution (90 s intents, 3,600 s attestations)</td><td>4 · clock inside window</td></tr>
+      <tr><td><code>nonce</code></td><td>Same-signer replay</td><td>5 · nonce = stored + 1</td></tr>
+      <tr><td>signature</td><td>Forgery; signed over the envelope with the signature zeroed</td><td>6 · signature verifies</td></tr>
+      <tr><td><code>payloadHash</code></td><td>Executing a payload other than the one signed</td><td>7 · payload hash matches</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Post-quantum primitives and where each one is used</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Algorithm</th><th>Standard</th><th>Public key</th><th>Sig / ciphertext</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td>Falcon-512</td><td>FIPS 206 draft</td><td class="num">897 B</td><td class="num">666 B</td><td>Tier 2 device keys, user intents, on-chain dispute verifier</td></tr>
+      <tr><td>ML-DSA-44</td><td>FIPS 204</td><td class="num">1,312 B</td><td class="num">2,420 B</td><td>Oracle price rounds, server attestations</td></tr>
+      <tr><td>ML-DSA-65</td><td>FIPS 204</td><td class="num">1,952 B</td><td class="num">3,309 B</td><td>Tier 1 service keys, custodian reserve attestations</td></tr>
+      <tr><td>SLH-DSA-SHA2-128s</td><td>FIPS 205</td><td class="num">32 B</td><td class="num">7,856 B</td><td>Tier 0 root, offline ceremony only (<code>pqctl</code>)</td></tr>
+      <tr><td>ML-KEM-768</td><td>FIPS 203</td><td class="num">1,184 B</td><td class="num">1,088 B</td><td>Envelope encryption, secure channels</td></tr>
+      <tr><td>ML-KEM-1024</td><td>FIPS 203</td><td class="num">1,568 B</td><td class="num">1,568 B</td><td>Key wrapping, long-term storage</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted" style="font-size:13.5px">For scale, ECDSA-P256 uses a 64-byte signature. PQ signatures are 10–100× larger, which is why the design verifies them off-chain and anchors only a 32-byte Merkle root per epoch. Past roughly 14 events per epoch this costs less gas than per-event <code>ecrecover</code>.</p>
+</section>
+
+<!-- ============ 7 SCHEDULE ============ -->
+<section class="sheet" id="schedule">
+  <div class="sheet-head"><span class="sheet-no">SHEET 7</span><h2>Schedule and milestone gates</h2></div>
+  <figure>
+    <div class="scroll">
+<svg viewBox="0 0 1110 440" role="img" aria-label="Gantt chart of the 12 modules across 13 sprints with gates MS1 at week 6, MS2 at week 11, MS3 at week 19 and MS4 at week 24">
+<g class="t-lbl">
+<text x="205" y="28" text-anchor="middle">S1</text><text x="275" y="28" text-anchor="middle">S2</text><text x="345" y="28" text-anchor="middle">S3</text><text x="415" y="28" text-anchor="middle">S4</text><text x="485" y="28" text-anchor="middle">S5</text><text x="555" y="28" text-anchor="middle">S6</text><text x="625" y="28" text-anchor="middle">S7</text><text x="695" y="28" text-anchor="middle">S8</text><text x="765" y="28" text-anchor="middle">S9</text><text x="835" y="28" text-anchor="middle">S10</text><text x="905" y="28" text-anchor="middle">S11</text><text x="975" y="28" text-anchor="middle">S12</text><text x="1045" y="28" text-anchor="middle">S13</text>
+</g>
+<g class="t-small">
+<text x="205" y="44" text-anchor="middle">wk 1–2</text><text x="345" y="44" text-anchor="middle">wk 5–6</text><text x="485" y="44" text-anchor="middle">wk 9–10</text><text x="625" y="44" text-anchor="middle">wk 13–14</text><text x="765" y="44" text-anchor="middle">wk 17–18</text><text x="905" y="44" text-anchor="middle">wk 21–22</text><text x="1045" y="44" text-anchor="middle">wk 25–26</text>
+</g>
+<g>
+<line class="grid" x1="170" y1="52" x2="170" y2="384"/><line class="grid" x1="240" y1="52" x2="240" y2="384"/><line class="grid" x1="310" y1="52" x2="310" y2="384"/><line class="grid" x1="380" y1="52" x2="380" y2="384"/><line class="grid" x1="450" y1="52" x2="450" y2="384"/><line class="grid" x1="520" y1="52" x2="520" y2="384"/><line class="grid" x1="590" y1="52" x2="590" y2="384"/><line class="grid" x1="660" y1="52" x2="660" y2="384"/><line class="grid" x1="730" y1="52" x2="730" y2="384"/><line class="grid" x1="800" y1="52" x2="800" y2="384"/><line class="grid" x1="870" y1="52" x2="870" y2="384"/><line class="grid" x1="940" y1="52" x2="940" y2="384"/><line class="grid" x1="1010" y1="52" x2="1010" y2="384"/><line class="grid" x1="1080" y1="52" x2="1080" y2="384"/>
+</g>
+<!-- rows: y = 60 + i*26 ; bar y = row+5 h=16 -->
+<g class="t-lbl">
+<text x="20" y="77">M0 Foundation</text>
+<text x="20" y="103">M1 PQ Core</text>
+<text x="20" y="129">M2 PQ-PKI</text>
+<text x="20" y="155">M3 Registry</text>
+<text x="20" y="181">M4 Vault</text>
+<text x="20" y="207">M5 Oracle</text>
+<text x="20" y="233">M8 Settlement</text>
+<text x="20" y="259">M9 Anchoring</text>
+<text x="20" y="285">M6 Risk</text>
+<text x="20" y="311">M7 Lending</text>
+<text x="20" y="337">M10 Clients</text>
+<text x="20" y="363">M11 Evaluation</text>
+</g>
+<rect class="s-done" x="172" y="65" width="66" height="16" rx="2"/>
+<rect class="s-todo" x="172" y="91" width="136" height="16" rx="2" opacity=".35"/><rect class="s-prog" x="172" y="91" width="71" height="16" rx="2"/><text x="316" y="103" class="t-small">53/102</text>
+<rect class="s-scaf" x="242" y="117" width="136" height="16" rx="2"/>
+<rect class="s-scaf" x="312" y="143" width="66" height="16" rx="2"/>
+<rect class="s-todo" x="312" y="169" width="66" height="16" rx="2"/>
+<rect class="s-todo" x="382" y="195" width="136" height="16" rx="2"/>
+<rect class="s-todo" x="382" y="221" width="66" height="16" rx="2"/>
+<rect class="s-todo" x="382" y="247" width="136" height="16" rx="2"/>
+<rect class="s-todo" x="592" y="273" width="136" height="16" rx="2"/>
+<rect class="s-todo" x="662" y="299" width="206" height="16" rx="2"/>
+<rect class="s-todo" x="592" y="325" width="276" height="16" rx="2"/>
+<rect class="s-todo" x="872" y="351" width="206" height="16" rx="2"/>
+<!-- gates: x = 170 + week*35 -->
+<line class="gate" x1="380" y1="50" x2="380" y2="392"/><text x="380" y="408" text-anchor="middle" class="t-lbl">MS1 · wk 6</text><text x="380" y="424" text-anchor="middle" class="t-small">gold lot tokenised</text>
+<line class="gate" x1="555" y1="50" x2="555" y2="392"/><text x="555" y="408" text-anchor="middle" class="t-lbl">MS2 · wk 11 · FYP-I</text><text x="555" y="424" text-anchor="middle" class="t-small">deposit → offline proof</text>
+<line class="gate" x1="835" y1="50" x2="835" y2="392"/><text x="835" y="408" text-anchor="middle" class="t-lbl">MS3 · wk 19</text><text x="835" y="424" text-anchor="middle" class="t-small">liquidation, zero bad debt</text>
+<line class="gate" x1="1010" y1="50" x2="1010" y2="392"/><text x="1010" y="408" text-anchor="middle" class="t-lbl">MS4 · wk 24</text><text x="1010" y="424" text-anchor="middle" class="t-small">all RQs measured</text>
+</svg>
+    </div>
+    <figcaption><b>Bars are coloured by current status</b>, not by plan. M1's bar is filled to its task count (53 of 102). Each gate is a demo the supervisors can run: MS1 = flow F1, MS2 = flow F2, MS3 = flow F5, MS4 = the M11 measurement tables.</figcaption>
+  </figure>
+</section>
+
+<p class="muted" style="font-size:12.5px">Sources: <code>docs/manuals/QORA_Module_Build_Plan.docx</code>, <code>docs/deliverables/proposal/QORA_Technical_Proposal.docx</code>, <code>docs/adr/</code>, service constants in <code>services/*/src</code>, and the team's Obsidian project notes. Revision A, generated from the repository on 2026-10-16.</p>
+
+</div>
