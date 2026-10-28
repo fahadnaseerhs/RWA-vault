@@ -31,4 +31,4 @@ updated: 2026-10-28
 - [ ] **T6.2** Unaided onboarding rehearsal (tester: Hassan or Fawaz, per [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal|Q22]]); protocol written: [[Specs/T6.2 - Unaided Rehearsal Protocol]]; runs after T6.1a; documented in `docs/reports/M3-onboarding-rehearsal.md`.
 - [ ] **T6.3** Acceptance bypass test `contracts/test/registry/BypassTest.t.sol` (direct-contract bypass attempts rejected on-chain).
 
-Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T6.0 Onboarding Schema & Parity]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T6.0 Onboarding Schema & Parity]] · [[Threads/Thread - T6.1a Onboarding Command]]

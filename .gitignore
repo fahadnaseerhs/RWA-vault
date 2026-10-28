@@ -104,3 +104,10 @@ docs/.qa_module1*/
 # ─── M3 local deployments ─────────────────────────────────────────────────
 # T5.1: the anvil deployment file changes every run; testnet files are committed.
 contracts/deployments/31337.json
+
+# ─── M3 onboarding (T6.1a) ────────────────────────────────────────────────
+# Stage-1 verified files and the devnet fixture custodian's private key. The public
+# key and its hash (contracts/script/input/custodian.*) are committed; the key is not.
+contracts/.onboard/
+# The pq-core napi addon is a per-platform build output (`pnpm pq:addon`).
+packages/pq-core/*.node

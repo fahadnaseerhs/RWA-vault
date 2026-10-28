@@ -50,4 +50,13 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 15:30 PKT · ⌨️ Coder → 🐞 Debugger · HANDOFF
+**Context:** [[Specs/T5.1 - Deploy Script Spec|T5.1 §7]] devnet KYC helper, built with T6.1a.
+**On Disk Now:** `contracts/script/VerifyWallet.s.sol` → `run(address wallet, uint16 country)`, `verify(...)` public · `test/script/DeployM3.t.sol` → `test_VerifyWalletMakesWalletVerified`, `test_VerifyWalletDevnetOnly` (AC-T5-6, both `verify` and `run` revert `VerifyWalletDevnetOnly()` on 421614), `test_VerifyWalletRejectsWrongWalletKey` · `forge test` → `221 tests passed, 0 failed` · on anvil: `VERIFIED wallet 0x90F79bf6EB2c4f870365E785982E1f101E93b906`.
+**Message:** Steps 1–5 as written; the claim goes through `identity.execute` from the wallet. AC-T5-7: How to Run §6 gives the one-line command. See [[Threads/Thread - T6.1a Onboarding Command]] reading 5 on the §7 wording.
+**Action Needed:** 🐞 Debugger reviews; 🧭 Researcher verifies AC-T5-6/7.
+**Unblocks:** T6.2 S4
+
+---
+
 Up: [[Tasks/T5 - Wiring & Deployment]]
