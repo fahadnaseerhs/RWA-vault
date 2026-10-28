@@ -1,6 +1,6 @@
 # ADR 0009 — Test-vector inventory and what "conformance" means per primitive
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

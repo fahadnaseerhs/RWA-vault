@@ -7,10 +7,9 @@
 [![pnpm 9](https://img.shields.io/badge/pnpm-9.12.0-orange.svg)](package.json)
 [![Rust 1.81](https://img.shields.io/badge/rust-1.81.0-blue.svg)](packages/pq-core/native/rust-toolchain.toml)
 [![Arbitrum Sepolia](https://img.shields.io/badge/network-Arbitrum%20Sepolia-blueviolet.svg)](https://sepolia.arbiscan.io/)
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-- **Technical Proposal:** [`docs/RWA-Vault_proposal_v2.pdf`](docs/RWA-Vault_proposal_v2.pdf)
-- **Module Build Plan:** [`docs/RWA-Vault_Module_Build_Plan.docx`](docs/RWA-Vault_Module_Build_Plan.docx)
+- **Documentation Index:** [`docs/README.md`](docs/README.md) — proposal, defense deck, manuals, ADRs and stage reports
 - **Developer Guide:** [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - **Obsidian Project Vault:** [`RWA Vault/`](RWA%20Vault/)
 
@@ -34,10 +33,13 @@
 ## 1. Executive Summary
 
 ### The Problem
+
 Existing Real World Asset (RWA) tokenization platforms authenticate custody transfers and financial transactions using traditional elliptic-curve signatures (ECDSA / Ed25519). Shor's algorithm on cryptanalytically relevant quantum computers will break these schemes. However, running post-quantum signatures natively on-chain (e.g. EVM) is computationally prohibitive: a single Falcon or Dilithium verification can consume tens or hundreds of thousands of gas units.
 
 ### The Solution: Separate Authentication from Anchoring
+
 RWA-Vault resolves this tension with a **hybrid post-quantum settlement model**:
+
 1. **Off-Chain PQ Authentication:** Users, oracles, custodians, and vault managers sign transactions using NIST-standardized Post-Quantum Cryptography (FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, and Falcon-padded-512). Signing and verification run natively in backend services (`napi-rs` Node addon) and client browsers (`wasm32-unknown-unknown`).
 2. **On-Chain Periodic Merkle Anchoring:** An off-chain batcher accumulates PQ-signed actions over 60-second epochs into an immutable Merkle tree. Only the resulting **32-byte Merkle root** is anchored on **Arbitrum Sepolia** at a fixed, predictable cost (~43,000 gas per epoch). Beyond 14 actions per epoch, post-quantum authentication becomes cheaper than per-event ECDSA.
 3. **Optimistic Dispute Verifier:** Falcon signatures are anchored into state transitions, with an on-chain `ETHFALCON` dispute contract ready to penalize invalid transitions under fraud-proof challenges.
@@ -86,16 +88,16 @@ RWA-Vault resolves this tension with a **hybrid post-quantum settlement model**:
 
 [`CONTRIBUTING.md`](CONTRIBUTING.md) contains the non-negotiable operational conventions for all developers working on RWA-Vault:
 
-| Rule / Section in `CONTRIBUTING.md` | Why it exists & How it works |
-| ----------------------------------- | ---------------------------- |
-| **Path A: Dev Container** | Recommended setup. Requires only Docker & VS Code. Installs Node, Rust, Foundry, Python and launches Anvil + Postgres + Redis automatically. |
-| **Path B: Local Toolchain** | Pins specific tool versions: Node `22.16.0`, pnpm `9.12.0`, Rust `1.81.0`, wasm-pack `0.13.1`, Python `3.12+`, Foundry `stable`. |
-| **Clean-Clone Gate** | Any PR must pass `pnpm install && pnpm lint && pnpm typecheck && pnpm build && pnpm test` before merge. |
-| **Branching Strategy** | Trunk-based development. Feature branches (`codex/module-<N>`, `feat/<topic>`) merge directly to `main` with two required approvals. |
-| **Commit Standard** | Strictly [Conventional Commits](https://www.conventionalcommits.org/): `feat(m1): ...`, `fix(ci): ...`, `docs: ...`. |
-| **Interfaces Before Implementations** | Every module must start with an interface-only PR and acceptance test before writing production implementation. |
-| **Architecture Decision Records (ADRs)** | Architectural choices are permanently recorded in `docs/adr/`. ADRs are immutable once accepted (supersede, never edit). |
-| **Unidirectional Dependency Law** | `packages/` is consumed by `services/` and `apps/`, never the reverse. |
+| Rule / Section in `CONTRIBUTING.md`      | Why it exists & How it works                                                                                                                 |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Path A: Dev Container**                | Recommended setup. Requires only Docker & VS Code. Installs Node, Rust, Foundry, Python and launches Anvil + Postgres + Redis automatically. |
+| **Path B: Local Toolchain**              | Pins specific tool versions: Node `22.16.0`, pnpm `9.12.0`, Rust `1.81.0`, wasm-pack `0.13.1`, Python `3.12+`, Foundry `stable`.             |
+| **Clean-Clone Gate**                     | Any PR must pass `pnpm install && pnpm lint && pnpm typecheck && pnpm build && pnpm test` before merge.                                      |
+| **Branching Strategy**                   | Trunk-based development. Feature branches (`codex/module-<N>`, `feat/<topic>`) merge directly to `main` with two required approvals.         |
+| **Commit Standard**                      | Strictly [Conventional Commits](https://www.conventionalcommits.org/): `feat(m1): ...`, `fix(ci): ...`, `docs: ...`.                         |
+| **Interfaces Before Implementations**    | Every module must start with an interface-only PR and acceptance test before writing production implementation.                              |
+| **Architecture Decision Records (ADRs)** | Architectural choices are permanently recorded in `docs/adr/`. ADRs are immutable once accepted (supersede, never edit).                     |
+| **Unidirectional Dependency Law**        | `packages/` is consumed by `services/` and `apps/`, never the reverse.                                                                       |
 
 ---
 
@@ -104,16 +106,18 @@ RWA-Vault resolves this tension with a **hybrid post-quantum settlement model**:
 Module 1 is currently active on the `codex/module-1` branch. **Stages 0–3 are complete (49 / 102 tasks).**
 
 ### Primitive Matrix Delivered
-| Algorithm | Scheme | Role in RWA-Vault | Standard |
-| --------- | ------ | ----------------- | -------- |
+
+| Algorithm             | Scheme    | Role in RWA-Vault                                        | Standard     |
+| --------------------- | --------- | -------------------------------------------------------- | ------------ |
 | **Falcon-padded-512** | Signature | Fast client-side signing & on-chain dispute verification | NIST Round 3 |
-| **ML-DSA-44** | Signature | Level 2 signing for general transactions & ops | FIPS 204 |
-| **ML-DSA-65** | Signature | Level 3 custodian & validator authentication | FIPS 204 |
-| **SLH-DSA-SHA2-128s** | Signature | Stateless hash-based root ceremony (`pqctl` CLI only) | FIPS 205 |
-| **ML-KEM-768** | KEM | Encrypted envelope key exchange | FIPS 203 |
-| **ML-KEM-1024** | KEM | High-security key encapsulation rail | FIPS 203 |
+| **ML-DSA-44**         | Signature | Level 2 signing for general transactions & ops           | FIPS 204     |
+| **ML-DSA-65**         | Signature | Level 3 custodian & validator authentication             | FIPS 204     |
+| **SLH-DSA-SHA2-128s** | Signature | Stateless hash-based root ceremony (`pqctl` CLI only)    | FIPS 205     |
+| **ML-KEM-768**        | KEM       | Encrypted envelope key exchange                          | FIPS 203     |
+| **ML-KEM-1024**       | KEM       | High-security key encapsulation rail                     | FIPS 203     |
 
 ### Stage 3 Deliverables (Runtime Adapters)
+
 - **Node-API Addon (`packages/pq-core/native/napi/`)**: High-performance async wrappers (`AsyncTask`) preventing thread pool starvation on Node 22. Server-side SLH-DSA signing excluded by design (ADR 0005).
 - **WebAssembly Adapter (`packages/pq-core/native/src/wasm.rs`)**: Generic `WasmKeyPair` and `WasmEncapsulation` covering all 6 primitives in browser targets.
 - **TypeScript API (`packages/pq-core/src/`)**: Shared `PqCoreApi` contract interface, nine `PqError` error classes, and ADR 0006 metadata table.
@@ -135,23 +139,25 @@ M0 (Devnet) ──> M1 (PQ Core) ──> M2 (Envelope & PKI) ──> M3 (Registr
                                                        All ────> M11 (Eval Harness)
 ```
 
-| Phase | Milestone Gate | Focus |
-| ----- | -------------- | ----- |
-| **Phase 1: Foundation (Wk 1–6)** | **MS1**: Gold lot registered & tokenized against attested reserve | M0 (Devnet), M1 (PQ Core), M2 (PKI), M3 (Registry), M4 (Vault) |
-| **Phase 2: Investment Path (Wk 7–11)** | **MS2**: PKR 5,000 deposit with offline verifiable Merkle proof | M5 (Oracle), M8 (Settlement), M9 (Anchoring) |
-| **Phase 3: Lending & Risk (Wk 12–19)** | **MS3**: Collateralized borrow with automated health-factor liquidation | M6 (Risk Engine), M7 (Micro-Lending), M10 (Web Clients) |
-| **Phase 4: Evaluation (Wk 20–24)** | **MS4**: Thesis defense; RQ1–RQ4 benchmarks from hardware measurement | M11 (Python evaluation pipeline & charts) |
+| Phase                                  | Milestone Gate                                                          | Focus                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Phase 1: Foundation (Wk 1–6)**       | **MS1**: Gold lot registered & tokenized against attested reserve       | M0 (Devnet), M1 (PQ Core), M2 (PKI), M3 (Registry), M4 (Vault) |
+| **Phase 2: Investment Path (Wk 7–11)** | **MS2**: PKR 5,000 deposit with offline verifiable Merkle proof         | M5 (Oracle), M8 (Settlement), M9 (Anchoring)                   |
+| **Phase 3: Lending & Risk (Wk 12–19)** | **MS3**: Collateralized borrow with automated health-factor liquidation | M6 (Risk Engine), M7 (Micro-Lending), M10 (Web Clients)        |
+| **Phase 4: Evaluation (Wk 20–24)**     | **MS4**: Thesis defense; RQ1–RQ4 benchmarks from hardware measurement   | M11 (Python evaluation pipeline & charts)                      |
 
 ---
 
 ## 6. Quickstart: Zero-Install & Local Paths
 
 ### Option A: VS Code Dev Container (Zero Manual Tooling)
+
 1. Install [Docker Desktop](https://www.docker.com/) and [VS Code](https://code.visualstudio.com/).
 2. Install the **Dev Containers extension**.
 3. Open this folder in VS Code and click **"Reopen in Container"**. All compilers, runtimes, and local Docker databases launch automatically.
 
 ### Option B: Local Installation
+
 Ensure the pinned runtimes from the table above are installed, then clone the repository:
 
 ```bash
@@ -175,6 +181,7 @@ pnpm devnet:up
 ## 7. Running & Verification Commands
 
 ### Verify Module 1 (Post-Quantum Core)
+
 ```bash
 # Typecheck and lint TypeScript adapters
 cd packages/pq-core
@@ -197,6 +204,7 @@ cargo build --release --manifest-path native/pqctl/Cargo.toml
 ```
 
 ### Smart Contracts (Foundry)
+
 ```bash
 pnpm contracts:build         # Compile Solidity contracts
 pnpm contracts:test          # Run Foundry unit and fuzz tests (1k runs)
@@ -205,6 +213,7 @@ pnpm contracts:fmt           # Verify contract code formatting
 ```
 
 ### Full Repository Gate
+
 ```bash
 pnpm lint && pnpm typecheck && pnpm build && pnpm test
 ```
@@ -223,9 +232,12 @@ rwa-vault/
 │   ├── test/                # Forge test suites (unit + invariant fuzzing)
 │   └── lib/                 # Submodule dependencies (forge-std, openzeppelin)
 ├── docs/
+│   ├── README.md            # Documentation index (start here)
+│   ├── deliverables/        # Supervisor-facing: proposal, defense deck + sources
+│   ├── manuals/             # Build plan and per-module engineering manuals
+│   ├── reports/             # Stage reports and task breakdowns
 │   ├── adr/                 # Architecture Decision Records (0001-0011)
-│   ├── RWA-Vault_proposal_v2.pdf
-│   └── RWA-Vault_Module_Build_Plan.docx
+│   └── architecture/        # System blueprint + FigJam Mermaid sources
 ├── eval/
 │   ├── scripts/             # Python 3.12 data analysis for RQ1-RQ4
 │   └── requirements.txt     # Locked Python evaluation dependencies
@@ -250,6 +262,7 @@ rwa-vault/
 ## 9. CI Quality Gates
 
 GitHub Actions runs three parallel workflows on every push and pull request:
+
 1. **`node` Job:** Runs `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, and Prettier format verification.
 2. **`contracts` Job:** Compiles Solidity sources and executes 1,000 fuzz runs.
 3. **`contracts-invariants` Job:** Executes deep 1,000,000-run property-based invariant tests.
