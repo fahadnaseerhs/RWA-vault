@@ -18,12 +18,11 @@ updated: 2026-10-27
 ## Run order (Q19 = A, 2026-10-28)
 1. 🧭 Researcher `VERIFY` of T6.0 → 2. 🧭 write the T6.2 rehearsal protocol → 3. ⌨️ T1.1 → T4.1 → T2 → T3 → T5.1 → 4. ⌨️ T6.1a → T6.3 → T6.1b.
 
-## Blockers (as of 2026-10-27)
+## Blockers (as of 2026-10-28)
 | Blocker | Kind | Owner | Clears when |
 |---|---|---|---|
 | T6.0 not yet verified (code is green: `@rwa-vault/types` 32/32, 2026-10-27) | task | 🧭 Researcher | `VERIFY ✅` in the T6.0 thread |
 | No `AssetRegistry`, `Token`, registries, compliance or deploy script exist (T1–T5) | task | ⌨️ Coder | T5.1 green |
-| The T6.0 code is local only, not on GitHub | decision | 👤 Fahad | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] decided |
 | No named non-author tester for T6.2 | decision | 👤 Fahad | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] decided |
 | Real envelope path needs M2 codec/verifier (skeleton today) | external | M2 | M2 T3/T4 — until then the fixture envelope + banner (ADR 0017) |
 | `apps/ops-console` has no UI stack (ADR 0026 Proposed only) | task | ⌨️ Coder | scaffold after T6.1a |

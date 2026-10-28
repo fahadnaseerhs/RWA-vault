@@ -2,17 +2,17 @@
 type: decision
 id: M3-Q20
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T0.6 consumer sign-off, T0.8, T6.0 review]
 recommendation: "A — merge the vault PR, then commit and push the local code work on its own branch; restore the deleted PDF and images unless you meant to delete them"
-decision: ""
-decided_by: ""
-decided_on: ""
+decision: "A — push everything; restore the deleted PDF and PNGs"
+decided_by: Fahad
+decided_on: 2026-10-28
 adr: none
 tags: [rwa-vault, decision, m3, task6, repo]
-updated: 2026-10-27
+updated: 2026-10-28
 ---
 # Q20 — Should the local-only work be committed and pushed, and were the deleted files meant to go?
 
@@ -34,6 +34,10 @@ manuals to `QORA_*`.
 **Option A**, unless the QORA rename was meant to replace those files — then B.
 
 ## Decision
-> _Empty until Fahad decides._
+> **Option A (Fahad, 2026-10-28).** All local-only code and docs (T0.6 interfaces and test, T6.0 schema/validator/tests,
+> the `docs/manuals` and `docs/reports` moves, architecture diagrams, QORA deliverables) are committed on the vault PR branch;
+> the vault notes were already there. `docs/RWA-Vault_proposal_v2.pdf` and the three LinkedIn PNGs were restored in the local
+> clone and stay in the repo. The local commit `bbc4eb0` is superseded by the PR — once it merges, reset the local
+> `feat/finance-modules` to `origin/feat/finance-modules`.
 
 Up: [[Open Questions for Fahad]] · Related: [[2026-10-27 - Decision Conflict Audit|Audit B5]]
