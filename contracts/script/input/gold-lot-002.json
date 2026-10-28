@@ -1,0 +1,17 @@
+{
+  "assetId": "gold-lot-002",
+  "description": "1kg kilobar, 999.9 fine, serial XAU-90001 (DEVNET FIXTURE)",
+  "grossWeight": "1000000000000000000000",
+  "fineness": 9999,
+  "valuationBasis": {
+    "source": "FIXTURE - synthetic, not a quote; per FINE gram",
+    "currency": "USD",
+    "unitValue": "130000000000000000000",
+    "valuationTs": 1793182352
+  },
+  "custodianId": "custodian-fixture-devnet",
+  "intendedSupply": "999900000000000000000",
+  "attestations": [{ "path": "script/input/gold-lot-002.seq1.att.json", "attestor": "custodian" }],
+  "providerWallet": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+  "token": "0x05Aa229Aec102f78CE0E852A812a388F076Aa555"
+}

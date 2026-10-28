@@ -68,9 +68,45 @@ cast call $(jq -r .token deployments/31337.json) 'compliance()(address)' --rpc-u
 cast call $(jq -r .assetRegistry deployments/31337.json) 'attestationSource()(address)' --rpc-url local  # == .attestationSource
 ```
 
-## 7. The "unaided onboarding" and "bypass" demos (T6)
-- **Onboarding:** run the provider script/console (Q9) end-to-end; a non-author should complete it with only this note.
-- **Bypass test:** call `token.transfer` directly via `cast send` with an **unverified** recipient and confirm it reverts with `ReceiverNotVerified`:
+**KYC a devnet wallet (`VerifyWallet`, anvil only):** gives the wallet an ONCHAINID with a KYC claim from the project issuer and registers it. Refuses off anvil with `VerifyWalletDevnetOnly()`.
+```bash
+export M3_WALLET_PK=<anvil key 3>                # the provider wallet's own key; devnet only
+forge script script/VerifyWallet.s.sol --sig "run(address,uint16)" $(cast wallet address $M3_WALLET_PK) 586 --rpc-url local --broadcast
+# prints: VERIFIED wallet 0x…  identity 0x…
+```
+
+## 7. Onboard an asset lot (T6.1a)
+One-time setup, from the repo root: `pnpm install`, `pnpm --filter @rwa-vault/types build`, and `pnpm pq:addon` (builds the pq-core ML-DSA-65 addon with `cargo`; Rust 1.81+).
+
+The four commands of a fresh devnet onboarding (AC-24), with the §6 environment still set:
+```bash
+# 1. deploy (from contracts/), §6
+forge script script/DeployM3.s.sol --rpc-url local --broadcast
+# 2. KYC the provider wallet (from contracts/), §6
+forge script script/VerifyWallet.s.sol --sig "run(address,uint16)" $(cast wallet address $M3_WALLET_PK) 586 --rpc-url local --broadcast
+# 3. a signed custodian attestation (from the repo root; anvil only). --ts takes now, stale, or Unix seconds
+pnpm m3:fixture-attestation --asset gold-lot-002 --reserve 999900000000000000000 --seq 1 --ts now
+# 4. onboard (from the repo root). Without --broadcast it is a dry run that sends nothing
+pnpm m3:onboard contracts/script/input/gold-lot-002.json --broadcast
+```
+`contracts/script/input/gold-lot-002.json` is a ready example input: provider = anvil account 3, token = the address a fresh anvil deployment gives. For your own lot, copy it and change `assetId`, the weights, `providerWallet` and `token` (= `.token` in `contracts/deployments/31337.json`); `intendedSupply` must equal `grossWeight × fineness / 10000`.
+
+**What it does.** Stage 1 (Node) validates the input with the T6.0 validator, checks the custodian's ML-DSA-65 signature against the committed key `contracts/script/input/custodian.mldsa65.pub` (whose hash is in `custodian.json`), and writes `contracts/.onboard/<slug>.verified.json`. Stage 2 is `forge script script/OnboardAsset.s.sol` (no `--ffi`): pre-flight checks, then register → bind (`setTokenFor`, owner) → submit attestation → admit → mint, reading on-chain state first so a re-run continues instead of failing. It ends with a receipt (state, reserve, supply, seq, valuationTs, provider balance, envelope hash, the transaction hashes) and, on a FIXTURE lot, `MS1 FIXTURE ATTESTATION — NOT INDEPENDENTLY VERIFIED`.
+
+**Exit codes.** `0` done (or "already live"), `1` the input file is invalid (every issue is listed as `<json pointer>: <message>`), `2` waiting for the owner multisig to call `setTokenFor` (the `to / data` is printed; re-run after it confirms), `3` the attestation was rejected before anything was sent (`BadAttestationSig`, `AttestationForOtherChain`, `AttestationForOtherAsset`, `CustodianKeyMismatch`, `MalformedAttestation`), `4` the forge stage stopped on a named error, for example `ProviderNotVerified(0x…)` (run `VerifyWallet` first) or `AdmitRejected(…, "This valuation is 48 hours old; the limit is 24 hours. …")`. Nothing is sent when it exits 1, 3 or 4.
+
+**Check it against the chain:**
+```bash
+cd contracts
+cast call $(jq -r .assetRegistry deployments/31337.json) 'stateOf(bytes32)(uint8)' $(cast keccak gold-lot-002) --rpc-url local   # 2 = LIVE
+cast call $(jq -r .assetRegistry deployments/31337.json) 'reserveOf(bytes32)(uint256)' $(cast keccak gold-lot-002) --rpc-url local
+cast call $(jq -r .token deployments/31337.json) 'totalSupply()(uint256)' --rpc-url local     # == intendedSupply, ≤ reserve
+```
+
+**Tests:** `forge test --match-path test/registry/OnboardAsset.t.sol` (stage 2) and `pnpm test:onboard` (stage 1, needs `pnpm pq:addon`).
+
+## 8. The "bypass" demo (T6.3)
+Call `token.transfer` directly via `cast send` with an **unverified** recipient and confirm it reverts with `ReceiverNotVerified`:
 ```bash
 cast send $TOKEN "transfer(address,uint256)" $UNVERIFIED 1 --rpc-url http://localhost:8545 --private-key $PK
 # expect: execution reverted
@@ -79,12 +115,14 @@ cast send $TOKEN "transfer(address,uint256)" $UNVERIFIED 1 --rpc-url http://loca
 ## Where things live
 ```
 contracts/
-├── foundry.toml          toolchain config (solc 0.8.26, optimizer 200)
-├── remappings.txt        forge-std/ , @openzeppelin/contracts/
+├── foundry.toml          toolchain config (solc 0.8.26 + 0.8.17 for onchain-id, optimizer 200)
+├── remappings.txt        forge-std/ , @openzeppelin/contracts/ , @onchain-id/solidity/
 ├── lib/                  submodules
-├── src/                  implementations go here (today: interfaces only)
-├── test/                 ERC3643Acceptance.t.sol (abstract) + future concrete tests
-└── script/               deploy scripts (T5 — not yet created)
+├── src/                  access, identity, registry, compliance, tokens
+├── test/                 unit, acceptance, invariant and script tests
+├── script/               DeployM3, VerifyWallet, OnboardAsset; input/ = example lot + devnet custodian key
+└── deployments/          <chainid>.json written by DeployM3 (31337 is gitignored)
+scripts/onboard/          stage 1 of `pnpm m3:onboard` (Node: validate, verify ML-DSA-65, fixture generator)
 ```
 
 Up: [[Module 3 - Registry & Compliance]] · Related: [[M3 Task Board and Todo]]

@@ -15,6 +15,10 @@
     "contracts:fmt": "cd contracts && forge fmt --check",
     "contracts:snapshot": "cd contracts && forge snapshot",
     "contracts:deploy:local": "cd contracts && forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast",
+    "pq:addon": "node scripts/onboard/build-addon.mjs",
+    "m3:fixture-attestation": "node scripts/onboard/make-fixture-attestation.mjs",
+    "m3:onboard": "node scripts/onboard/run.mjs",
+    "test:onboard": "node --test scripts/onboard/onboard.test.mjs",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm -r run build",
@@ -23,8 +27,10 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml}\""
   },
   "devDependencies": {
+    "@rwa-vault/types": "workspace:^",
     "@types/node": "^20.14.0",
     "prettier": "^3.3.3",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "viem": "2.21.0"
   }
 }

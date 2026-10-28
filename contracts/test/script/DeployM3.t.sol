@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
 import {DeployM3} from "../../script/DeployM3.s.sol";
+import {VerifyWallet} from "../../script/VerifyWallet.s.sol";
 import {KYC_TOPIC} from "../../src/registry/ClaimTopics.sol";
 import {IAssetRegistry} from "../../src/registry/interfaces/IAssetRegistry.sol";
 
@@ -115,5 +116,40 @@ contract DeployM3Test is Test {
         vm.chainId(421614);
         vm.expectRevert(DeployM3.SmokeIsLocalOnly.selector);
         script.smoke();
+    }
+
+    // ---------------------------------------------------------------- VerifyWallet (spec §7)
+
+    function _verifyKeys(uint256 walletPk) internal pure returns (VerifyWallet.Keys memory) {
+        return VerifyWallet.Keys({walletPk: walletPk, kycIssuerPk: ISSUER_PK, agentPk: AGENT_PK});
+    }
+
+    function test_VerifyWalletMakesWalletVerified() public {
+        DeployM3.Deployment memory d = script.run();
+        (address wallet, uint256 pk) = makeAddrAndKey("fresh-wallet");
+        assertFalse(d.identityRegistry.isVerified(wallet));
+        new VerifyWallet().verify(wallet, 586, d.identityRegistry, d.kycIssuer, _verifyKeys(pk));
+        assertTrue(d.identityRegistry.isVerified(wallet));
+        assertEq(d.identityRegistry.investorCountry(wallet), 586);
+    }
+
+    function test_VerifyWalletDevnetOnly() public {
+        DeployM3.Deployment memory d = script.run();
+        (address wallet, uint256 pk) = makeAddrAndKey("fresh-wallet");
+        VerifyWallet vw = new VerifyWallet();
+        vm.chainId(421614);
+        vm.expectRevert(VerifyWallet.VerifyWalletDevnetOnly.selector);
+        vw.verify(wallet, 586, d.identityRegistry, d.kycIssuer, _verifyKeys(pk));
+        vm.expectRevert(VerifyWallet.VerifyWalletDevnetOnly.selector);
+        vw.run(wallet, 586);
+    }
+
+    function test_VerifyWalletRejectsWrongWalletKey() public {
+        DeployM3.Deployment memory d = script.run();
+        address wallet = makeAddr("fresh-wallet");
+        (address other, uint256 otherPk) = makeAddrAndKey("other");
+        VerifyWallet vw = new VerifyWallet();
+        vm.expectRevert(abi.encodeWithSelector(VerifyWallet.KeyMismatch.selector, "wallet", wallet, other));
+        vw.verify(wallet, 586, d.identityRegistry, d.kycIssuer, _verifyKeys(otherPk));
     }
 }
