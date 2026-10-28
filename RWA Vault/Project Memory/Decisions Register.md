@@ -9,10 +9,9 @@ updated: 2026-10-27
 > Precedence when anything disagrees: **code → ADR → decision note → this register**. New decisions use
 > [[_Templates/Template - Decision|Template - Decision]].
 
-## ⏳ Open (2)
+## ⏳ Open (1)
 | ID | Question | Module | Recommendation | Note |
 |---|---|---|---|---|
-| M3-Q21 | Accept decided ADRs; licence | all | Accept all but 0017; GPL-3.0 for contracts | [[Q21 - Accept the ADRs and settle the licence]] |
 | M3-Q22 | Who runs the T6.2 unaided rehearsal? | M3 | A non-author teammate | [[Q22 - Who runs the T6.2 unaided onboarding rehearsal]] |
 
 ## ⏸️ Deferred (1)
@@ -29,6 +28,7 @@ updated: 2026-10-27
 | M3-Q18 | Clause 1 verified off-chain for MS1; Tier 1 submitter; envelope hash anchored (2026-10-28) — [[Q18 - Where is the ML-DSA-65 signature checked for MS1]] | `0027` |
 | M3-Q19 | Task 6 order: verify T6.0 → T6.2 protocol → T1–T5 → T6.1a (2026-10-28) — [[Q19 - What does the Coder do while T6 waits for T1-T5]] | none |
 | M3-Q20 | Local-only work pushed; deleted PDF and PNGs restored (2026-10-28) — [[Q20 - Push the local-only work to GitHub]] | none |
+| M3-Q21 | ADRs 0002–0027 Accepted; licence GPL-3.0 (2026-10-28) — [[Q21 - Accept the ADRs and settle the licence]] | `0001` |
 | C1 | Simulated custodian for the FYP | none |
 | C2 | Operator never holds investor tokens | none |
 | C3 | Agent powers governed (multisig, timelock) | `0015` |

@@ -25,7 +25,7 @@ updated: 2026-10-27
 | No `AssetRegistry`, `Token`, registries, compliance or deploy script exist (T1–T5) | task | ⌨️ Coder | T5.1 green |
 | No named non-author tester for T6.2 | decision | 👤 Fahad | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] decided |
 | Real envelope path needs M2 codec/verifier (skeleton today) | external | M2 | M2 T3/T4 — until then the fixture envelope + banner (ADR 0017) |
-| `apps/ops-console` has no UI stack (ADR 0026 Proposed only) | task | ⌨️ Coder | scaffold after T6.1a |
+| `apps/ops-console` has no UI stack (ADR 0026 accepted, not scaffolded) | task | ⌨️ Coder | scaffold after T6.1a |
 
 ### Subtasks Checklist
 - [ ] **T6.0** 🧭 **In review** — Shared onboarding schema (`packages/types/src/onboarding.ts`, `schema/onboarding-input.schema.json`) and Ajv parity harness. Batch 2 applied; 32/32 green. Awaiting Researcher `VERIFY ✅` (see [[Threads/Thread - T6.0 Onboarding Schema & Parity]]).

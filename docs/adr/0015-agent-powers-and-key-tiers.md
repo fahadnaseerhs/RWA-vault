@@ -1,6 +1,6 @@
 # ADR 0015 — Agent powers are mandatory, so they are governed: roles mapped to the PQ key tiers
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 

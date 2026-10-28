@@ -1,6 +1,6 @@
 # ADR 0025 — M3 contracts are immutable: plain deploys, no proxies
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Answers:** Q15. **Depends on:** ADR 0012 (hybrid ERC-3643), ADR 0015 (agent powers and key tiers)

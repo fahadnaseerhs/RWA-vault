@@ -1,6 +1,6 @@
 # ADR 0003 — PQ implementation sources: vendored PQClean C, plus one pure-Rust exception
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

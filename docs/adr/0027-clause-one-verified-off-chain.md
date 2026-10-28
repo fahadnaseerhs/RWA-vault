@@ -1,6 +1,6 @@
 # ADR 0027 — For MS1, the custodian's ML-DSA-65 signature is verified off-chain and its envelope hash anchored
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-28
 - **Deciders:** Fahad Naseer
 - **Answers:** Q18. **Depends on:** ADR 0011 (ETHFALCON pin), ADR 0013 (PQ guards the reserve), ADR 0015 (agent

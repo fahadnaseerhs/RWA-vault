@@ -2,14 +2,14 @@
 type: decision
 id: M3-Q21
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T7.3]
 recommendation: "Accept all 26 (0002–0027); mark 0014 partly superseded by 0019 §6; pin CI runners for 0008; GPL-3.0 for contracts, README badge fixed"
-decision: ""
-decided_by: ""
-decided_on: ""
+decision: "Accept all 26 (0002–0027); 0014 partly superseded by 0019 §6; CI runners pinned; GPL-3.0"
+decided_by: Fahad
+decided_on: 2026-10-28
 adr: none
 tags: [rwa-vault, decision, adr, licence]
 updated: 2026-10-28
@@ -37,6 +37,8 @@ though `docs/adr/README.md` says Stage 1 waits for them to be Accepted, and you 
 _Original:_ **Option A.** It locks what you have actually decided and built, and leaves open only the record that Q17/Q18 will change.
 
 ## Decision
-> _Empty until Fahad decides._
+> **Accept all 26; GPL-3.0 (Fahad, 2026-10-28).** ADRs 0002–0027 are `Accepted` (0014 marked partly superseded by
+> 0019 §6). Per ADR 0008, CI runners are pinned to `ubuntu-24.04` / `windows-2022`. The repo licence is GPL-3.0: a `LICENSE`
+> file was added and the README badge fixed. From now on, changing an ADR takes a new superseding ADR (ADR 0001).
 
 Up: [[Open Questions for Fahad]] · Related: [[ADR Index]], [[2026-10-27 - Decision Conflict Audit|Audit A9, A17]]

@@ -1,6 +1,6 @@
 # ADR 0004 — Browser WASM target: `wasm32-unknown-unknown` with freestanding C support
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-08-20
 - **Deciders:** Fahad Naseer, Hassan Attique, Fawaz Asif
 

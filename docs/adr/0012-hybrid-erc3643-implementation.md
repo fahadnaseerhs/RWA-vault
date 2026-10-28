@@ -1,6 +1,6 @@
 # ADR 0012 — Hybrid ERC-3643 implementation: vendor the identity layer, build the rest
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 

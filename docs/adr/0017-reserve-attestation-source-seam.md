@@ -1,6 +1,6 @@
 # ADR 0017 — Reserve data reaches M3 through a stubbed interface seam
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 

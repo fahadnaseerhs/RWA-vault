@@ -1,6 +1,6 @@
 # ADR 0020 — One token is one gram of gold
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 - **Amended:** 2026-10-27 — weight basis made explicit; the "1 kg lot mints 1,000 × 10¹⁸"

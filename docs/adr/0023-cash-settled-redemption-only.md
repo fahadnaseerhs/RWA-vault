@@ -1,6 +1,6 @@
 # ADR 0023 — Redemption is cash-settled; physical delivery is specified but not built
 
-- **Status:** Proposed
+- **Status:** Accepted (2026-10-28, Q21)
 - **Date:** 2026-10-27
 - **Deciders:** Fahad Naseer
 
