@@ -97,3 +97,6 @@ Thumbs.db
 # Scratch PDF/PNG renders produced while iterating on the Module 1 manual.
 # Regenerable from the .docx; roughly 30 MB across revisions, so not committed.
 docs/.qa_module1*/
+
+# PowerPoint autosave copies.
+*[[]Autosaved[]].pptx

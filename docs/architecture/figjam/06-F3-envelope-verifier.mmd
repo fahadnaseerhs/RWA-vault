@@ -1,0 +1,16 @@
+flowchart LR
+  E["PQEnvelope + signature"] --> C1{"1 algorithm allowed for action"}
+  C1 -- pass --> C2{"2 signer key active, not revoked"}
+  C2 -- pass --> C3{"3 domain: chainId, contract, action"}
+  C3 -- pass --> C4{"4 now inside validity window"}
+  C4 -- pass --> C5{"5 nonce = stored + 1"}
+  C5 -- pass --> C6{"6 signature over zeroed envelope"}
+  C6 -- pass --> C7{"7 payloadHash = executed payload"}
+  C7 -- pass --> OK(["ACCEPT - execute + leaf to M9"])
+  C1 -- fail --> X(["REJECT with check name"])
+  C2 -- fail --> X
+  C3 -- fail --> X
+  C4 -- fail --> X
+  C5 -- fail --> X
+  C6 -- fail --> X
+  C7 -- fail --> X

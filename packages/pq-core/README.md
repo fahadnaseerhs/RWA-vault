@@ -10,7 +10,7 @@ This cross-runtime equivalence is the Stage 1 exit criterion.
 Stage 1 does not mean all of Module 1 is complete. The remaining stages add the
 other signature and KEM safe wrappers, conformance vectors, stable adapters,
 benchmarks, and release evidence described in
-[`docs/M1-task-breakdown.md`](../../docs/M1-task-breakdown.md).
+[`docs/reports/M1-task-breakdown.md`](../../docs/reports/M1-task-breakdown.md).
 
 ## What Stage 1 delivers
 

@@ -28,7 +28,8 @@
  * - UNREGISTERED: default state, asset ID not yet registered.
  * - PENDING: metadata submitted, awaiting attestation and custodian verification.
  * - LIVE: fully attested, minting of RWA tokens is permitted (proposal §II.B).
- * - FROZEN: suspended by governance; no minting, redemption, or borrowing allowed.
+ * - FROZEN: suspended; new minting is blocked, while transfers and redemption
+ *   continue (ADR 0019 §6, ADR 0021).
  *
  * Only LIVE permits minting — this is a security invariant tested by the
  * invariant fuzzing suite in contracts/test/invariant/.
@@ -73,3 +74,5 @@ export type AssetType = "GOLD" | "TBILL" | "SUKUK" | "REIT";
  */
 export type HealthBand =
   "HEALTHY" | "BORROW_FROZEN" | "BUFFER_BAND" | "LIQUIDATABLE" | "FULL_CLOSURE";
+
+export * from "./onboarding.js";

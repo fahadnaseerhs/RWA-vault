@@ -1,0 +1,40 @@
+flowchart LR
+  subgraph P1["Phase 1 - wk 1-6 - gate MS1"]
+    M0["M0 Foundation and Devnet<br/>MOSTLY DONE"]
+    M1["M1 PQ Core<br/>IN PROGRESS 53/102"]
+    M2["M2 PQ-PKI and Envelope<br/>SKELETON"]
+    M3["M3 Registry and Compliance<br/>INTERFACES SCAFFOLDED"]
+    M4["M4 Vault Accounting<br/>NOT STARTED"]
+  end
+  subgraph P2["Phase 2 - wk 7-11 - gate MS2 FYP-I"]
+    M9["M9 Anchoring and Audit<br/>NOT STARTED"]
+    M5["M5 Oracle and Proof-of-Reserve<br/>NOT STARTED"]
+    M8["M8 Settlement Rail mock<br/>NOT STARTED"]
+  end
+  subgraph P3["Phase 3 - wk 12-19 - gate MS3"]
+    M6["M6 Risk Engine<br/>NOT STARTED"]
+    M7["M7 Lending and Liquidation<br/>NOT STARTED"]
+    M10["M10 Clients<br/>SHELLS ONLY"]
+  end
+  subgraph P4["Phase 4 - wk 20-24 - gate MS4"]
+    M11["M11 Evaluation Harness<br/>NOT STARTED"]
+  end
+  M0 == "critical path" ==> M1
+  M1 == "critical path" ==> M2
+  M2 --> M3
+  M3 --> M4
+  M2 -- "envelope hashes" --> M9
+  M2 -- "signed envelopes" --> M5
+  M3 -- "registry reads rounds" --> M5
+  M4 -- "vault receives USDC" --> M8
+  M5 -- "prices" --> M6
+  M4 -- "locked shares" --> M6
+  M6 --> M7
+  M5 --> M7
+  M4 --> M7
+  M3 -. "frozen interface" .-> M10
+  M4 -. "frozen interface" .-> M10
+  M7 -. "frozen interface" .-> M10
+  P1 --> M11
+  P2 --> M11
+  P3 --> M11

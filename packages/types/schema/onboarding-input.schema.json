@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-vault.local/schema/onboarding-input.schema.json",
+  "title": "OnboardingInput",
+  "description": "Declarative input for provider onboarding (M3 T6.0). Twin of OnboardingInput in packages/types/src/onboarding.ts. Committed to git, so it has no key field and rejects unknown properties. Three checks are TypeScript-only because JSON Schema cannot express them: a future valuationTs, providerWallet == token, and the exact uint256 ceiling inside the 78-digit band. Duplicate JSON keys are invisible to every validator; git review is the only defence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assetId",
+    "description",
+    "grossWeight",
+    "fineness",
+    "valuationBasis",
+    "custodianId",
+    "intendedSupply",
+    "attestations",
+    "providerWallet",
+    "token"
+  ],
+  "properties": {
+    "assetId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Lowercase alphanumeric words joined by single hyphens, at most 32 characters."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "[^\\p{Cc}\\p{Cf}\\p{Zs}\\p{Zl}\\p{Zp}]",
+      "description": "Must contain at least one character outside Unicode Cc, Cf, Zs, Zl and Zp. ECMA-262 pattern with Unicode property escapes: a non-JS validator may not support \\p{...}."
+    },
+    "grossWeight": {
+      "$ref": "#/$defs/positiveUint256String",
+      "description": "Gross bar weight in grams, 18-decimal fixed point."
+    },
+    "fineness": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "Parts per 10,000; 999.9 fine = 9999. intendedSupply must equal grossWeight * fineness / 10000 (checked by the script)."
+    },
+    "valuationBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "currency", "unitValue", "valuationTs"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "[^\\p{Cc}\\p{Cf}\\p{Zs}\\p{Zl}\\p{Zp}]",
+          "description": "Must contain at least one character outside Unicode Cc, Cf, Zs, Zl and Zp. ECMA-262 pattern with Unicode property escapes: a non-JS validator may not support \\p{...}."
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Z]{3}$",
+          "description": "Three uppercase letters. Not checked against the ISO 4217 register; the provider confirms it at onboarding."
+        },
+        "unitValue": {
+          "$ref": "#/$defs/positiveUint256String",
+          "description": "Price per FINE gram (ADR 0020), 18-decimal fixed point."
+        },
+        "valuationTs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "description": "Unix seconds. Must not be in the future; enforced by the TypeScript validator, which JSON Schema cannot express."
+        }
+      }
+    },
+    "custodianId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "[^\\p{Cc}\\p{Cf}\\p{Zs}\\p{Zl}\\p{Zp}]",
+      "description": "Must contain at least one character outside Unicode Cc, Cf, Zs, Zl and Zp. ECMA-262 pattern with Unicode property escapes: a non-JS validator may not support \\p{...}."
+    },
+    "intendedSupply": {
+      "$ref": "#/$defs/positiveUint256String",
+      "description": "Tokens to mint, in FINE grams (ADR 0020), 18-decimal fixed point."
+    },
+    "attestations": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array from day one for Q11 forward-compatibility. MS1's exactly-one rule is enforced by the script, not here.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attestor"],
+        "properties": {
+          "attestor": {
+            "enum": ["custodian"]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![\\\\/])(?![A-Za-z]:)(?!(?:.*[\\\\/])?\\.\\.(?:[\\\\/]|$))(?=.*\\S)",
+            "description": "CBOR envelope on disk, relative to contracts/ (the script's form). Never absolute, never a '..' segment."
+          },
+          "bytesBase64": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "description": "CBOR envelope inline, standard base64 (the console's form)."
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["path"]
+          },
+          {
+            "required": ["bytesBase64"]
+          }
+        ]
+      }
+    },
+    "providerWallet": {
+      "$ref": "#/$defs/address",
+      "description": "The provider who owns the metal and receives the initial mint (C2). Must not equal token (TypeScript-only check)."
+    },
+    "token": {
+      "$ref": "#/$defs/address"
+    }
+  },
+  "$defs": {
+    "address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$",
+      "not": {
+        "type": "string",
+        "pattern": "^0x0{40}$"
+      },
+      "description": "0x-prefixed 20-byte hex address, not the zero address. EIP-55 checksum is enforced by the script and console (AC-20), not here."
+    },
+    "positiveUint256String": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 78,
+      "pattern": "^[1-9][0-9]*$",
+      "description": "Positive base-10 integer string, never a JSON number. maxLength 78 is the length of 2^256 - 1; the exact ceiling is TypeScript-only, so the two validators differ only on 78-digit values between 2^256 - 1 and 10^78 - 1."
+    }
+  }
+}
