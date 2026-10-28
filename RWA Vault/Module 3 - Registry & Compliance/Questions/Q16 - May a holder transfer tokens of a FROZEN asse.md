@@ -34,7 +34,9 @@ tokens still sell them to another verified investor — or are they stuck until 
   *staleness*, whereas Q16 is about the `FROZEN` **state** however it was reached (including a legal hold or an
   incident), and holder-exit rights are the kind of thing worth affirming deliberately rather than inheriting. So the
   question stands, but the expected answer is now **A, consistent with C9**.
-- `Decision:` **Leaning (c) confirmed as the direction, still formally deferred** — a dedicated bullion vault operator, with the insurer kept separate per Q11=B so the opposing-incentive argument survives. Revisit before the production-path chapter, not before MS1. _(Fahad Naseer, 2026-10-27)_
+- `Decision:` **Option A — FROZEN blocks minting only; transfers continue.** Confirmed as a holder-rights decision, not inherited from C9: holders keep their exit even when the asset is frozen, whether the freeze came from staleness, a legal hold or an incident. This affirms ADR `0019` decision 6, which supersedes ADR `0014`'s "or transfer". `pause` remains the mechanism for the systemic case and per-wallet freeze for the targeted one, so FROZEN duplicates neither. _(Fahad Naseer, 2026-10-27)_
+
+> ⚠ **Corrected 2026-10-28.** This note previously carried the answer belonging to a different question. The misalignment was introduced on 2026-10-27 when the decision lines were filled in the old monolithic `Open Questions for Fahad.md` by line number; three of them landed one heading too early, and the vault restructure then split that file faithfully, propagating the error. The ADRs were written independently and are correct, so they are the authority here — this note is now reconciled to them.
 
 ---
 

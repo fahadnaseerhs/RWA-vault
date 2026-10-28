@@ -1,0 +1,228 @@
+{
+  "main": {
+    "id": "33d53c823a10cee8",
+    "type": "split",
+    "children": [
+      {
+        "id": "8ad32ebce76c6944",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d66edf5efd00f985",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Open Questions for Fahad"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "ecf1fbb363b3a135",
+    "type": "split",
+    "children": [
+      {
+        "id": "94d6f77554ec8192",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "02ba4c29d3d44df1",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "78b9cbc53d85a046",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "a9fc5abf01e33d86",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "d7f4aab48ccf4b4d",
+    "type": "split",
+    "children": [
+      {
+        "id": "d61297088d9df620",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e1332525075d685c",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "fd92f50bf0d0206b",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "ba1eefebd37a4614",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "44e30a214d8fd9d0",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "ba48f41348368c9b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "d66edf5efd00f985",
+  "lastOpenFiles": [
+    "Module 3 - Registry & Compliance/Decisions/Decisions Log.md",
+    "00 Dashboard - Project Command Center.md",
+    "Agents/Protocol.md",
+    "Agents/Debugger Agent.md",
+    "Agents/Coder Agent.md",
+    "Module 3 - Registry & Compliance/00 M3 Dashboard.md",
+    "Module 3 - Registry & Compliance/Threads/Thread - T6.0 Onboarding Schema & Parity.md",
+    "Module 3 - Registry & Compliance/Threads/Thread - T0.6 AssetRegistry Interface.md",
+    "Module 3 - Registry & Compliance/Specs/Coder Work Order - T0.6 then T6.0.md",
+    "Module 3 - Registry & Compliance/Specs/T6 - Provider Onboarding Console.md",
+    "Module 3 - Registry & Compliance/Specs/T0.6 - Fix Spec (round 2).md",
+    "Module 3 - Registry & Compliance/Specs/T0.6 - IAssetRegistry Interface.md",
+    "Module 3 - Registry & Compliance/Tasks/T8 - Custodian Attestation Portal.md",
+    "Module 3 - Registry & Compliance/Tasks/T7 - Acceptance & MS1 Readiness.md",
+    "Module 3 - Registry & Compliance/Tasks/T6 - Provider Onboarding Console.md",
+    "Module 3 - Registry & Compliance/Tasks/T5 - Wiring & Deployment.md",
+    "Module 3 - Registry & Compliance/Tasks/T4 - AssetRegistry & Admission.md",
+    "Module 3 - Registry & Compliance/Tasks/T3 - ERC-3643 Token.md",
+    "Module 3 - Registry & Compliance/Tasks/T2 - Modular Compliance.md",
+    "Module 3 - Registry & Compliance/Tasks/T1 - Identity Layer.md",
+    "Module 3 - Registry & Compliance/Tasks/T0 - Interface PR.md",
+    "Module 3 - Registry & Compliance/Questions/Q13 - Valuation Freshness Window tau.md",
+    "Module 3 - Registry & Compliance/Questions/Q16 - May a holder transfer tokens of a FROZEN asse.md",
+    "Module 3 - Registry & Compliance/Questions/Q15 - Are M3's contracts upgradeable (proxy-based).md",
+    "Module 3 - Registry & Compliance/Questions/Q14 - What happens when a new attestation shows les.md",
+    "Module 3 - Registry & Compliance/Questions/Q13 - How long is a valuation fresh (the value of τ.md",
+    "Module 3 - Registry & Compliance/Specs",
+    "Module 3 - Registry & Compliance/Threads",
+    "Module 3 - Registry & Compliance/Questions",
+    "_Archive/2026-10-27_pre_restructure",
+    "_Archive",
+    "Project Memory/Changelog.md.tmp.30000.0f6a5f7293ff",
+    "Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad.md.tmp.11588.830cd4edc243",
+    "Module 3 - Registry & Compliance/Decisions/Open Questions for Fahad.md.tmp.11588.b9de0b59c8f6",
+    "Module 3 - Registry & Compliance/Research",
+    "Module 1 - PQ Core/Explainer/01 - Why Post-Quantum.md.tmp.6968.260e276b19ce",
+    "Untitled.canvas"
+  ]
+}
