@@ -2,15 +2,15 @@
 type: decision
 id: M3-Q19
 module: M3
-status: open
+status: decided
 raised_by: researcher
 raised_on: 2026-10-27
 blocks: [T6.1a, T6.1b, T6.3]
 recommendation: "A — verify T6.0, write the T6.2 protocol, then move the Coder to T1.1 and T4.1; T6.1a starts when T5.1 is green"
-decision: ""
-decided_by: ""
-decided_on: ""
-adr: none
+decision: "A — verify T6.0, write the T6.2 protocol, Coder builds T1.1 → T4.1 → T2 → T3 → T5.1; T6.1a → T6.3 → T6.1b after T5.1"
+decided_by: Fahad Naseer
+decided_on: 2026-10-28
+adr: "none (sequencing)"
 tags: [rwa-vault, decision, m3, task6]
 updated: 2026-10-27
 ---
@@ -35,6 +35,6 @@ verified, which breaks the Done rule.
 **Option A.** It follows the research's own split (T6 spec §2) and the Done rule; nothing written in the wait is thrown away.
 
 ## Decision
-> _Empty until Fahad decides._
+**Option A.** (1) Researcher `VERIFY` of T6.0; (2) T6.2 rehearsal protocol written; (3) Coder builds T1.1 → T4.1 → T2 → T3 → T5.1; (4) T6.1a → T6.3 → T6.1b once T5.1 is green. _(Fahad Naseer, 2026-10-28)_
 
 Up: [[Open Questions for Fahad]] · Related: [[Tasks/T6 - Provider Onboarding Console|T6]], [[Specs/T6 - Provider Onboarding Console|T6 spec §2]]

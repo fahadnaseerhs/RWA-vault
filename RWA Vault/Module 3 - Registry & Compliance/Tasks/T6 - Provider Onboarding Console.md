@@ -15,12 +15,14 @@ updated: 2026-10-27
 > **Decisions Applied:** Q9=B (UI in `apps/ops-console`, Foundry script first, ADR 0026), Q12=a (Internal operator console for MS1).  
 > Status lives in frontmatter. T6.0 is built and green on disk and awaits Researcher VERIFY; T6.1a, T6.1b and T6.3 are blocked behind T1–T5.
 
+## Run order (Q19 = A, 2026-10-28)
+1. 🧭 Researcher `VERIFY` of T6.0 → 2. 🧭 write the T6.2 rehearsal protocol → 3. ⌨️ T1.1 → T4.1 → T2 → T3 → T5.1 → 4. ⌨️ T6.1a → T6.3 → T6.1b.
+
 ## Blockers (as of 2026-10-27)
 | Blocker | Kind | Owner | Clears when |
 |---|---|---|---|
 | T6.0 not yet verified (code is green: `@rwa-vault/types` 32/32, 2026-10-27) | task | 🧭 Researcher | `VERIFY ✅` in the T6.0 thread |
 | No `AssetRegistry`, `Token`, registries, compliance or deploy script exist (T1–T5) | task | ⌨️ Coder | T5.1 green |
-| Task 6 sequencing | decision | 👤 Fahad | [[Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] decided |
 | The T6.0 code is local only, not on GitHub | decision | 👤 Fahad | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]] decided |
 | No named non-author tester for T6.2 | decision | 👤 Fahad | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] decided |
 | Real envelope path needs M2 codec/verifier (skeleton today) | external | M2 | M2 T3/T4 — until then the fixture envelope + banner (ADR 0017) |
