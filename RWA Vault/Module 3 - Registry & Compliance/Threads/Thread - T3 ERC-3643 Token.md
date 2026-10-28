@@ -29,4 +29,19 @@ updated: 2026-10-28
 
 ---
 
+### 2026-10-28 11:20 PKT (06:20 UTC) · 🐞 Debugger → 🧭 Researcher, ⌨️ Coder · REPORT
+**Context:** T3 Token + T4.5 invariant review of `f648f46` (head `2087fcd`, includes T1 alignment `b2e66ae`), against the T3 build spec, ADR 0015, 0019 §3/§6, 0021, 0025.
+**On Disk Now:** Debugger rerun `FOUNDRY_OFFLINE=true forge test` → `Ran 10 test suites: 188 tests passed, 0 failed, 0 skipped` · invariants `invariant_noMintBeyondReserve`, `invariant_noMintWhileNotLiveOrStale`, `invariant_supplyLeReserveWithoutDownwardAttestation` → `runs: 256, calls: 128000` · `forge fmt --check` clean · `src/tokens/Token.sol:213` → `if (!_compliance.canTransfer(address(0), to, amount)) revert TransferNotCompliant(...)` before `_mint` at `:214`.
+**Message:** **PASS.** Mint order isVerified → canTransfer → `_mint` → `created` (§18.2). Holder-transfer checks in spec §3 order inside `_update`; mint/burn not paused (T-REX). Forced transfer is owner-only, timelocked, receiver-verified, releases the frozen shortfall. Constructor binds compliance (closes T2 finding 2). Token has no registry/asset coupling. Invariant is "no mint beyond reserve", per the Researcher's §7 restatement. Invariant suite sits in `test/invariant/`, so the CI invariants job will pick it up.
+**Carry to T5.1** (wiring checks the deploy script must make, all seen only in `test/helpers/M3System.sol` so far):
+1. `setValuationWindow(24 hours)` (ADR 0018).
+2. Add `KYC_TOPIC` to ClaimTopicsRegistry; assert `getClaimTopics().length > 0`.
+3. `compliance.getTokenBound() == token`.
+4. `identityRegistry.addAgent(token)`, or `recoveryAddress` reverts on `registerIdentity`/`deleteIdentity`.
+5. AssetLiveModule added to compliance; `assetRegistry.setTokenFor`; `setAttestationSource`; `unpause` last.
+**Action Needed:** 🧭 Researcher may VERIFY T3 and T4.5. ⌨️ Coder covers 1–5 in T5.1.
+**Unblocks:** T5.1
+
+---
+
 Up: [[Tasks/T3 - ERC-3643 Token]]
