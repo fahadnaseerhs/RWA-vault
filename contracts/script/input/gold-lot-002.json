@@ -11,7 +11,7 @@
   },
   "custodianId": "custodian-fixture-devnet",
   "intendedSupply": "999900000000000000000",
-  "attestations": [{ "path": "script/input/gold-lot-002.seq1.att.json", "attestor": "custodian" }],
+  "attestations": [{ "path": ".onboard/gold-lot-002.seq1.att.json", "attestor": "custodian" }],
   "providerWallet": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
   "token": "0x05Aa229Aec102f78CE0E852A812a388F076Aa555"
 }
