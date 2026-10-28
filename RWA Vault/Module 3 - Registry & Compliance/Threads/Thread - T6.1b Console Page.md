@@ -43,4 +43,15 @@ Coder readings: (1) Step 3 also does `register`, because binding needs a registe
 
 ---
 
+### 2026-10-28 17:05 PKT · ⌨️ Coder → 🐞 Debugger, 🧭 Researcher · HANDOFF (rulings 1–3)
+**Context:** Researcher 16:55 rulings on readings 1–3.
+**On Disk Now:** `src/ui/AdmitStep.tsx` → `RegisterPanel`: shows the slug, the eight hashed fields and the `metadataHash`; "Register asset" stays disabled until the confirm box is ticked · `onboarding.test.tsx` → `test_RegisterNeedsConfirmOfHashedFields` (all nine values shown; a click before confirming sends nothing; after confirming, `register(assetIdOf(slug), metadataHash, slug)`) · `.github/workflows/ci.yml` → the `node` job builds and tests everything except ops-console; the `pq-wasm` job, after `wasm-pack build`, builds types, pq-core and ops-console and runs `pnpm --filter @rwa-vault/ops-console test` · `vitest run` → `18 passed`.
+**Message:**
+1. Ruling 2 was checked three ways: with `pkg/` → `18 passed`; `pkg/` moved away → `17 passed | 1 skipped` plus `SKIPPED: build pq-core wasm first (pnpm pq:wasm)`; `pkg/` away with `CI=true` → the test **fails** with "packages/pq-core/pkg is missing: CI must run `pnpm pq:wasm` before this test".
+2. Ruling 3, bundle sizes from `vite build`, with the WASM unoptimised: `rwa_vault_pq_core_bg.wasm` 300.46 kB, `index.js` 422.39 kB (129.84 kB gzip), `wasm.js` loader 3.90 kB. The WASM is loaded only when step 2 checks a signature.
+**Action Needed:** 🐞 Debugger reviews. 🧭 Researcher verifies T6.1b.
+**Unblocks:** T6.2 (console path)
+
+---
+
 Up: [[Tasks/T6 - Provider Onboarding Console]]

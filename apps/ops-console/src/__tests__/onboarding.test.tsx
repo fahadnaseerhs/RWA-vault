@@ -202,6 +202,53 @@ describe("AC-13: a revert is shown as the sentence, never as hex", () => {
   });
 });
 
+describe("ruling 1: register shows what it commits", () => {
+  it("test_RegisterNeedsConfirmOfHashedFields", async () => {
+    const calls: unknown[][] = [];
+    const chain = fakeChain({
+      snapshot: async () =>
+        snapshot({
+          state: AssetState.UNREGISTERED,
+          tokenOf: ZERO_ADDRESS,
+          assetOfToken: ZERO_HASH,
+        }),
+      register: async (...args) => {
+        calls.push(args);
+        return ZERO_HASH;
+      },
+    });
+    const v = { ok: true as const, att: att(), envelopeHash: ZERO_HASH };
+    wrap(<AdmitStep chain={chain} input={INPUT} verified={v} onNext={() => {}} />);
+    const button = (await screen.findByRole("button", {
+      name: "Register asset",
+    })) as HTMLButtonElement;
+    const panel = screen.getByLabelText("Register");
+    for (const value of [
+      INPUT.assetId,
+      INPUT.description,
+      INPUT.grossWeight,
+      String(INPUT.fineness),
+      INPUT.valuationBasis.source,
+      INPUT.valuationBasis.currency,
+      INPUT.valuationBasis.unitValue,
+      INPUT.custodianId,
+      metadataHash(INPUT),
+    ]) {
+      expect(panel.textContent).toContain(value);
+    }
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(calls).toHaveLength(0);
+
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(button.disabled).toBe(false);
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(calls).toEqual([[assetIdOf(INPUT.assetId), metadataHash(INPUT), INPUT.assetId]]),
+    );
+  });
+});
+
 describe("point 2: metadataHash", () => {
   it("reproduces GOLD_LOT_001_METADATA_HASH", () => {
     expect(metadataHash(GOLD_LOT_001)).toBe(GOLD_LOT_001_METADATA_HASH);
@@ -246,10 +293,17 @@ describe("point 4: signer rules", () => {
 
 // vitest runs from apps/ops-console.
 const PKG = resolve(process.cwd(), "../../packages/pq-core/pkg") + "/";
-describe.skipIf(!existsSync(`${PKG}rwa_vault_pq_core_bg.wasm`))(
+const HAS_PKG = existsSync(`${PKG}rwa_vault_pq_core_bg.wasm`);
+// T6.1b ruling 2: in CI a missing build is a failure; locally it is a printed skip.
+if (!HAS_PKG && !process.env.CI) console.warn("SKIPPED: build pq-core wasm first (pnpm pq:wasm)");
+describe.skipIf(!HAS_PKG && !process.env.CI)(
   "point 3: clause 1 with pq-core WASM (`pnpm pq:wasm`)",
   () => {
     it("accepts the custodian's signature and rejects a tampered envelope", async () => {
+      if (!HAS_PKG)
+        throw new Error(
+          "packages/pq-core/pkg is missing: CI must run `pnpm pq:wasm` before this test",
+        );
       const w = await import(/* @vite-ignore */ `${PKG}rwa_vault_pq_core.js`);
       w.initSync({ module: readFileSync(`${PKG}rwa_vault_pq_core_bg.wasm`) });
       w.init();
