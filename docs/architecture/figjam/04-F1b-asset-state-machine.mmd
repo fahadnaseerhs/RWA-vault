@@ -1,0 +1,7 @@
+stateDiagram-v2
+  [*] --> UNREGISTERED
+  UNREGISTERED --> PENDING: register metadata
+  PENDING --> LIVE: admit, 4-clause predicate passes
+  PENDING --> UNREGISTERED: reject
+  LIVE --> FROZEN: freeze by agent
+  FROZEN --> LIVE: unfreeze

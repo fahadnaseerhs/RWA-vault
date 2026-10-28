@@ -1,0 +1,69 @@
+flowchart TB
+  subgraph ACT["Actors"]
+    INV(["Investor - retail, PKR 1,000 scale"])
+    AUD(["Auditor / third party"])
+    PROV(["Asset provider + Custodian"])
+    OPS(["Ops / risk admin"])
+  end
+  subgraph L4["L4 CLIENTS - M10 - React 18, TypeScript, viem, TanStack Query"]
+    PWA["Investor PWA<br/>Falcon-512 WASM signer, key in IndexedDB<br/>deposit, lock, borrow, repay, get proof"]
+    OFV["Offline verifier - M9<br/>Rust CLI, no network<br/>leaf to proof to root"]
+    PCON["Provider console - M3<br/>onboard lot, valuation, trigger attestation"]
+    OCON["Ops console - M10<br/>HF monitor, liquidation queue, oracle health"]
+  end
+  subgraph L3["L3 OFF-CHAIN SERVICES - NestJS on Node 22"]
+    SET["settlement-rail - M8<br/>IFiatRail mock, PKR to test USDC<br/>double-entry ledger in PostgreSQL 16"]
+    VER["pq-verifier - M2<br/>7 named checks, fixed order<br/>nonce CAS in PostgreSQL, verify via napi"]
+    ANC["anchor-batcher - M9<br/>60 s epochs, sorted-pair Keccak tree<br/>proof service: leaf, proof, epoch"]
+    ORA["oracle workers - M5<br/>5 sources, 3 s timeout, quorum 3, median<br/>10 pct vs 30-min TWAP, sign ML-DSA-44"]
+    RISK["risk-engine - M6<br/>Redis Streams consumer groups<br/>HF from q, p, lambda, D - no authority"]
+  end
+  subgraph L2["L2 ON-CHAIN - Solidity 0.8.26, Foundry, Arbitrum Sepolia"]
+    VAULT["AssetVault ERC-4626 - M4<br/>virtual offset 10^6, floor in, ceil out"]
+    REG["Registry + Keys - M2, M3<br/>PQKeyRegistry 3 tiers, AssetRegistry FSM<br/>ERC-3643 token, IdentityRegistry, ONCHAINID"]
+    PQA["PQAnchor - M9<br/>root, leafCount, epoch - about 43k gas<br/>FalconVerifier ETHFALCON - M1 S6"]
+    PO["PriceOracle - M5<br/>signer role, monotonic roundId, 60 s heartbeat"]
+    LEND["Lending - M6, M7<br/>LendingPool index, CollateralManager HF<br/>ReserveBuffer, Liquidator 50 pct close"]
+  end
+  subgraph L1["L1 FOUNDATION"]
+    PQC["PQ Core - M1<br/>Rust + vendored PQClean C + slh-dsa<br/>Falcon-512, ML-DSA-44/65, SLH-DSA, ML-KEM-768/1024"]
+    NAPI["napi-rs addon - servers"]
+    WASM["wasm-bindgen - browser"]
+    PQCTL["pqctl - offline root ceremony"]
+    ENV["envelope-codec - M2<br/>PQEnvelope 10 fields, TS + Rust"]
+    KEYS["Key tiers - M2<br/>T0 SLH-DSA root, T1 ML-DSA-65, T2 Falcon-512"]
+    INFRA["Devnet + CI - M0<br/>pnpm, Docker Anvil PG16 Redis7, GitHub Actions"]
+  end
+  EVAL["M11 Evaluation harness - Python 3.12<br/>ECDSA control build, gas snapshots, k6 latency, 10k GBM paths, oracle attacks"]
+
+  INV --> PWA
+  AUD --> OFV
+  PROV --> PCON
+  OPS --> OCON
+  PWA -- "PKR order" --> SET
+  PWA -- "signed PQEnvelope" --> VER
+  ANC -- "proof bundle" --> OFV
+  PCON -- "reserve attestation ML-DSA-65" --> VER
+  RISK -- "HF alerts" --> OCON
+  VER -- "envelope leaves via Redis Stream" --> ANC
+  ORA -- "price ticks via Redis Stream" --> RISK
+  SET -- "test USDC" --> VAULT
+  VER -- "verified intent" --> REG
+  REG -- "resolveKey" --> VER
+  ANC -- "root every 60 s" --> PQA
+  ORA -- "signed round" --> PO
+  RISK -- "liquidation proposal" --> LEND
+  REG -- "LIVE asset units" --> VAULT
+  PO -- "last committed price" --> LEND
+  VAULT -- "locked shares" --> LEND
+  PQC --> NAPI
+  PQC --> WASM
+  PQC --> PQCTL
+  WASM -.-> PWA
+  NAPI -.-> VER
+  NAPI -.-> ORA
+  PQCTL -.-> KEYS
+  ENV -.-> VER
+  KEYS -.-> REG
+  INFRA -.-> L3
+  L2 -.-> EVAL

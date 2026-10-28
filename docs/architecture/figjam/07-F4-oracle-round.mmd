@@ -1,0 +1,17 @@
+flowchart LR
+  S1["Source 1"] --> P
+  S2["Source 2"] --> P
+  S3["Source 3"] --> P
+  S4["Source 4"] --> P
+  S5["Source 5"] --> P
+  P["Poll in parallel, 3 s timeout"] --> D["Drop invalid or stale"]
+  D --> Q{"Quorum at least 3"}
+  Q -- no --> R(["REFUSE - no round committed"])
+  Q -- yes --> M["Median"]
+  M --> T{"Within 10 pct of 30-min TWAP"}
+  T -- no --> R
+  T -- yes --> N{"roundId and timestamp increase"}
+  N -- no --> R
+  N -- yes --> SG["Sign round ML-DSA-44"]
+  SG --> PO[("PriceOracle.sol")]
+  PO --> X["Redis Stream price ticks to risk-engine"]

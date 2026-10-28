@@ -1,0 +1,24 @@
+sequenceDiagram
+  autonumber
+  actor P as Asset provider
+  participant PC as Provider console
+  actor C as Custodian
+  participant V as pq-verifier M2
+  participant AR as AssetRegistry M3
+  participant T as ERC-3643 token
+  participant B as anchor-batcher M9
+  P->>PC: lot metadata, valuation basis, custodian
+  PC->>AR: register asset, state PENDING
+  C->>C: sign reserve attestation with ML-DSA-65 Tier 1 key
+  C->>V: PQEnvelope action attest, seq, reserveAmount
+  V->>V: 7 named checks, nonce compare-and-increment
+  V->>B: envelope hash as leaf
+  V->>AR: submit verified attestation
+  AR->>AR: signature valid, seq increasing, reserve covers supply, valuation fresh
+  alt all four clauses hold
+    AR->>AR: PENDING to LIVE
+    AR->>T: mint allowed while attestedSupply is at most reserveAmount
+  else any clause fails
+    AR-->>PC: revert names failed clause, stays PENDING
+  end
+  B->>B: next epoch root to PQAnchor

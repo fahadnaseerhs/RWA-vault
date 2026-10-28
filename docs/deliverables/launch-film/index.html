@@ -1,0 +1,684 @@
+<title>QORA Launch Film</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400;500&display=swap">
+
+<style>
+  /* Layout: a letterboxed 16:9 stage holding one scene at a time, advanced by a
+     fixed timeline that loops. Scene type scales from the stage, not the window,
+     so a screen capture at any size frames identically. */
+  :root {
+    --vault: #08070a;          /* near-black, warmed a touch toward the gold */
+    --vault-lift: #121018;
+    --gold: #d8a94b;
+    --gold-hi: #f3d791;
+    --gold-dim: #7e6228;
+    --paper: #f3efe6;
+    --mute: #8d8577;           /* grey carrying the gold's hue */
+    --rust: #b8452f;           /* the threat act only */
+    --face-display: "Bodoni Moda", "Bodoni MT", "Didot", Georgia, serif;
+    --face-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+    --face-data: "DM Mono", "Consolas", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--vault);
+    color: var(--paper);
+    font-family: var(--face-body);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---------- stage ---------- */
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 100%;
+    overflow: hidden;
+    background: var(--vault);
+    container-type: size;
+    container-name: stage;
+    isolation: isolate;
+  }
+  /* portrait phones: a 16:9 band wastes the screen, so take a taller frame */
+  @media (max-aspect-ratio: 3/4) {
+    .stage { aspect-ratio: 3 / 4; }
+  }
+  /* vignette + a low warm floor, so black never reads as flat */
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    background:
+      radial-gradient(120% 90% at 50% 45%, transparent 38%, rgba(0,0,0,.55) 100%),
+      radial-gradient(70% 50% at 50% 118%, rgba(216,169,75,.09), transparent 70%);
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1;
+  }
+  .scene.on { opacity: 1; visibility: visible; z-index: 2; }
+  /* first frame readable before any script runs */
+  .scene:first-of-type { opacity: 1; visibility: visible; }
+  /* once the timeline is driving, only the active scene is painted */
+  body.live .scene:not(.on) { opacity: 0; visibility: hidden; }
+
+  .inner {
+    width: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 4%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1em;
+    text-align: center;
+    font-size: 2.1vmin;
+    font-size: 2.9cqmin;
+  }
+
+  /* ---------- type roles ---------- */
+  .line {
+    font-family: var(--face-display);
+    font-weight: 400;
+    font-size: 3.1em;
+    line-height: 1.04;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    margin: 0;
+    max-width: 24em;
+  }
+  .line em { font-style: italic; color: var(--gold-hi); }
+  .sub {
+    font-size: 1.12em;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--mute);
+    max-width: 34em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .eyebrow {
+    font-size: 0.84em;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .eyebrow .step {
+    color: var(--gold-dim);
+    font-family: var(--face-data);
+    letter-spacing: 0.12em;
+    margin-right: 0.9em;
+  }
+  .data { font-family: var(--face-data); font-variant-numeric: tabular-nums; }
+
+  /* ---------- act I: the expiry ---------- */
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.4em 2.6em;
+    width: 100%;
+  }
+  .stat { min-width: 0; flex: 0 1 13em; display: flex; flex-direction: column; gap: 0.45em; }
+  .stat b {
+    font-family: var(--face-display);
+    font-size: 2.5em;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--paper);
+  }
+  .stat span { font-size: 0.95em; color: var(--mute); line-height: 1.45; }
+  .stat.warn b { color: var(--rust); }
+
+  .curve { width: min(100%, 38em); height: auto; }
+  .curve .trace {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 520;
+    stroke-dashoffset: 520;
+  }
+  .scene.on .curve .trace { animation: draw 1.5s .2s cubic-bezier(.3,.7,.3,1) forwards, fray 1.9s 1.9s ease-in forwards; }
+  .curve .dust circle { fill: var(--rust); opacity: 0; }
+  .scene.on .curve .dust circle { animation: dust 2.2s 2.1s ease-out forwards; }
+
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fray { to { opacity: .08; filter: blur(2px); } }
+  @keyframes dust { 20% { opacity: .9; } to { opacity: 0; transform: translateY(-1.2em); } }
+
+  /* ---------- act II + V: the mark ---------- */
+  .mark {
+    font-family: var(--face-display);
+    font-weight: 500;
+    font-size: 5.6em;
+    letter-spacing: 0.17em;
+    line-height: 1;
+    margin: 0 0 0 0.17em;
+    color: var(--paper);
+    background: linear-gradient(176deg, var(--gold-hi) 8%, var(--gold) 46%, var(--gold-dim) 94%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bar { width: min(68%, 30em); height: auto; filter: drop-shadow(0 .5em 1.6em rgba(216,169,75,.22)); }
+  .coin { width: min(30%, 13em); height: auto; filter: drop-shadow(0 .4em 1.4em rgba(216,169,75,.26)); }
+  .rule { width: 4.5em; height: 1px; background: var(--gold-dim); }
+
+  /* ---------- act III: tokens ---------- */
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.2em 2.2em;
+    width: 100%;
+  }
+  .token { display: flex; flex-direction: column; align-items: center; gap: 0.55em; min-width: 0; flex: 0 1 7.5em; }
+  .token img { width: 100%; max-width: 6.4em; height: auto; }
+  .token span { font-size: 0.92em; color: var(--mute); letter-spacing: 0.04em; }
+  .rail { display: flex; align-items: center; justify-content: center; gap: 1.5em; flex-wrap: wrap; }
+  .rail img { width: 7em; max-width: 24vw; height: auto; }
+  .arrow { color: var(--gold-dim); font-size: 1.6em; }
+
+  /* ---------- act III: the seven checks ---------- */
+  .checks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5em, 1fr));
+    gap: 0.55em 1.6em;
+    width: min(100%, 40em);
+    text-align: left;
+  }
+  .check {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7em;
+    font-size: 1em;
+    color: var(--paper);
+    min-width: 0;
+  }
+  .scene.on .check { animation: rise .5s cubic-bezier(.2,.8,.3,1) both; }
+  .check i {
+    font-family: var(--face-data);
+    font-style: normal;
+    color: var(--gold);
+    font-size: 0.82em;
+  }
+
+  /* ---------- act III: hash + merkle ---------- */
+  .hash {
+    font-family: var(--face-data);
+    font-size: 1.5em;
+    letter-spacing: 0.06em;
+    color: var(--gold-hi);
+    word-break: break-all;
+    max-width: 22em;
+  }
+  .tree { width: min(100%, 34em); height: auto; }
+  .tree line { stroke: var(--gold-dim); stroke-width: 1.1; opacity: 0; }
+  .tree rect { fill: var(--gold); opacity: 0; }
+  .tree .root { fill: var(--gold-hi); }
+  .scene.on .tree line, .scene.on .tree rect { animation: pop .45s ease-out forwards; }
+
+  /* ---------- act IV: the gas bars ---------- */
+  .bars { display: flex; flex-direction: column; gap: 1.05em; width: min(100%, 42em); }
+  .gasrow { display: grid; grid-template-columns: 1fr; gap: 0.3em; min-width: 0; }
+  .gaslabel { display: flex; justify-content: space-between; gap: 1em; font-size: 0.95em; }
+  .gaslabel span { color: var(--mute); min-width: 0; }
+  .gaslabel b { font-family: var(--face-data); font-weight: 400; color: var(--paper); font-variant-numeric: tabular-nums; }
+  .track { height: 0.62em; background: var(--vault-lift); border-radius: 0; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: var(--gold-dim); }
+  .fill.ours { background: linear-gradient(90deg, var(--gold), var(--gold-hi)); }
+  .fill.worst { background: var(--rust); }
+  .scene.on .fill { animation: grow 1.5s .25s cubic-bezier(.25,.8,.3,1) forwards; }
+
+  /* ---------- act V: leaves ---------- */
+  .leaves {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+    gap: 1.3em;
+    width: min(100%, 46em);
+    text-align: left;
+  }
+  .leaf { display: flex; flex-direction: column; gap: 0.5em; min-width: 0; }
+  .scene.on .leaf { animation: rise .55s cubic-bezier(.2,.8,.3,1) both; }
+  .leaf h3 {
+    margin: 0;
+    font-family: var(--face-body);
+    font-size: 0.82em;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .leaf p { margin: 0; font-size: 0.95em; color: var(--mute); line-height: 1.45; }
+  .leaf .mods { font-family: var(--face-data); font-size: 0.85em; color: var(--paper); letter-spacing: 0.06em; }
+
+  /* ---------- shared scene choreography ---------- */
+  .scene.on .beat { animation: rise .62s cubic-bezier(.2,.8,.3,1) both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(0.5em); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+  @keyframes pop { to { opacity: 1; } }
+  @keyframes grow { to { width: var(--w); } }
+
+  /* ---------- chrome ---------- */
+  .chrome {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-top: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(transparent, rgba(8,7,10,.9));
+    font-size: 11px;
+    color: var(--mute);
+    transition: opacity .35s ease;
+  }
+  .rail-wrap { flex: 1; min-width: 0; height: 2px; background: #221f28; }
+  .rail-fill { height: 100%; width: 0; background: var(--gold); }
+  .count { font-family: var(--face-data); font-variant-numeric: tabular-nums; color: var(--paper); }
+  .hint { letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+  .hint kbd {
+    font-family: var(--face-data);
+    border: 1px solid #332e3c;
+    padding: 1px 4px;
+    color: var(--paper);
+  }
+  body.recording .chrome { opacity: 0; pointer-events: none; }
+  @media (max-width: 560px) { .hint { display: none; } }
+
+  .paused-mark {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    z-index: 60;
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  body.recording .paused-mark { display: none; }
+
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene.on .beat, .scene.on .check, .scene.on .leaf,
+    .scene.on .fill, .scene.on .tree line, .scene.on .tree rect,
+    .scene.on .curve .trace, .scene.on .curve .dust circle { animation-duration: 1ms !important; animation-delay: 0ms !important; }
+    .beat, .check, .leaf { opacity: 1; }
+    .fill { width: var(--w); }
+  }
+</style>
+
+<main class="stage" id="stage" aria-label="QORA launch film">
+
+  <!-- ACT I — THE EXPIRY -->
+  <section class="scene" data-ms="5200">
+    <div class="inner">
+      <p class="line beat" style="animation-delay:.1s">Every signature you trust</p>
+      <p class="line beat" style="animation-delay:1.5s"><em>has an expiry date.</em></p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5600">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">1994</span>Shor's algorithm</p>
+      <svg class="curve" viewBox="0 0 400 110" role="img" aria-label="An elliptic curve dissolving into noise">
+        <path class="trace" d="M8 96 C 70 96, 96 18, 150 18 C 206 18, 220 92, 272 92 C 324 92, 342 34, 392 34"></path>
+        <g class="dust">
+          <circle cx="104" cy="62" r="1.6" style="animation-delay:2.1s"></circle>
+          <circle cx="168" cy="30" r="1.4" style="animation-delay:2.25s"></circle>
+          <circle cx="232" cy="74" r="1.7" style="animation-delay:2.18s"></circle>
+          <circle cx="290" cy="80" r="1.3" style="animation-delay:2.35s"></circle>
+          <circle cx="344" cy="48" r="1.5" style="animation-delay:2.28s"></circle>
+          <circle cx="60" cy="86" r="1.4" style="animation-delay:2.42s"></circle>
+        </g>
+      </svg>
+      <p class="sub beat" style="animation-delay:2.6s">A quantum computer can break ECDSA — the one signature scheme under every token, every transfer, every loan on chain today.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5800">
+    <div class="inner">
+      <div class="stat-row">
+        <div class="stat beat" style="animation-delay:.15s">
+          <b class="data">2035</b>
+          <span>NIST plans to disallow ECDSA after this year.</span>
+        </div>
+        <div class="stat beat" style="animation-delay:.5s">
+          <b class="data">1,200</b>
+          <span>Logical qubits that could break the curve blockchains use — in minutes. Google, 2026.</span>
+        </div>
+        <div class="stat warn beat" style="animation-delay:.85s">
+          <b class="data">7%</b>
+          <span>Of organisations have deployed quantum-safe cryptography.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5200">
+    <div class="inner">
+      <p class="line beat" style="animation-delay:.1s">A property record must stay valid for <em>thirty years</em>.</p>
+      <p class="sub beat" style="animation-delay:1.4s">Mosca's theorem: a record that outlives the machine that breaks its signature is already at risk. Not in 2035 — today.</p>
+    </div>
+  </section>
+
+  <!-- ACT II — THE TURN -->
+  <section class="scene" data-ms="8000">
+    <div class="inner">
+      <img class="bar beat" src="art/ingot_gold.png" alt="" style="animation-delay:.1s">
+      <h1 class="mark beat" style="animation-delay:.8s">QORA</h1>
+      <div class="rule beat" style="animation-delay:1.5s"></div>
+      <p class="sub beat" style="animation-delay:1.8s">A post-quantum secured, programmable wealth platform for tokenised real-world assets.</p>
+    </div>
+  </section>
+
+  <!-- ACT III — ONE ASSET, END TO END -->
+  <section class="scene" data-ms="5200">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">01</span>Custody</p>
+      <img class="bar beat" src="art/ingot_gold.png" alt="" style="animation-delay:.35s">
+      <p class="line beat" style="animation-delay:.9s" >One gold bar, in a verified vault.</p>
+      <p class="sub beat" style="animation-delay:1.7s">The asset goes live only after four checks on the custodian's signed reserve report — and only KYC-verified wallets can ever hold it.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5400">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">02</span>Fractionalise</p>
+      <div class="tokens">
+        <div class="token beat" style="animation-delay:.4s"><img src="art/gold_gold.png" alt=""><span>Gold</span></div>
+        <div class="token beat" style="animation-delay:.6s"><img src="art/bond_gold.png" alt=""><span>T-bills</span></div>
+        <div class="token beat" style="animation-delay:.8s"><img src="art/sukuk_gold.png" alt=""><span>Sukuk</span></div>
+        <div class="token beat" style="animation-delay:1s"><img src="art/estate_gold.png" alt=""><span>Property</span></div>
+      </div>
+      <p class="sub beat" style="animation-delay:1.5s">One bar becomes four asset classes, each split into units small enough for an ordinary saver.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5400">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">03</span>Entry</p>
+      <div class="rail">
+        <img class="beat" src="art/pkr_gold.png" alt="" style="animation-delay:.35s">
+        <span class="arrow beat" style="animation-delay:.7s">&rarr;</span>
+        <img class="beat" src="art/usdc_gold.png" alt="" style="animation-delay:.9s">
+      </div>
+      <p class="line beat" style="animation-delay:1.3s">From <em>PKR 1,000</em>.</p>
+      <p class="sub beat" style="animation-delay:2s">Rupees in, converted to USDC, out as vault shares. A virtual offset raises the cost of attacking a PKR 1,000 deposit from about PKR 1,000 to about PKR 1 billion.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5200">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">04</span>Sign</p>
+      <img class="coin beat" src="art/lock_gold.png" alt="" style="animation-delay:.35s">
+      <p class="line beat" style="animation-delay:.9s">Falcon-512, in the browser.</p>
+      <p class="sub beat" style="animation-delay:1.7s">Every action is wrapped in an envelope and signed on the user's own device. The key never leaves it.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5600">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">05</span>Verify</p>
+      <div class="checks">
+        <div class="check" style="animation-delay:.35s"><i>01</i>Algorithm is the expected one</div>
+        <div class="check" style="animation-delay:.5s"><i>02</i>Key is still active</div>
+        <div class="check" style="animation-delay:.65s"><i>03</i>Chain and contract match</div>
+        <div class="check" style="animation-delay:.8s"><i>04</i>Inside the time window</div>
+        <div class="check" style="animation-delay:.95s"><i>05</i>Nonce is correct</div>
+        <div class="check" style="animation-delay:1.1s"><i>06</i>Signature is valid</div>
+        <div class="check" style="animation-delay:1.25s"><i>07</i>Payload is unchanged</div>
+      </div>
+      <p class="sub beat" style="animation-delay:1.6s">Seven checks. Any failure is rejected with a named reason — never a silent pass.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="4400">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">06</span>Execute</p>
+      <p class="line beat" style="animation-delay:.4s">Then the chain checks it again.</p>
+      <p class="sub beat" style="animation-delay:1.2s">The contract enforces its own rules independently. Nothing off-chain can move a user's funds.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="4600">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">07</span>Fingerprint</p>
+      <p class="hash beat" style="animation-delay:.4s">0x9f3a&#8202;c1&#8202;7b&#8202;&hellip;&#8202;4e&#8202;02&#8202;d8</p>
+      <p class="sub beat" style="animation-delay:1.1s">The envelope collapses to 32 bytes and joins the current 60-second batch.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="6200">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">08</span>Anchor</p>
+      <svg class="tree" viewBox="0 0 360 120" role="img" aria-label="Leaf hashes combining upward into a single Merkle root">
+        <g>
+          <line x1="30" y1="104" x2="66" y2="70" style="animation-delay:.8s"></line>
+          <line x1="102" y1="104" x2="66" y2="70" style="animation-delay:.8s"></line>
+          <line x1="150" y1="104" x2="186" y2="70" style="animation-delay:.95s"></line>
+          <line x1="222" y1="104" x2="186" y2="70" style="animation-delay:.95s"></line>
+          <line x1="270" y1="104" x2="306" y2="70" style="animation-delay:1.1s"></line>
+          <line x1="342" y1="104" x2="306" y2="70" style="animation-delay:1.1s"></line>
+          <line x1="66" y1="70" x2="186" y2="34" style="animation-delay:1.45s"></line>
+          <line x1="186" y1="70" x2="186" y2="34" style="animation-delay:1.45s"></line>
+          <line x1="306" y1="70" x2="186" y2="34" style="animation-delay:1.45s"></line>
+          <rect x="24" y="100" width="12" height="7" style="animation-delay:.35s"></rect>
+          <rect x="96" y="100" width="12" height="7" style="animation-delay:.42s"></rect>
+          <rect x="144" y="100" width="12" height="7" style="animation-delay:.49s"></rect>
+          <rect x="216" y="100" width="12" height="7" style="animation-delay:.56s"></rect>
+          <rect x="264" y="100" width="12" height="7" style="animation-delay:.63s"></rect>
+          <rect x="336" y="100" width="12" height="7" style="animation-delay:.7s"></rect>
+          <rect x="59" y="65" width="14" height="8" style="animation-delay:1.15s"></rect>
+          <rect x="179" y="65" width="14" height="8" style="animation-delay:1.25s"></rect>
+          <rect x="299" y="65" width="14" height="8" style="animation-delay:1.35s"></rect>
+          <rect class="root" x="176" y="26" width="20" height="10" style="animation-delay:1.8s"></rect>
+        </g>
+      </svg>
+      <p class="line beat" style="animation-delay:2s">One root. Every minute.</p>
+      <p class="sub beat" style="animation-delay:2.7s">The whole batch becomes a single Merkle tree, and only its 32-byte root is written on chain.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5000">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">09</span>Prove</p>
+      <p class="line beat" style="animation-delay:.4s"><em>12 hashes</em> prove one action among 4,096.</p>
+      <p class="sub beat" style="animation-delay:1.4s">Any user downloads a short proof and checks it offline. No trust in us required.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5200">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s"><span class="step">10</span>Dispute</p>
+      <p class="line beat" style="animation-delay:.4s">Challenge it, and the full verifier runs.</p>
+      <p class="sub beat" style="animation-delay:1.4s">One contested envelope is checked on chain in full, paid for by the challenger. The expensive proof runs only where a fault is claimed.</p>
+    </div>
+  </section>
+
+  <!-- ACT IV — THE NUMBER -->
+  <section class="scene" data-ms="7400">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s">Cost of being quantum-safe</p>
+      <div class="bars">
+        <div class="gasrow beat" style="animation-delay:.3s">
+          <div class="gaslabel"><span>ECDSA, per action</span><b>3,000</b></div>
+          <div class="track"><div class="fill" style="--w:0.2%"></div></div>
+        </div>
+        <div class="gasrow beat" style="animation-delay:.5s">
+          <div class="gaslabel"><span>QORA, per 60-second batch &mdash; 1 action or 4,096</span><b>43,000</b></div>
+          <div class="track"><div class="fill ours" style="--w:2.9%"></div></div>
+        </div>
+        <div class="gasrow beat" style="animation-delay:.7s">
+          <div class="gaslabel"><span>Falcon verified on chain, per signature</span><b>1,500,000</b></div>
+          <div class="track"><div class="fill worst" style="--w:100%"></div></div>
+        </div>
+      </div>
+      <p class="sub beat" style="animation-delay:1.6s">Gas, to scale. We never verify a signature on chain — we store one 32-byte number a minute. Past <strong style="color:var(--paper);font-weight:400">15 actions per minute</strong>, quantum-safe authentication costs less than the ECDSA it replaces.</p>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="5400">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s">Borrowing, made survivable</p>
+      <p class="line beat" style="animation-delay:.4s">A brief dip shouldn't cost a borrower the asset.</p>
+      <p class="sub beat" style="animation-delay:1.4s">A reserve buffer grants a six-hour grace period on a short fall. A real drop liquidates at most half the position, at a bonus that falls from 5% to 3%.</p>
+    </div>
+  </section>
+
+  <!-- ACT V — THE SYSTEM -->
+  <section class="scene" data-ms="6000">
+    <div class="inner">
+      <p class="eyebrow beat" style="animation-delay:.1s">Eleven modules, four leaves</p>
+      <div class="leaves">
+        <div class="leaf" style="animation-delay:.3s">
+          <h3>Foundation</h3>
+          <p class="mods">M1 &middot; M2 &middot; M3 &middot; M4</p>
+          <p>PQ core, key tiers and envelopes, registry and compliance, vault accounting.</p>
+        </div>
+        <div class="leaf" style="animation-delay:.5s">
+          <h3>Investment path</h3>
+          <p class="mods">M5 &middot; M8 &middot; M9</p>
+          <p>Oracle rounds, the PKR&ndash;USDC settlement rail, anchoring and audit.</p>
+        </div>
+        <div class="leaf" style="animation-delay:.7s">
+          <h3>Lending &amp; risk</h3>
+          <p class="mods">M6 &middot; M7 &middot; M10</p>
+          <p>Health factors, liquidation guards, and the borrower and lender apps.</p>
+        </div>
+        <div class="leaf" style="animation-delay:.9s">
+          <h3>Evaluation</h3>
+          <p class="mods">M11</p>
+          <p>Every figure measured against an identical ECDSA build, one compile flag apart.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" data-ms="6400">
+    <div class="inner">
+      <img class="coin beat" src="art/lock_gold.png" alt="" style="animation-delay:.1s">
+      <h2 class="mark beat" style="animation-delay:.7s">QORA</h2>
+      <p class="sub beat" style="animation-delay:1.4s">Invest. Borrow. Lend. Transact.<br>Secured for the quantum era.</p>
+      <p class="eyebrow beat" style="animation-delay:2.2s">Arbitrum Sepolia testnet</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="chrome" id="chrome">
+  <span class="count" id="count">01</span>
+  <div class="rail-wrap"><div class="rail-fill" id="railFill"></div></div>
+  <span class="hint">
+    <kbd>Space</kbd> play &nbsp; <kbd>&larr;</kbd><kbd>&rarr;</kbd> scene &nbsp; <kbd>R</kbd> record &nbsp; <kbd>F</kbd> full
+  </span>
+</div>
+<div class="paused-mark" id="pausedMark" hidden>Paused</div>
+
+<script>
+  (function () {
+    var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+    var railFill = document.getElementById("railFill");
+    var count = document.getElementById("count");
+    var pausedMark = document.getElementById("pausedMark");
+    var stage = document.getElementById("stage");
+
+    var durations = scenes.map(function (s) { return parseInt(s.dataset.ms, 10) || 5000; });
+    var total = durations.reduce(function (a, b) { return a + b; }, 0);
+    var starts = [];
+    durations.reduce(function (acc, d, i) { starts[i] = acc; return acc + d; }, 0);
+
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var index = -1;
+    var sceneElapsed = 0;
+    var playing = !reduced;
+    var last = null;
+
+    function show(i) {
+      if (i === index) return;
+      index = i;
+      scenes.forEach(function (s, n) { s.classList.toggle("on", n === i); });
+      count.textContent = String(i + 1).padStart(2, "0");
+    }
+
+    function setPausedFlag() {
+      pausedMark.hidden = playing;
+    }
+
+    function go(i) {
+      sceneElapsed = 0;
+      show((i + scenes.length) % scenes.length);
+      paint();
+    }
+
+    function paint() {
+      var done = starts[index] + Math.min(sceneElapsed, durations[index]);
+      railFill.style.width = (done / total * 100).toFixed(3) + "%";
+    }
+
+    function frame(t) {
+      if (last === null) last = t;
+      var dt = t - last;
+      last = t;
+      if (playing) {
+        sceneElapsed += dt;
+        if (sceneElapsed >= durations[index]) {
+          sceneElapsed = 0;
+          show((index + 1) % scenes.length);
+        }
+        paint();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    document.body.classList.add("live");
+    show(0);
+    paint();
+    setPausedFlag();
+    requestAnimationFrame(frame);
+
+    function toggle() { playing = !playing; setPausedFlag(); }
+
+    document.addEventListener("keydown", function (e) {
+      var k = e.key.toLowerCase();
+      if (e.key === " " || k === "k") { e.preventDefault(); toggle(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); go(index + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); go(index - 1); }
+      else if (k === "r") { document.body.classList.toggle("recording"); }
+      else if (k === "f") {
+        if (document.fullscreenElement) { document.exitFullscreen().catch(function () {}); }
+        else if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        }
+      }
+    });
+
+    stage.addEventListener("click", toggle);
+  })();
+</script>

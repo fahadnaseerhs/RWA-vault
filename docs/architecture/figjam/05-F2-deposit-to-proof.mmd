@@ -1,0 +1,26 @@
+sequenceDiagram
+  autonumber
+  actor I as Investor
+  participant W as PWA + WASM signer
+  participant S as settlement-rail M8
+  participant V as pq-verifier M2
+  participant VA as AssetVault M4
+  participant IR as IdentityRegistry M3
+  participant B as anchor-batcher M9
+  participant A as PQAnchor
+  I->>W: deposit PKR 5,000
+  W->>S: onRamp account, PKR amount
+  S->>S: double-entry ledger, PKR debit equals USDC credit
+  S->>VA: test-net USDC credited
+  W->>W: build PQEnvelope, sign Falcon-512, key in IndexedDB
+  W->>V: envelope + 666-byte signature
+  V->>V: allow-list, key, domain, clock, nonce, signature, payload
+  V->>VA: execute deposit intent
+  VA->>IR: investor verified? ONCHAINID claim
+  VA->>VA: shares rounded down against depositor, offset 10^6
+  VA-->>W: shares minted
+  V->>B: leaf = keccak256 of envelope
+  B->>A: root, leafCount, epoch within 60 s
+  W->>B: request proof
+  B-->>W: leaf, proof, epoch
+  Note over W,A: Rust CLI verifies proof offline against on-chain root
