@@ -31,10 +31,11 @@ A running record of decisions actually made for M3. Each entry: date, the decisi
 | 2026-10-27 | Q10 | **Implement `forcedTransfer` / `burn` / `recoveryAddress`** — EIP-3643 mandates them — but keep them off the MS1 demo path and govern `forcedTransfer` by multisig + timelock | Fahad | `0015-agent-powers-and-key-tiers.md` |
 | 2026-10-28 | Q17 | **Four clauses and one custodian signer for MS1 (Option B)**; insurer 2-of-2 + policy clause move to Phase 2 under their own ADR. Q11 remains the target design | Fahad | `0017` (stands) |
 | 2026-10-28 | Q18 | **Clause 1 is verified off-chain for MS1 (Option A)** — M2 verifier (or `pqctl`) checks ML-DSA-65; Tier 1 submitter records result + envelope hash; M9 anchors it. Trust in the submitter is disclosed | Fahad | `0027` |
+| 2026-10-28 | Q19 | **Task 6 order (Option A):** Researcher verifies T6.0 and writes the T6.2 protocol; Coder builds T1.1 → T4.1 → T2 → T3 → T5.1; then T6.1a → T6.3 → T6.1b | Fahad | none (sequencing) |
 
 ## Still open
 
-Four questions raised on 2026-10-27 for Task 6 — **Q19 to Q22** — are open (Q17 and Q18 decided 2026-10-28, rows above). They are listed, with recommendations, in
+Three questions raised on 2026-10-27 for Task 6 — **Q20 to Q22** — are open (Q17–Q19 decided 2026-10-28, rows above). They are listed, with recommendations, in
 [[Open Questions for Fahad]]; each lives in its own note in `Questions/`. C11 (production custodian) is deferred by
 agreement.
 

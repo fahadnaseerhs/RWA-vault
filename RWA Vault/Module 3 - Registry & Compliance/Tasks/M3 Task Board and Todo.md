@@ -22,6 +22,9 @@ updated: 2026-10-27
 
 ---
 
+## ▶️ Build order (Q19 = A, 2026-10-28)
+T6.0 VERIFY → T6.2 protocol → T1.1 → T4.1 → T2 → T3 → T5.1 → T6.1a → T6.3 → T6.1b → T7.
+
 ## ⚡ Active Execution Threads
 1. **[[Threads/Thread - T0.6 AssetRegistry Interface]]** — T0.6 completed & verified by Researcher.
 2. **[[Threads/Thread - T6.0 Onboarding Schema & Parity]]** — Batch 2 applied, 32/32 green; awaiting Researcher VERIFY.

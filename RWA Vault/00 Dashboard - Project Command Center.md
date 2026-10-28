@@ -23,17 +23,16 @@ updated: 2026-10-27
 
 > Index only — every status below is read from the linked note's frontmatter. Full list: **[[Decisions Register]]**.
 
-### ⏳ Open decisions for Fahad (4) — Module 3, Task 6
+### ⏳ Open decisions for Fahad (3) — Module 3, Task 6
 | Q | Question | Recommendation | Blocks |
 |---|---|---|---|
-| [[Module 3 - Registry & Compliance/Questions/Q19 - What does the Coder do while T6 waits for T1-T5\|Q19]] | Task 6 order while T1–T5 are unbuilt | Verify T6.0, then build T1–T5 | T6.1a, T6.1b, T6.3 |
 | [[Module 3 - Registry & Compliance/Questions/Q20 - Push the local-only work to GitHub\|Q20]] | Push local-only work; restore deleted files? | Push all, restore | T0.8 |
 | [[Module 3 - Registry & Compliance/Questions/Q21 - Accept the ADRs and settle the licence\|Q21]] | Accept the decided ADRs; licence | Accept all but 0017; GPL-3.0 | T7.3 |
 | [[Module 3 - Registry & Compliance/Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]] | Who runs the unaided rehearsal? | A non-author teammate | T6.2, T7.4 |
 
 ### ✅ Decided
 - **M3 Q01–Q16:** all decided 2026-10-27 — see [[Module 3 - Registry & Compliance/Decisions/Decisions Log|M3 Decisions Log]].
-  **Q17 (2026-10-28):** 4 clauses and one custodian signer for MS1; insurer in Phase 2. **Q18 (2026-10-28):** clause 1 verified off-chain, hash anchored (ADR 0027).
+  **Q17 (2026-10-28):** 4 clauses and one custodian signer for MS1; insurer in Phase 2. **Q18 (2026-10-28):** clause 1 verified off-chain, hash anchored (ADR 0027). **Q19 (2026-10-28):** verify T6.0 → T6.2 protocol → build T1–T5 → T6.1a.
 - **Custody C1–C10:** settled; **C11** (production custodian) deferred — see [[Open Questions - Custody & Tokenisation]].
 - **Latest audit:** [[2026-10-27 - Decision Conflict Audit]] (19 decision conflicts, 5 process conflicts, ADR ↔ code check).
 
@@ -52,7 +51,7 @@ updated: 2026-10-27
 ---
 
 ## 📋 Open Actions for Fahad
-1. Answer **Q19–Q22** above (each note has options and a recommendation).
+1. Answer **Q20–Q22** above (each note has options and a recommendation).
 2. Merge the vault-standardization PR, then commit the local code work (Q20).
 
 ---
