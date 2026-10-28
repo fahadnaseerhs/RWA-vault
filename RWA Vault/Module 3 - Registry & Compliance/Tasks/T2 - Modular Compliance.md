@@ -19,4 +19,4 @@ updated: 2026-10-27
 - [ ] **T2.3** Evaluate official `SupplyLimitModule` for `attestedSupply <= reserveAmount` ceiling enforcement.
 - [ ] **T2.4** Unit tests for module bind/unbind and multi-module veto fan-out.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T2 Modular Compliance]]

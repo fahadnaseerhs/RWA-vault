@@ -173,6 +173,17 @@ contract AssetRegistryTest is Test {
         assertEq(vm.getRecordedLogs().length, 1); // AssetAdmitted only
     }
 
+    /// Coder reading 2: a LIVE asset with no token bound is re-attested against a supply of 0.
+    function test_ReattestWithNoTokenBoundTreatsSupplyAsZero() public {
+        _live();
+        _attest(1, 2, uint64(block.timestamp));
+        vm.recordLogs();
+        vm.prank(agent);
+        reg.admit(ID, 0);
+        assertEq(vm.getRecordedLogs().length, 1); // AssetAdmitted only, no UnderReserve
+        assertEq(reg.reserveOf(ID), 1);
+    }
+
     // ---------------------------------------------------------------- admit: rejections leave PENDING
 
     function _expectPendingUntouched() internal view {
