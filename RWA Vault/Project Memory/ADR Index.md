@@ -5,7 +5,9 @@ updated: 2026-10-27
 # 🏛️ Architecture Decision Records (ADR Index)
 
 > **Source of Truth:** `docs/adr/`. ADRs are immutable once accepted.  
-> **Claim-By-File Rule:** Numbers are reserved only by committing `docs/adr/00XX-<slug>.md`. The next available number is **0028**.
+> **Claim-By-File Rule:** Numbers are reserved only by **committing** `docs/adr/00XX-<slug>.md`. The next available number is **0031**.
+> `0028`–`0030` were claimed 2026-11-11 for Q23–Q25 and are `Reserved`; their full records are owed.
+> Read `docs/adr/` immediately before claiming — never trust this line alone.
 
 | # | Title | Status | Module | Answers / Scope |
 |---|---|---|---|---|
@@ -36,5 +38,8 @@ updated: 2026-10-27
 | `0025` | M3 contracts are immutable: plain deploys, no proxies | Accepted | M3 | Q15 |
 | `0026` | Ops Console Frontend Stack: React 18, Vite, Viem | Accepted | M3 | Q9, T6.1b |
 | `0027` | Clause 1 verified off-chain for MS1; envelope hash anchored | Accepted | M3 | Q18 |
+| `0028` | Our registries use upstream `onchain-id`'s `IIdentity`; ours is deleted | Reserved | M3 | Q23 |
+| `0029` | The KYC claim topic is `1`, permanently | Reserved | M3 | Q24 |
+| `0030` | The MS1 KYC issuer is a project-operated simulated issuer | Reserved | M3 | Q25 |
 
 Up: [[Project Memory]] · Related: [[Module 1 - PQ Core]], [[Module 3 - Registry & Compliance]]

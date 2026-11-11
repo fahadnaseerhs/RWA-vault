@@ -32,5 +32,11 @@ The format and the rules governing this log are defined in [0001-record-format.m
 | [0025](0025-immutable-deployments.md)               | M3 contracts are immutable: plain deploys, no proxies               | Accepted | M3     | Q15                    |
 | [0026](0026-ops-console-frontend-scaffold.md)       | Ops Console Frontend Stack: React 18, Vite, Viem                    | Accepted | M3     | Q9, T6.1b              |
 | [0027](0027-clause-one-verified-off-chain.md)       | Clause 1 verified off-chain for MS1; envelope hash anchored         | Accepted | M3     | Q18                    |
+| [0028](0028-our-registries-use-upstream-onchain-ids-iidentit.md) | Our registries use upstream `onchain-id`'s `IIdentity`; ours is deleted | Reserved | M3 | Q23 |
+| [0029](0029-the-kyc-claim-topic-is-1-permanently.md) | The KYC claim topic is `1`, permanently | Reserved | M3 | Q24 |
+| [0030](0030-the-ms1-kyc-issuer-is-a-project-operated-simulat.md) | The MS1 KYC issuer is a project-operated simulated issuer | Reserved | M3 | Q25 |
 
-> **Protocol Rule:** Numbers 0001–0027 are fully allocated. The next ADR must be claimed as `0028` via file creation.
+> **Protocol Rule:** Numbers 0001–0030 are allocated. The next ADR must be claimed as `0031` by committing a stub.
+> `0028`–`0030` are **Reserved** stubs claimed 2026-11-11 for Q23–Q25; their full records are owed.
+> **Check this directory immediately before claiming a number** — this line has been stale before, and a stale
+> "next number" is how the three renumbers of 2026-10-27 happened.
