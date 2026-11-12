@@ -117,3 +117,55 @@ The Q2/Q4/Q6/Q7/Q8 answers were taken against published ERC-3643 practice rather
 - **Per-asset deployment is the norm** — the official factory deploys a full suite per token, compliance is bound 1:1 to a token, while identity storage and the implementation authority are shared across tokens.
 
 Up: [[Module 3 - Registry & Compliance]] · Related: [[Open Questions for Fahad]], [[ADR Index]]
+
+## T1 decisions — raised AND DECIDED 2026-11-11 (Fahad Naseer, Option A on all three)
+
+Three questions came out of the T1 (Identity Layer) research. T1's note reads `status: ready` and `unblocked_by:
+["Q01=C","Q02=A","Q03=A"]`, which is true of the *shaping* decisions — these three are the gaps those answers left,
+and each one is a single choice that is hard or impossible to revisit later.
+
+| Q | Question | Recommendation | Blocks |
+| - | -------- | -------------- | ------ |
+| **[[Q23 - Which IIdentity type do our registries use\|Q23]]** ✅ | When we vendor `onchain-id`, which `IIdentity` type do our registries use? Ours and upstream's are **different types** to Solidity, so `registerIdentity` will not accept a vendored identity without a cast or an adapter. | **A** — delete ours, import upstream's, so one type exists in the system | T1.1, T1.2, T1.5 |
+| **[[Q24 - What is our KYC claim topic number\|Q24]]** ✅ | What number is our `KYC` topic, and is it fixed forever? Q02 settled *how many* topics, never *which number*. Every claim is signed against it, so changing it later re-KYCs every investor. | **A** — `1`, recorded in an ADR as permanent | T1.3, T1.4, T1.6 |
+| **[[Q25 - Who is the ECDSA KYC issuer for MS1\|Q25]]** ✅ | Who is the trusted ECDSA KYC issuer, and do we hold its key? Q03 settled the *algorithm* and *placement*, never the *identity*. Whoever holds that key decides who may hold tokens. | **A** — a project-operated simulated issuer, disclosed as simulated, on a **separate** address from `agent` and the attestation submitter (D3's reasoning) | T1.4, T1.6, T5.2, T6.2 |
+
+**None of them blocks the whole of T1.** T1.1's vendoring can begin, and T1.5's `isVerified` logic is topic-agnostic
+by design. But Q23 decides whether T1.1's output compiles against our registries at all, and Q24 and Q25 are each one
+line that cannot be changed afterwards — so they are cheap to answer and expensive to guess.
+
+**Two requirements carried out of the research regardless of the answers**, recorded here so they are not lost:
+`getClaimTopics()` must never return an empty array, because an empty topic set makes `isVerified` vacuously true and
+**silently disables the whole permissioning gate**; and the test matrix needs a case for *a claim from an issuer
+trusted for a different topic*, which is the mistake that passes a naive implementation because the issuer **is**
+trusted — just not for this.
+
+### T1 — decided 2026-11-11
+
+**All three answered Option A by Fahad Naseer on 2026-11-11.** T1 is now unblocked end to end; the subtask notes and
+the three Reserved ADR stubs carry the detail.
+
+| Q | Decision | ADR |
+| - | -------- | --- |
+| **Q23a** ✅ | **COPY-VENDOR upstream `onchain-id` with provenance**, pragma under our control, compiled under our existing `0.8.26` pin. _Supersedes the 2026-11-11 answer of Option A (2026-11-12)._ Option A cannot compile: upstream pins `pragma solidity 0.8.17` exactly (verified against the 2.2.1 tag) against our `^0.8.20` files and `solc_version = "0.8.26"`, and an import edge is one compilation unit. Option B was rejected on a build finding rather than on principle: `solc_version` pinned in `[profile.default]` fixes the compiler for the whole project, so a `0.8.17` file cannot build in-tree even unimported — which breaks B's own safety net, the integration test that registers a real upstream `Identity`. The remaining route for B, committing prebuilt bytecode, **is vendoring in a form nobody can read or recompile.** Precedent: `scripts/vendor-pqclean.py`. | `0028` Reserved; **0012 needs a superseding ADR** (it says "submodule") |
+| ~~**Q23**~~ | ~~Delete our `IIdentity`; import upstream's.~~ Superseded 2026-11-12. Its argument against casting — that a wrong identity address cannot be undone under ADR `0025` — was **false**: `IIdentityRegistry.sol:64` declares `updateIdentity`, and `ITrustedIssuersRegistry.sol:31`/`:34` declare `removeTrustedIssuer` and `updateIssuerClaimTopics`. Recorded rather than deleted, because a decision reversed on a corrected fact is worth more than one that looks like it was always right. | — |
+| **Q24** ✅ | **The `KYC` topic is `1`, permanently.** The collision worry does not bite: trust is scoped per issuer **and** topic, so another platform's `1` is never ours. `42` was rejected for looking canonical while not being so. | `0029` Reserved |
+| **Q25** ✅ | **A project-operated simulated KYC issuer, disclosed as simulated** — in the same words C1 uses for the custodian. **Two binding conditions:** the issuer key is a **separate address** from `agent` and from the attestation submitter (D3's reasoning extended), and the demo narration must not present KYC as independently verified. | `0030` Reserved |
+
+**Carried out of the decisions, independent of them:**
+- **Re-run the T0.5 acceptance spec** after the `IIdentity` swap — it was written against our declaration (Q23a).
+- **ADR `0012` needs a superseding record:** its Costly paragraph says "A third submodule enters the build, with its own
+  Solidity version constraints to reconcile against our `0.8.26` pin". Q23a makes it a copy-vendor, not a submodule. 0012 is
+  Accepted and immutable, so it cannot be amended. It predicted this exact conflict and accepted it as a cost; it simply never
+  said what to do when the constraint proved unsatisfiable.
+- **Lowering `solc_version` to 0.8.17 is closed, not merely expensive** — our ten interface files declare `^0.8.20`, and
+  `contracts/foundry.toml:52` pins `evm_version = "cancun"`, which solc 0.8.17 cannot target. Recorded so it is not reproposed.
+- **`getClaimTopics()` must never return an empty array.** An empty topic set makes `isVerified` vacuously true and
+  silently disables the whole permissioning gate, so it must be impossible by construction (Q24).
+- **The test matrix needs a claim from an issuer trusted for a *different* topic.** That is the case that passes a
+  naive implementation, because the issuer genuinely **is** trusted — just not for this topic.
+
+**On ADR numbering:** `0028`–`0030` are claimed as `Status: Reserved` stubs, per AGENTS.md's claim-by-file rule and
+because three numbers promised only in conversation were lost to renumbering on 2026-10-27. `0028` had been *intended*
+for the Phase 2 insurer design under the deferred D2, but no stub was ever committed, so the number was free; the
+insurer record takes a later number.
