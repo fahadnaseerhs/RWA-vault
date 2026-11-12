@@ -10,7 +10,7 @@ recommendation: "A — delete ours, import upstream's IIdentity, so one type exi
 decision: "Q23a = copy-vendor (supersedes the 2026-11-11 answer of Option A)"
 decided_by: Fahad Naseer
 decided_on: 2026-11-11; superseded 2026-11-12
-adr: "0028 (Reserved stub claimed 2026-11-11; full record owed)"
+adr: "0028 (Reserved, stale slug — see note); 0031 supersedes ADR 0012's submodule wording (Reserved, claimed+committed 2026-11-12)"
 tags: [rwa-vault, decision, m3, task1]
 updated: 2026-11-12
 ---

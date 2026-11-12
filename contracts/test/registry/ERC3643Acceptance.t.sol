@@ -107,7 +107,9 @@ abstract contract ERC3643AcceptanceTest is Test {
         token.transfer(bob, 1e18);
     }
 
-    /// @dev The registry reflects verification status consistently with the token's gate.
+    /// @dev Consistency check, not a core guarantee (Q28 = A). Verifies that the test fixture's
+    ///      own premise holds (alice/bob verified, carol not) rather than asserting token behaviour.
+    ///      The canonical guarantee count is 6 (tests 1–6 above); this is the 7th function.
     function test_RegistryVerificationMatchesHolders() public view {
         assertTrue(registry.isVerified(alice));
         assertTrue(registry.isVerified(bob));

@@ -73,6 +73,14 @@ runs = 1000
 [profile.ci.fuzz]
 runs = 1000000
 
+# CI-only invariant profile (AC-T1-18). Individual invariant tests may pin a smaller budget
+# inline with `forge-config: default.invariant.*` to keep the local loop fast; those inline
+# settings apply to the default profile only, so under FOUNDRY_PROFILE=ci every invariant
+# runs at least at Foundry's own defaults (256 runs x depth 500).
+[profile.ci.invariant]
+runs = 256
+depth = 500
+
 # ─────────────────────────────────────────────────────────────────────────────
 # RPC endpoints
 #

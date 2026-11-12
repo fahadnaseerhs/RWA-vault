@@ -40,3 +40,23 @@ read-modify-write on a file another session was appending to.
 4. **Never run a revert script across shared notes.** That, combined with a rewrite, is what destroyed Q13 and Q14.
 
 Related: [[Agents - Workflow]], [[How to Explain Things to Me]]
+
+## Assertions must name what broke, and must be able to fail
+
+Adopted 2026-10-29, after three assertions that could never fail were found in two tasks.
+
+1. **An assertion is decoration when no single edit to the production code can make it the only failing line.** It is
+   *not* decoration merely because sibling assertions in the same test logically entail it while the test's own
+   constants are held fixed — **the constants move with the edit.** A rename plus the literal update that rename
+   invites can leave an "entailed" line as the only guard that fires.
+2. **Reading a test establishes what it says; only mutation establishes what it catches.** Before approving an
+   assertion, ask: *what single edit to the production code makes this line fail?* If there is no answer, it is
+   decoration. Prove the answer on a scratch copy rather than by reading.
+3. **Every `assertTrue` / `assertFalse` carries a message.** `assertEq` may rely on its printed values, which explain
+   themselves. A bare `assertTrue` prints "assertion failed" and nothing else, so the next person identifies the line
+   by elimination — under time pressure, on the one failure that means something specific.
+4. These bind the Researcher first. The mutation standard was set after the first pair of dead assertions and then not
+   applied to a test the Researcher praised by reading; rule 1's refinement came from the Coder applying rule 2 to a
+   line the Researcher had specified.
+
+Related: [[Agents - Workflow]]

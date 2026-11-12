@@ -9,6 +9,11 @@ updated: 2026-10-27
 
 ---
 
+### 2026-11-11
+- **2026-11-11:** M3 **T1.3** `ClaimTopicsRegistry` built: `KYC_TOPIC = 1` (Q24, ADR 0029), seeded in the constructor and impossible to empty, so `isVerified` can never become vacuously true; 14 tests, 8/8 mutants caught. T1.1 vendoring held: every onchain-id release pins `pragma 0.8.17`, which our 0.8.26 interfaces cannot import (Q23a to Fahad). Uncommitted. → [[Thread - T1 Identity Layer]]
+
+---
+
 ### 2026-10-27
 - **2026-10-27:** Vault standardized — locked templates in `_Templates/`, [[Decisions Register]], conflict audit ([[2026-10-27 - Decision Conflict Audit]]), Task 6 decisions Q17–Q22 opened, duplicate specs archived, agent rounds moved to `Threads/Rounds/`.
 - **Vault Restructure & Master Protocol:** Restructured vault into Single Source of Truth architecture (Dashboards, Questions, Tasks, Threads, Specs). Established [[Agents/Protocol\|Agents Protocol]], [[00 Dashboard - Project Command Center]], and locked ADR index 0001–0026.

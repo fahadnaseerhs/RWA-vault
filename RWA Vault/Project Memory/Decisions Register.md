@@ -1,7 +1,7 @@
 ---
 type: dashboard
 tags: [rwa-vault, decisions, register, index]
-updated: 2026-10-27
+updated: 2026-11-12
 ---
 # 🗂️ Decisions Register — every decision in the project
 
@@ -10,8 +10,7 @@ updated: 2026-10-27
 > [[_Templates/Template - Decision|Template - Decision]].
 
 ## ⏳ Open (0)
-| ID | Question | Module | Recommendation | Note |
-|---|---|---|---|---|
+_None._
 
 ## ⏸️ Deferred (1)
 | ID | Question | Note |
@@ -39,6 +38,8 @@ updated: 2026-10-27
 | C8 | Token = fractional title to an identified lot | `0024` |
 | C9 | Stale reserve freezes minting only | `0021` |
 | C10 | Non-custodial claim defended | none |
+| M3-Q27 | B — lower `MAX_CLAIM_TOPICS` to 5. Hard cap, permanent (ADR 0025). Redeploy via `setClaimTopicsRegistry` if more needed (2026-11-12) | none |
+| M3-Q28 | A — six guarantees; `test_RegistryVerificationMatchesHolders` is a consistency assertion, not a guarantee. Correct AC-T1-4 verb to "compiling" (2026-11-12) | none |
 
 ## 🔎 Audits
 - [[2026-10-27 - Decision Conflict Audit]]

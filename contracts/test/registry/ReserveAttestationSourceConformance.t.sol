@@ -92,18 +92,25 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
         _assertSame(source.latest(UNKNOWN), zero);
         _accept(GOLD_LOT_001, KILOBAR_FINE, 1, T0);
         _assertSame(source.latest(UNKNOWN), zero); // includes assetId == bytes32(0) (AC-T07-7)
-        assertFalse(source.hasAttestation(UNKNOWN));
+        assertFalse(
+            source.hasAttestation(UNKNOWN), "C2: hasAttestation must be false for an asset that was never attested"
+        );
     }
 
     /// C3: `hasAttestation` is false before, true after, and never regresses (not even after a refused input).
     function test_HasAttestationIsMonotonic() public {
-        assertFalse(source.hasAttestation(GOLD_LOT_001));
+        assertFalse(source.hasAttestation(GOLD_LOT_001), "C3: hasAttestation must be false before any attestation");
         _accept(GOLD_LOT_001, KILOBAR_FINE, 1, T0);
-        assertTrue(source.hasAttestation(GOLD_LOT_001));
+        assertTrue(source.hasAttestation(GOLD_LOT_001), "C3: hasAttestation must be true after an accepted attestation");
         _accept(GOLD_LOT_001, KILOBAR_FINE, 2, T0);
-        assertTrue(source.hasAttestation(GOLD_LOT_001));
+        assertTrue(
+            source.hasAttestation(GOLD_LOT_001),
+            "C3: hasAttestation must stay true after a further accepted attestation"
+        );
         _offer(GOLD_LOT_001, KILOBAR_FINE, 2, T0); // non-increasing: must not take effect
-        assertTrue(source.hasAttestation(GOLD_LOT_001));
+        assertTrue(
+            source.hasAttestation(GOLD_LOT_001), "C3: hasAttestation must stay true after a refused non-increasing seq"
+        );
     }
 
     /// C4a: accepted attestations strictly increase `seq` per asset, and each one updates `reserve`.
@@ -140,7 +147,7 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
     function test_ZeroSequenceIsNotAFirstAttestation() public {
         IReserveAttestationSource.ReserveAttestation memory zero;
         _offer(GOLD_LOT_001, KILOBAR_FINE, 0, T0);
-        assertFalse(source.hasAttestation(GOLD_LOT_001));
+        assertFalse(source.hasAttestation(GOLD_LOT_001), "C4c: seq 0 must not count as a first attestation");
         _assertSame(source.latest(GOLD_LOT_001), zero);
     }
 
@@ -173,7 +180,10 @@ abstract contract ReserveAttestationSourceConformanceTest is Test {
         _offer(GOLD_LOT_001, KILOBAR_FINE, 2, T0);
 
         _assertSame(source.latest(GOLD_LOT_002), b);
-        assertTrue(source.hasAttestation(GOLD_LOT_002));
+        assertTrue(
+            source.hasAttestation(GOLD_LOT_002),
+            "C7: attesting another asset must not clear this asset's hasAttestation"
+        );
         assertEq(source.latest(GOLD_LOT_001).assetId, GOLD_LOT_001);
     }
 

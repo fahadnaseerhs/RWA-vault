@@ -295,3 +295,108 @@ Spec §4.1 updated. `error InvalidSequence(uint64 seq)` belongs to the MS1 imple
 - All other assertions are independent. One example: C7's `assertTrue(hasAttestation(B))` is not implied by `_assertSame(latest(B), b)`, because a source could keep the record and still answer `false`.
 **Where the spec was silent (PROVISIONAL):** new test name `test_ZeroSequenceIsNotAFirstAttestation`, labelled C4c; the pin's name is the Debugger's suggestion as given.
 **Blocks/Unblocks:** Ready for the Debugger's full re-run, then Researcher verification.
+
+---
+
+### 2026-10-29 01:15 · 🧭 Researcher → ⌨️ Coder · RULING (AC-11 items 1–3)
+
+**Context:** Round 3 verified on disk: `forge test` 7/7 with the new concrete pin running by default, interface ABI identical to the pre-D1 baseline, zero `expectRevert`, `_assertSame` confirmed to compare all four fields. AC-9, AC-10 and AC-12 are proved by mutation. Only AC-11's third item is contested.
+
+**On Disk Now:** `test/registry/AssetRegistryInterface.t.sol` → `test_AssetTokenBoundTopicDiffersFromCompliance` now holds **two** `assertEq` lines and nothing else; the selector inequality is gone.
+
+**Message:**
+
+**Items 1 and 2 — ACCEPTED.** C6's `r != 1e21` was my ruling. C2's explicit `assertEq(latest(UNKNOWN).assetId, bytes32(0))` is genuinely implied: `_assertSame` compares `assetId` on its first line, so AC-7 is still met through it. Good catch, and finding one of these in your own work is the part that makes the check credible.
+
+**Item 3 — REJECTED. Restore the line.** And the reason is that my AC-11 was imprecise, not that your reasoning was poor — the question you asked was exactly right.
+
+You are correct that, **given the file as it stands**, the inequality is entailed: if both `assertEq`s pass, the two selectors equal two different keccak constants, so they cannot be equal. Pure logical entailment. But entailment given the current file is the wrong test, because **the test literals are not fixed — they are part of what an edit changes.**
+
+The realistic failure path:
+
+1. Someone renames `IAssetRegistry.AssetTokenBound` to `TokenBound(address)`, colliding with `IModularCompliance`'s.
+2. The test fails, and they do the natural thing: update the literal to `keccak256("TokenBound(address)")`.
+3. Now **both `assertEq`s pass** — each selector matches its own signature string honestly.
+4. The removed line would fail, and **nothing else would.**
+
+That is precisely the collision A5 exists to prevent, reachable by one rename plus the test edit that rename invites. So the line is not decoration: there is a single production-code change that makes it the only failure.
+
+**AC-11 is therefore refined**, and this is the useful output of the exchange:
+
+> An assertion is decoration when **no single edit to the production code can make it the only failing line**. It is *not* decoration merely because sibling assertions in the same test logically entail it while the test's own constants are held fixed — the constants are not fixed; they move with the edit.
+
+By that test: C6's `r != 1e21` is still decoration (no rename changes `KILOBAR_FINE`'s relationship to `1e21`), C2's duplicate is still decoration (`_assertSame` compares the same field, and no edit separates them), and A5's inequality is **not**. Three applications, two removals, one restoration.
+
+**Work:** restore `assertTrue(IAssetRegistry.AssetTokenBound.selector != IModularCompliance.TokenBound.selector);` as the third line, with a comment saying it is the guard that survives a rename-plus-literal-update, so the next person applying AC-11 does not remove it again. Then re-run and hand to the Debugger.
+
+**Blocks/Unblocks:** Blocks the T0.7 checkmark only.
+
+---
+
+### 2026-10-29 · ⌨️ Coder → 🧭 Researcher · HANDOFF (round 3, item 3 restored)
+
+**Context:** Ruling applied. A5's inequality is restored under the refined AC-11 ("decoration = no single production edit can make it the only failing line"). Uncommitted for the user's review; the rest of round 3 is already at HEAD.
+**On Disk Now:** `contracts/test/registry/AssetRegistryInterface.t.sol:155-159` → `// NOT redundant, so do not remove under AC-11. If our event is renamed to collide with IModularCompliance.TokenBound and the literal above is updated to match, both assertEq lines pass honestly and this is the only line that fails. It is the guard that survives a rename plus literal update (T0.7 round-3 ruling).` then `assertTrue(IAssetRegistry.AssetTokenBound.selector != IModularCompliance.TokenBound.selector);`
+**Message/Question/Finding:** `forge build` ✅ · `forge fmt --check` ✅ · `forge test` 7/7. **The ruling's scenario was proved by mutation in a scratch copy, since deleted.** The event was renamed to `TokenBound(address)`, and the test's reference and literal were updated to match. `test_AssetTokenBoundTopicDiffersFromCompliance` then fails with a bare `assertion failed`: the restored `assertTrue`, while both `assertEq` lines pass. So it is the only failing line, as the ruling says.
+**Blocks/Unblocks:** Ready for the Debugger's full re-run.
+
+---
+
+### 2026-10-29 · ⌨️ Coder → 🧭 Researcher · HANDOFF (assertTrue message)
+
+**Context:** One-line follow-up: the restored A5 `assertTrue` now names its defect. Uncommitted for the user's review.
+**On Disk Now:** `contracts/test/registry/AssetRegistryInterface.t.sol:159-162` → `assertTrue(IAssetRegistry.AssetTokenBound.selector != IModularCompliance.TokenBound.selector, "AssetTokenBound must not share a selector with IModularCompliance.TokenBound: name-based event filtering would be ambiguous");`
+**Message/Question/Finding:** `forge build` ✅ · `forge fmt --check` ✅ · `forge test` 7/7. **Noticed, not acted on (new convention):** `ReserveAttestationSourceConformance.t.sol` still has 7 message-less `assertTrue` / `assertFalse` calls, at lines 95, 100, 102, 104, 106, 143 and 176. All are `hasAttestation` checks in C2, C3, C4c and C7. The other two `assertTrue`s in the two files already carry messages. These 7 are one batch if you want them under the convention now.
+**Blocks/Unblocks:** Debugger full re-run (already released).
+
+---
+
+### 2026-11-11 · ⌨️ Coder → 🧭 Researcher / 🐞 Debugger · HANDOFF (assertion messages)
+
+**Context:** Applies the Researcher's YES ruling on the seven message-less `hasAttestation` checks. That ruling arrived in a direct message after the 2026-10-29 entry and is recorded here, since it never reached this thread. Fahad's instruction via the custody session: finalise T0.7. Messages only: no assertion added, removed or changed in what it tests. Uncommitted, for the user's review.
+**On Disk Now:**
+- `contracts/test/registry/ReserveAttestationSourceConformance.t.sol:95-97` → `assertFalse(source.hasAttestation(UNKNOWN), "C2: hasAttestation must be false for an asset that was never attested");`
+- `…:150` → `assertFalse(source.hasAttestation(GOLD_LOT_001), "C4c: seq 0 must not count as a first attestation");`
+- The others follow the same shape and name the required behaviour plus its conformance point. C3: "must be false before any attestation", "must be true after an accepted attestation", "must stay true after a further accepted attestation", "must stay true after a refused non-increasing seq". C7: "attesting another asset must not clear this asset's hasAttestation".
+**Message/Question/Finding:** `forge build` ✅ · `forge fmt --check` ✅ · `forge test` 7/7. Every `assertTrue`/`assertFalse` in both test files now carries a message: 10/10, checked by parsing each call, because `forge fmt` wraps long calls onto several lines and a one-line grep miscounts them. `git diff HEAD` touches only the two test files. The Debugger was told directly that this file changed mid-re-run. **Not done (outside the Coder's role):** the T0.7 checkmark (Researcher only), D1, D2 and T0.8 (deferred by Fahad).
+**Blocks/Unblocks:** Code-complete. Waiting on the Debugger's re-run, then a Researcher session to verify and checkmark.
+
+---
+
+### 2026-11-11 · 🐞 Debugger → 🧭 Researcher · REPORT (round-3 gate)
+
+**Context:** This is the full re-run gate on T0.7 round 3, run after the Coder's 2026-11-11 message-strings batch. The method is the same as the 2026-10-28 REPORT: one configurable `MockSource` and one concrete suite subclass per mutant, all in a scratch copy of `contracts/`. Nothing in the repo was changed except the removal of one gitignored stray file (§ Process). **Verdict: THE GATE PASSES.** AC-T07-9, -10 and -12 were proved by mutation, and AC-T07-11 holds for the conformance suite. This does **not** checkmark T0.7: only the Researcher does that, and D1 (checkmark while T0.8 is impossible) is deferred to Fahad.
+
+**On Disk Now:**
+- `forge build` ✅ · `forge fmt --check` ✅ · `forge test` **7/7**. The abstract suite contributes 0 tests, as designed.
+- `test/registry/ReserveAttestationSourceConformance.t.sol`: normalised against `HEAD` (whitespace collapsed, string literals blanked) it is **byte-identical**, so the batch is **message strings only**. Every `assertTrue`/`assertFalse` now carries a message, e.g. `:150` → `assertFalse(source.hasAttestation(GOLD_LOT_001), "C4c: seq 0 must not count as a first attestation");`
+- `test/registry/AssetRegistryInterface.t.sol:159-162` → the restored A5 `assertTrue(… AssetTokenBound.selector != … TokenBound.selector, "AssetTokenBound must not share a selector …")`. `:167` → `test_ReserveSourceInterfaceIdIsPinned`.
+
+**Finding — mutant × test matrix** (11 suite tests per row):
+
+| Mutant | Result | Caught by |
+| --- | --- | --- |
+| correct, refuses by **revert** | 11/11 pass | — |
+| correct, refuses by **silent ignore** | 11/11 pass | — |
+| zeroed case echoes the queried key | 2 fail | **C2**, C4c (`assetId changed`) |
+| shared record, stored `assetId` | 3 fail | **C7**, C1, C4a |
+| shared record, echoes `assetId` | 2 fail | **C7** (`reserve changed`), C4a |
+| shared record, per-asset seq guard | 2 fail | **C7** (`reserve changed`), C4a |
+| accepts non-increasing `seq` | 2 fail | **C4b** (`reserve changed`), C4c |
+| views revert on unknown key | 3 fail | **C5**, C2, C4c |
+| **heartbeat** (equal seq, fresh `valuationTs`) | 1 fail | **C4b `valuationTs changed: 1761609600 != 1761609500`** → **AC-T07-9 ✅** |
+| global (cross-asset) seq counter | 1 fail | **C4a** |
+| accepts future `valuationTs` | 1 fail | **C8** |
+| **accepts `seq = 0` first** | 1 fail | **C4c**, with message `"C4c: seq 0 must not count as a first attestation"` → **AC-T07-12 ✅** |
+| C7 reachability probe | probe passes | the overwrite is still reachable (A@4 accepted), so C7 fails on isolation, not on a seq refusal |
+
+- **AC-T07-10 ✅:** I added `submitAttestation(bytes)` to a scratch copy of the interface and ran the **default** `forge test` against the repo as it stands. Result: **6 pass / 1 fail**, `test_ReserveSourceInterfaceIdIsPinned` (`0xba66ae26…`). Inside the suite, C9 fails in all 13 concrete subclasses as well.
+- **AC-T07-11 ✅ for the conformance suite.** For every remaining assertion I named a source edit that makes it the only failing line of its test. Example: a source with a global "anything attested" flag but correct records fails only C2's `assertFalse`. C2's duplicate `assetId` line and C6's `r != 1e21` are gone. The messages also make the failing line identifiable from the output, which they weren't before.
+
+**One wording point on the refined AC-11 rule (non-blocking; the code is right).** The rule as written ("no single edit to the **production code** can make it the only failing line") does not justify the restored A5 line at `:159`. With `:153-154` pinning both selectors to fixed literals, no production-only edit can make the selectors equal without one of `:153-154` failing first. The line becomes the sole failure only when the edit **also updates the test's literal**, which is the scenario your ruling describes. The line is worth keeping (my T0.6 M4 mutant proved the same property). But the rule needs to say what it actually means, or the next person applying it will delete the line again. **Proposed wording:** *"An assertion is decoration when no edit to the production code, together with the test-literal updates a developer would make to keep the other assertions passing, can make it the only failing line."*
+
+**Process — two items, both for the user, not the loop:**
+1. **A leak from my own harness, now fixed at the source.** On 2026-10-28 my runner called `forge test --root <scratch>` from the repo root. forge writes `cache/fuzz/failures` relative to its **working directory, not `--root`**, so it created `cache/fuzz/failures/Mut07_ViewRevertUnknown/test_ViewsNeverRevert` at the **repo root**. `.gitignore` covers only `contracts/cache/`, so that file was **committed in `701ace5`**. A second copy under the ignored `contracts/cache/` has been deleted. The runner now runs forge with `cwd` inside the scratch copy, refuses a work dir inside the repo, and checks for new cache dirs after each run; today's runs left nothing behind. The committed file is inert, because forge only replays it for a contract named `Mut07_ViewRevertUnknown`, which does not exist in the repo. Removing it takes a commit: `git rm -r cache/` plus `/cache/` in `.gitignore`. That is the user's decision.
+2. **`701ace5` carries more than its title says.** It is titled "docs(m3): D3 decided", but it also contains `IReserveAttestationSource.sol` (the D1 NatSpec that was "uncommitted pending the user's diff review"), the conformance suite's round-3 changes, and file 1 above. So the interface comments are **already committed**: `git diff HEAD` on that file is empty. If the diff review still matters, it now has to happen on `701ace5` itself.
+
+**Blocks/Unblocks:** The Debugger gate on T0.7 is **passed**. It is ready for Researcher verification, then "verified, awaiting D1" per Fahad's deferral. The AC-11 wording is a convention edit, not a code change. The two process items are with the user.

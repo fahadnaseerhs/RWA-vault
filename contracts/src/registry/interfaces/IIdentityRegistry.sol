@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "./ITrustedIssuersRegistry.sol";
 import "./IClaimTopicsRegistry.sol";
 import "./IIdentityRegistryStorage.sol";
-import "../../identity/interfaces/IIdentity.sol";
+import "../../vendor/onchain-id/interface/IIdentity.sol";
 
 /**
  * @title IIdentityRegistry

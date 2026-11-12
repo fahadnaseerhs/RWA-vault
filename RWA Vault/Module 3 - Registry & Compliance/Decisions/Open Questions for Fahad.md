@@ -1,17 +1,19 @@
 ---
 type: dashboard
 tags: [rwa-vault, m3, decisions, index]
-updated: 2026-10-27
+updated: 2026-11-12
 ---
 # 🎯 M3 Questions Index
 
 > Index only. Each question's status and answer live in its own note in `Questions/` (frontmatter `status`).
 > Format: [[_Templates/Template - Decision|Template - Decision]]. Decided answers are listed in [[Decisions Log]].
 
-## ⏳ Open — waiting on Fahad (raised 2026-10-27 for Task 6)
+## ⏳ Open — waiting on Fahad (raised 2026-11-12 at the T1 Debugger gate)
 
 | # | Question | Recommendation | Blocks |
 |---|---|---|---|
+| [[Questions/Q27 - Does MAX_CLAIM_TOPICS stay at 15\|Q27]] | Does `MAX_CLAIM_TOPICS` stay at `15`? `isVerified` measures **276k gas** at the cap vs **22k** at one topic | B — lower to `5`; record the measured figures beside the constant | nothing (MS1 uses one topic) |
+| [[Questions/Q28 - Six or seven ERC-3643 acceptance guarantees\|Q28]] | Does `ERC3643Acceptance.t.sol` encode six guarantees or seven? Four notes say six; the file has seven `test_` functions | A — six; the seventh is a consistency assertion. Also correct AC-T1-4's "running" to "compiling" | T3.6 |
 
 ## ✅ Decided
 

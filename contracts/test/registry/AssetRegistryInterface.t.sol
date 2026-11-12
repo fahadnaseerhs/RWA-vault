@@ -152,6 +152,14 @@ contract AssetRegistryInterfaceTest is Test {
     function test_AssetTokenBoundTopicDiffersFromCompliance() public pure {
         assertEq(IAssetRegistry.AssetTokenBound.selector, keccak256("AssetTokenBound(bytes32,address)"));
         assertEq(IModularCompliance.TokenBound.selector, keccak256("TokenBound(address)"));
+        // NOT redundant, so do not remove under AC-11. If our event is renamed to collide with
+        // IModularCompliance.TokenBound and the literal above is updated to match, both assertEq
+        // lines pass honestly and this is the only line that fails. It is the guard that survives
+        // a rename plus literal update (T0.7 round-3 ruling).
+        assertTrue(
+            IAssetRegistry.AssetTokenBound.selector != IModularCompliance.TokenBound.selector,
+            "AssetTokenBound must not share a selector with IModularCompliance.TokenBound: name-based event filtering would be ambiguous"
+        );
     }
 
     /// T0.7 D2: the reserve source interface is exactly `latest` + `hasAttestation`. Concrete, so it

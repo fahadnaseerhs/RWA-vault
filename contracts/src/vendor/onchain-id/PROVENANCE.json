@@ -1,0 +1,53 @@
+{
+  "upstream": {
+    "repository": "https://github.com/onchain-id/solidity",
+    "release": "2.2.1",
+    "commit": "a483cda6821e3883497972d36d0c4c1e1693e483",
+    "license": "GPL-3.0"
+  },
+  "vendored_at": "2026-11-12",
+  "pragma_rewrite": {
+    "original": "pragma solidity 0.8.17",
+    "rewritten": "pragma solidity ^0.8.20",
+    "rationale": "Upstream pins 0.8.17 exactly; our foundry.toml pins solc 0.8.26. The caret range lets our compiler accept the file. Upstream moved to ^0.8.27 in 2.2.2-beta3, confirming the code works past 0.8.20."
+  },
+  "files": {
+    "Identity.sol": {
+      "upstream_path": "contracts/Identity.sol"
+    },
+    "ClaimIssuer.sol": {
+      "upstream_path": "contracts/ClaimIssuer.sol"
+    },
+    "interface/IIdentity.sol": {
+      "upstream_path": "contracts/interface/IIdentity.sol"
+    },
+    "interface/IClaimIssuer.sol": {
+      "upstream_path": "contracts/interface/IClaimIssuer.sol"
+    },
+    "interface/IERC734.sol": {
+      "upstream_path": "contracts/interface/IERC734.sol"
+    },
+    "interface/IERC735.sol": {
+      "upstream_path": "contracts/interface/IERC735.sol"
+    },
+    "storage/Storage.sol": {
+      "upstream_path": "contracts/storage/Storage.sol"
+    },
+    "storage/Structs.sol": {
+      "upstream_path": "contracts/storage/Structs.sol"
+    },
+    "version/Version.sol": {
+      "upstream_path": "contracts/version/Version.sol"
+    }
+  },
+  "excluded": [
+    "contracts/proxy/ — ADR 0025: no proxies",
+    "contracts/factory/ — not needed for MS1",
+    "contracts/gateway/ — not needed for MS1",
+    "contracts/verifiers/ — not needed for MS1",
+    "contracts/_testContracts/ — upstream test helpers",
+    "contracts/Test.sol — upstream test contract",
+    "contracts/interface/IImplementationAuthority.sol — proxy infrastructure"
+  ],
+  "notes": "Import paths adjusted to match the vendor directory layout (./interface/, ./storage/, ./version/). No other source changes. Verify with scripts/verify-vendor-onchain-id.sh."
+}
