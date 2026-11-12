@@ -1,6 +1,6 @@
 ---
 tags: [rwa-vault, project-memory, roadmap, tasks, true-values]
-updated: 2026-10-27
+updated: 2026-11-12
 ---
 # 📊 Project Modules To-Do List — Verified True Values
 
@@ -15,7 +15,7 @@ updated: 2026-10-27
   ├── M0 Foundation & Devnet       : 🟡 57% Done (4/7 tasks)
   ├── M1 Post-Quantum Core         : 🔵 49% Done (50/102 tasks; Stages 0–2 complete, Stage 3 12/15)
   ├── M2 PQ-PKI & Envelope Codec   : 🟠 10% Skeleton (PqEnvelope type & condition list exist)
-  ├── M3 Registry & Compliance     : 🔵 25% Interface & Scaffold Done (T0.6 verified; 16 decisions locked)
+  ├── M3 Registry & Compliance     : 🔵 40% T1 Identity Layer Done (T0+T1 complete; 28 decisions locked)
   └── M4 Vault Accounting          : ⬜ 0% Not Started (Queued for Sprint 3)
 
 [Phase 2: Investment Path (W7–W11)] ──────────────────────► MS2 Gate: PKR 5,000 deposit → offline Merkle proof
@@ -93,20 +93,21 @@ updated: 2026-10-27
 ---
 
 ### M3 — Registry & Compliance (`contracts/src/`, `packages/types`)
-- **True Status:** 🔵 Active Build Sprint — Scaffold Complete, Decisions 100% Locked
-- **Decisions Locked:** **16 of 16 Decided** (Q1–Q16 closed 2026-10-27; Ajv approved as devDependency).
+- **True Status:** 🔵 Active Build Sprint — T1 Identity Layer Complete, T2 Next
+- **Decisions Locked:** **28 of 28 Decided** (Q1–Q16 closed 2026-10-27; Q17–Q25 closed 2026-10-28; Q27–Q28 closed 2026-11-12).
 - **Code Census:**
   - ERC-3643 interface suite in `contracts/src/` (8 interfaces, 497 lines).
-  - Acceptance suite in `contracts/test/registry/ERC3643Acceptance.t.sol` (97 lines, 6 guarantees).
+  - Acceptance suite in `contracts/test/registry/ERC3643Acceptance.t.sol` (101 lines, 6 guarantees).
+  - Identity layer: `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, `IdentityRegistryStorage`, `IdentityRegistry` (898 lines production).
+  - 9 copy-vendored onchain-id files with PROVENANCE.json + DIGESTS.sha256 (ADR 0031).
+  - 115 tests across 7 suites (unit, invariant, integration, acceptance).
   - AssetRegistry interface: `IAssetRegistry.sol` (259 lines, 12 views, 3 agent, 7 owner, 11 events, 21 errors, 22 selectors).
   - Reserve seam interface: `IReserveAttestationSource.sol` (52 lines).
-  - Verification suite: `contracts/test/registry/AssetRegistryInterface.t.sol` (163 lines, 6/6 tests passing).
   - Types & Schema: `packages/types/src/onboarding.ts` (394 lines) + parity tests (318 lines).
 - **Immediate Task Board:**
   - [x] **T0.6:** `IAssetRegistry.sol` & `AssetRegistryMock` verified clean through 2-round loop.
   - [ ] **T0.7:** Complete research and spec note for `IReserveAttestationSource.sol`.
-  - [ ] **T1.1:** Vendor `onchain-id` ERC-734/735 as Git submodule (Q1=C).
-  - [ ] **T1.3–T1.5:** Implement `ClaimTopicsRegistry`, `TrustedIssuersRegistry`, and `IdentityRegistry`.
+  - [x] **T1 (all):** Identity Layer complete — 4 contracts, vendored onchain-id, 115 tests, Q27/Q28 decided (`61f2e90`).
   - [ ] **T2.2:** Implement `AssetLiveModule.sol` (vetoes **mints** unless asset is LIVE; transfers continue — ADR 0019 §6).
   - [ ] **T4.1:** Implement `AssetRegistry.sol` state machine (`UNREGISTERED` → `PENDING` → `LIVE` → `FROZEN`).
   - [ ] **T4.2:** Implement the admission predicate (4 clauses per ADR 0017; 5th only if Q17 keeps the insurer 2-of-2).

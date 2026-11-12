@@ -2,12 +2,12 @@
 tags: [rwa-vault, m3, dashboard]
 status: in-progress
 sprint: 3
-updated: 2026-10-27
+updated: 2026-11-12
 ---
 # 🏛️ Module 3 — Registry & Compliance Command Center
 
 > **Purpose:** Real-World Asset Tokenisation & Compliance Engine (ERC-3643 / T-REX + ONCHAINID + AssetRegistry).  
-> **Status:** Interfaces scaffolded (`0b2dd0e`). T0.6 verified & checked off. Q01–Q16 decided; **Q17–Q22 open** (raised for Task 6).
+> **Status:** T1 Identity Layer complete (`61f2e90`). T0.6 verified. Q01–Q16, Q17–Q22, Q27–Q28 decided. T2 next.
 
 ---
 
@@ -34,7 +34,7 @@ updated: 2026-10-27
 | Group | Area | Lead Agent | State | Key Dependency |
 |---|---|---|---|---|
 | **T0** | [[Tasks/T0 - Interface PR\|Interfaces & Guarantees]] | 🧭 Researcher | 7/8 Done | T0.6 verified; T0.7 spec owed |
-| **T1** | [[Tasks/T1 - Identity Layer\|ONCHAINID & Identity Registries]] | ⌨️ Coder | Ready | Vendor `onchain-id` (Q1=C) |
+| **T1** | [[Tasks/T1 - Identity Layer\|ONCHAINID & Identity Registries]] | ⌨️ Coder | ✅ Done (`61f2e90`) | 4 contracts, 115 tests, Q27/Q28 decided |
 | **T2** | [[Tasks/T2 - Modular Compliance\|ModularCompliance]] | ⌨️ Coder | Ready | `AssetLiveModule` against mock |
 | **T3** | [[Tasks/T3 - ERC-3643 Token\|ERC-3643 Token]] | ⌨️ Coder | Ready | One token per asset (ADR 0016) |
 | **T4** | [[Tasks/T4 - AssetRegistry & Admission\|AssetRegistry State Machine]] | ⌨️ Coder | Ready | 4-state machine, immutable (ADR 0025) |
