@@ -111,3 +111,6 @@ contracts/deployments/31337.json
 contracts/.onboard/
 # The pq-core napi addon is a per-platform build output (`pnpm pq:addon`).
 packages/pq-core/*.node
+
+# Stale embedded onchain-id checkout (ADR 0031 vendors it under src/vendor). Not tracked.
+contracts/lib/onchain-id/
