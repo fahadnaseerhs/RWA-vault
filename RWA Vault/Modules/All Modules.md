@@ -11,7 +11,7 @@ Source: `docs/manuals/QORA_Module_Build_Plan.docx`. 12 modules, 13 two-week spri
 | #   | Module                                    | Phase              | Sprint | Status |
 | --- | ----------------------------------------- | ------------------ | ------ | ------ |
 | M0  | [[M0 - Foundation & Devnet]]              | 1 Foundation       | 1      | 🟡 Mostly done (deploy scripts missing) |
-| M1  | [[Module 1 - PQ Core]]                    | 1 Foundation       | 1–2    | 🔵 In progress: Stages 0–2 done, Stage 3 in progress (49/102) |
+| M1  | [[Module 1 - PQ Core]]                    | 1 Foundation       | 1–2    | 🔵 In progress — see [[00 M1 Dashboard]] |
 | M2  | [[Module 2 - PQ-PKI & Envelope]]          | 1 Foundation       | 2–3    | 🟠 Skeleton only |
 | M3  | [[M3 - Registry & Compliance]]            | 1 Foundation       | 3      | 🔵 Interfaces scaffolded (`0b2dd0e`); 9/10 decisions locked (ADRs 0012–0016), Q5 open |
 | M4  | [[M4 - Vault Accounting]]                 | 1 Foundation       | 3      | ⬜ Not started |
