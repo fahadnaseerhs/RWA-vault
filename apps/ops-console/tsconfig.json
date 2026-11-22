@@ -2,9 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    // The onboarding page (T6.1b, ADR 0026): React 18 + Vite in the browser.
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"]
   },
   "include": ["src"],
   // Mirrors the workspace:* dependencies in package.json.
-  "references": [{ "path": "../../packages/types" }]
+  "references": [{ "path": "../../packages/types" }, { "path": "../../packages/pq-core" }]
 }

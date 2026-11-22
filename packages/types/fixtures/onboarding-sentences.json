@@ -1,0 +1,37 @@
+[
+  {
+    "kind": "StaleSequence",
+    "a": "1",
+    "b": "2",
+    "now": "1800000000",
+    "sentence": "This attestation (seq 1) is older than or equal to the last one accepted (seq 2)."
+  },
+  {
+    "kind": "ReserveTooLow",
+    "a": "900000000000000000000",
+    "b": "999900000000000000000",
+    "now": "1800000000",
+    "sentence": "The attested reserve (900000000000000000000) is less than the supply you asked to mint (999900000000000000000)."
+  },
+  {
+    "kind": "ValuationStale",
+    "a": "1799827200",
+    "b": "86400",
+    "now": "1800000000",
+    "sentence": "This valuation is 48 hours old; the limit is 24 hours. This is the timestamp inside the signed envelope; editing the input file will not change it."
+  },
+  {
+    "kind": "ValuationStale",
+    "a": "1799999000",
+    "b": "90",
+    "now": "1800000000",
+    "sentence": "This valuation is 0 hours old; the limit is 90 seconds. This is the timestamp inside the signed envelope; editing the input file will not change it."
+  },
+  {
+    "kind": "ValuationInFuture",
+    "a": "1800000100",
+    "b": "1800000000",
+    "now": "1800000000",
+    "sentence": "This valuation is dated 100 seconds in the future (envelope valuationTs 1800000100, chain time 1800000000). This is the timestamp inside the signed envelope; editing the input file will not change it."
+  }
+]

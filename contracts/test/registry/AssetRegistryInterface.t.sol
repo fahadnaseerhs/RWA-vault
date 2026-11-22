@@ -37,6 +37,10 @@ contract AssetRegistryMock is IAssetRegistry {
         revert NotImplemented();
     }
 
+    function valuationTsOf(bytes32) external pure returns (uint64) {
+        revert NotImplemented();
+    }
+
     function metadataHashOf(bytes32) external pure returns (bytes32) {
         revert NotImplemented();
     }
@@ -176,9 +180,9 @@ contract AssetRegistryInterfaceTest is Test {
         assertEq(MAX_VALUATION_WINDOW, 365 days);
     }
 
-    /// AC-T06-7: no two rejection stamps share a 4-byte selector (registry's 21 + the source's clause 1).
+    /// AC-T06-7: no two rejection stamps share a 4-byte selector (registry's 22 + the source's clause 1).
     function test_ErrorSelectorsAreDistinct() public pure {
-        bytes4[22] memory s = [
+        bytes4[23] memory s = [
             IAssetRegistry.StaleSequence.selector,
             IAssetRegistry.ReserveTooLow.selector,
             IAssetRegistry.ValuationStale.selector,
@@ -188,6 +192,7 @@ contract AssetRegistryInterfaceTest is Test {
             IAssetRegistry.AssetNotLive.selector,
             IAssetRegistry.AssetNotFrozen.selector,
             IAssetRegistry.EmptyAssetId.selector,
+            IAssetRegistry.AssetRefMismatch.selector,
             IAssetRegistry.NoAttestation.selector,
             IAssetRegistry.TokenNotBound.selector,
             IAssetRegistry.NotAuthorisedAgent.selector,

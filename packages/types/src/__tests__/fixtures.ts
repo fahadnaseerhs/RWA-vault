@@ -30,3 +30,11 @@ export const GOLD_LOT_001: OnboardingInput = {
 
 /** A fixed "now" (fixture valuationTs + 1 day), so the future-timestamp check never depends on the real clock. */
 export const NOW = 1761609600;
+
+/**
+ * Golden vector for the canonical eight-field `metadataHash` of {@link GOLD_LOT_001}
+ * (T6.1a spec §3). `OnboardAsset.metadataHash` (Solidity) and `scripts/onboard/lib.mjs`
+ * (viem, as T6.1b will use) both assert this value, so the two recipes cannot drift.
+ */
+export const GOLD_LOT_001_METADATA_HASH =
+  "0x3312ef458e5205556ed418ffeb43dd9693817294e633bbc2f9f861b6a6deedd7";

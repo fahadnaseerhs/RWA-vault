@@ -2,11 +2,12 @@
 tags: [rwa-vault, m3, task]
 type: task
 id: M3-T2
-status: ready
+status: done
 agent: coder
-progress: 0/4
+progress: 4/4
 unblocked_by: ["Q04=A", "Q06=A"]
-updated: 2026-10-27
+spec: "[[Threads/Rounds/T2 - Researcher Rulings (round 1)]]"
+updated: 2026-10-28
 ---
 # 📋 Task Group T2 — Modular Compliance
 
@@ -14,9 +15,9 @@ updated: 2026-10-27
 > **Status:** Unblocked and ready for Coder implementation (can build directly against `AssetRegistryMock`).
 
 ### Subtasks Checklist
-- [ ] **T2.1** `ModularCompliance` base: bind token, add/remove modules, `canTransfer` fan-out.
-- [ ] **T2.2** `AssetLiveModule` (`IModule`): returns `false` (never reverts) for a **mint** (`from == address(0)`) when the asset is not LIVE; always `true` for transfers (ADR 0019 §6). Reads `IAssetRegistry.assetOfToken(msg.sender)`.
-- [ ] **T2.3** Evaluate official `SupplyLimitModule` for `attestedSupply <= reserveAmount` ceiling enforcement.
-- [ ] **T2.4** Unit tests for module bind/unbind and multi-module veto fan-out.
+- [x] **T2.1** ✅ `ModularCompliance` base: bind token, add/remove modules, `canTransfer` fan-out.
+- [x] **T2.2** ✅ `AssetLiveModule` (`IModule`): returns `false` (never reverts) for a **mint** (`from == address(0)`) when the asset is not LIVE; always `true` for transfers (ADR 0019 §6). Reads `IAssetRegistry.assetOfToken(msg.sender)`.
+- [x] **T2.3** ✅ Evaluated and rejected: the cap lives in `AssetLiveModule`, read live from `reserveOf` (see [[Threads/Rounds/T2 - Researcher Rulings (round 1)]]).
+- [x] **T2.4** ✅ Unit tests for module bind/unbind and multi-module veto fan-out.
 
-Up: [[M3 Task Board and Todo]]
+Up: [[M3 Task Board and Todo]] · Thread: [[Threads/Thread - T2 Modular Compliance]]
