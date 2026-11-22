@@ -5,7 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC3643} from "./interfaces/IERC3643.sol";
 import {IIdentityRegistry} from "../registry/interfaces/IIdentityRegistry.sol";
 import {IModularCompliance} from "../compliance/interfaces/IModularCompliance.sol";
-import {IIdentity} from "../identity/interfaces/IIdentity.sol";
+import {IIdentity} from "../vendor/onchain-id/interface/IIdentity.sol";
 import {OwnerAgentRoles} from "../access/OwnerAgentRoles.sol";
 
 /**

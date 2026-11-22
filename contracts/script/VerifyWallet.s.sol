@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import {Script, console2} from "forge-std/Script.sol";
-import {IIdentity} from "../src/identity/interfaces/IIdentity.sol";
-import {IERC735} from "../src/identity/interfaces/IERC735.sol";
+import {IIdentity} from "../src/vendor/onchain-id/interface/IIdentity.sol";
+import {IERC735} from "../src/vendor/onchain-id/interface/IERC735.sol";
 import {KYC_TOPIC} from "../src/registry/ClaimTopics.sol";
 import {IdentityRegistry} from "../src/registry/IdentityRegistry.sol";
 

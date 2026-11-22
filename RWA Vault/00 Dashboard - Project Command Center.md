@@ -24,8 +24,8 @@ updated: 2026-10-27
 > Index only — every status below is read from the linked note's frontmatter. Full list: **[[Decisions Register]]**.
 
 ### ⏳ Open decisions for Fahad (0) — Module 3, Task 6
-| Q | Question | Recommendation | Blocks |
-|---|---|---|---|
+| Q   | Question | Recommendation | Blocks |
+| --- | -------- | -------------- | ------ |
 
 ### ✅ Decided
 - **M3 Q01–Q16:** all decided 2026-10-27 — see [[Module 3 - Registry & Compliance/Decisions/Decisions Log|M3 Decisions Log]].

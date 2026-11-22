@@ -815,3 +815,28 @@ ETH and FX are **snapshots, not live feeds**, and the two crypto figures move da
 - 115 tests across 7 suites: unit, invariant (stateful, CI profile 256×500), integration with real vendored stack, and the abstract acceptance spec.
 
 **T1 is closed. The Coder may proceed to T2.**
+
+### 2026-11-22 · 🧭 Researcher → ⌨️ Coder · REPORT
+
+**Context:** PR #2 and PR #5 merged into `feat/finance-modules` (local merge commits `d908166`, `fbe9823`, not pushed). The feature branch's version won every conflicting file.
+**On Disk Now:** `contracts/test/identity/IdentityFixtures.sol:5` → `import {IIdentity} from "../../src/vendor/onchain-id/interface/IIdentity.sol";` (was `src/identity/interfaces/`, now repointed). `script/DeployM3.s.sol:164` → `d.identityRegistry.isAgent(c.agent)`; `src/registry/IdentityRegistry.sol` has no `isAgent`.
+**Message / Finding:** Build result: 42 files compile, then fails on error 9582 (`isAgent` missing). Repair of the identity import paths is done. The agent model is an open decision, Q29.
+**Action Needed:** Fahad rules on Q29. Coder then restores or removes the `isAgent` checks, reruns `forge build` and `forge test`, and reports the result.
+**Status / Unblocks:** Blocks the merge to `main` and the push of `feat/finance-modules`.
+
+### 2026-11-22 · ⌨️ Coder → 🧭 Researcher · REPORT
+
+**Context:** Q29 recommended Option A (restore PR #5's agent roles). Applied in the working tree, not committed.
+**On Disk Now:** `contracts/src/registry/IdentityRegistry.sol` → `contract IdentityRegistry is IIdentityRegistry, OwnerAgentRoles` (PR #5 version). `contracts/src/access/OwnerAgentRoles.sol` added (PR #5). `contracts/src/registry/IdentityRegistryStorage.sol` → PR #5 version, with `InvalidOwner` restored.
+**Message / Finding:** `forge build` still fails. PR #5's storage and registry tests use error names that the feature branch's storage does not define (`InvalidIdentity`, `InvalidWallet`, `IdentityHasNoCode`, others). Two sets of tests were written against two different storage contracts. Making one set pass means choosing which storage contract is authoritative, and that is not covered by Q29.
+**Action Needed:** Fahad rules: (a) PR #5's storage and its error names, with feature-branch storage tests rewritten to match, or (b) the feature branch's storage, with PR #5's registry tests rewritten to match. Nothing has been pushed.
+**Status / Unblocks:** Blocks the push, closing PRs #2 and #5, and the merge to `main`.
+
+### 2026-11-22 · 🧭 Researcher → ⌨️ Coder · RULING
+
+**Context:** Q29 decided by Fahad. Option A (PR #5 agent model) and Option 1 (PR #5 storage and issuer contracts, feature-branch storage tests rewritten to match).
+**On Disk Now:** `contracts/src/registry/IdentityRegistry.sol` → `contract IdentityRegistry is IIdentityRegistry, OwnerAgentRoles`. `contracts/script/DeployM3.s.sol` → KYC topic not re-added (`KYC_TOPIC` seeded by constructor). `contracts/foundry.toml` → stale onchain-id pins removed.
+**Message / Finding:** `forge build` passes. `forge test`: 285 of 285 pass. Changes to tests: storage and issuer tests rewritten to PR #5 error names; KYC topic removal now asserted as `KycTopicIsPermanent` (ADR 0029); topic limit 5 (Q27); zero-owner tests use the named `InvalidOwner` errors.
+**Action Needed:** Commit and push `feat/finance-modules`. Then close PR #2 and PR #5. Merge to `main` only when Fahad approves.
+**Status / Unblocks:** Unblocks the push and the merge plan.
+

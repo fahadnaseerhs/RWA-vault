@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import {Test} from "forge-std/Test.sol";
-import {IIdentity} from "../../src/identity/interfaces/IIdentity.sol";
-import {IClaimIssuer} from "../../src/identity/interfaces/IClaimIssuer.sol";
+import {IIdentity} from "../../src/vendor/onchain-id/interface/IIdentity.sol";
+import {IClaimIssuer} from "../../src/vendor/onchain-id/interface/IClaimIssuer.sol";
 import {ClaimTopicsRegistry} from "../../src/registry/ClaimTopicsRegistry.sol";
 import {TrustedIssuersRegistry} from "../../src/registry/TrustedIssuersRegistry.sol";
 import {IdentityRegistryStorage} from "../../src/registry/IdentityRegistryStorage.sol";
@@ -53,7 +53,7 @@ abstract contract IdentityFixtures is Test {
         uint256[] memory t = new uint256[](1);
         t[0] = KYC;
         vm.startPrank(govOwner);
-        topics.addClaimTopic(KYC);
+        // KYC_TOPIC is seeded permanently by the registry constructor (ADR 0029, Q24); do not re-add.
         issuers.addTrustedIssuer(kycIssuer, t);
         irs.bindIdentityRegistry(address(ir));
         ir.addAgent(irAgent);

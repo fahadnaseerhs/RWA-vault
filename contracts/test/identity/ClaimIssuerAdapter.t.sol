@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import {IdentityFixtures} from "./IdentityFixtures.sol";
-import {IIdentity} from "../../src/identity/interfaces/IIdentity.sol";
+import {IIdentity} from "../../src/vendor/onchain-id/interface/IIdentity.sol";
 
 /**
  * @title ClaimIssuerAdapterTest

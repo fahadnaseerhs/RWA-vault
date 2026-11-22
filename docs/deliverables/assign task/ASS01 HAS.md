@@ -153,16 +153,23 @@ Begin with S3-10 and S3-13, because Stage 4 depends on Stage 3 being verified. T
 
 ## 5. Branches, Commits and Pull Requests
 
-Use the following steps.
+### 5.1 Which Branch to Start From
 
-1. Make sure your local `main` branch is up to date:
+Start from `feat/finance-modules`. This is the only branch that contains all of the Module 1 material: the Stage 1 to Stage 3 code in `packages/pq-core`, the Module 1 vault notes, the task notes and the assignment documents. The branch `main` does not contain any of this yet, so do not start from `main`. The branch `codex/module-1` contains the same `packages/pq-core` code, but it lacks the vault, the assignments and the Module 3 work, so do not use it.
+
+Fahad will merge `feat/finance-modules` into `main` after he has verified the work. Until then, `feat/finance-modules` is the base for everything in this assignment.
+
+### 5.2 Steps
+
+1. Get the current branch from GitHub:
 
 ```powershell
-git checkout main
-git pull origin main
+git fetch origin
+git checkout feat/finance-modules
+git pull origin feat/finance-modules
 ```
 
-2. Create the working branch:
+2. Create your working branch from `feat/finance-modules`:
 
 ```powershell
 git checkout -b feat/m1-hassan-s3-s4
@@ -175,7 +182,7 @@ git add packages/pq-core/src/__tests__/contract.test.ts
 git commit -m "test(m1): S3-10 contract-equivalence suite for both adapters"
 ```
 
-Write commit messages in the imperative mood. Do not commit `target/`, `node_modules/`, `dist/` or any vector bytes from Sources A, B or C.
+Write commit messages in the imperative mood. Do not commit `target/`, `node_modules/`, `dist/`, `pkg/` or any raw log that contains secrets. 
 
 4. Push the branch:
 
@@ -183,9 +190,9 @@ Write commit messages in the imperative mood. Do not commit `target/`, `node_mod
 git push -u origin feat/m1-hassan-s3-s4
 ```
 
-5. Open a pull request into `main` on GitHub. The title should name the tasks, for example "M1-T3 remainder and M1-T4 Conformance". In the description, list each subtask, its acceptance criterion and the command that proves it.
+5. Open a pull request on GitHub with the base branch set to `feat/finance-modules`, not `main`. The title should name the task, for example "M1-T3 remainder and M1-T4 Conformance". In the description, list each subtask, its acceptance criterion and the command that proves it.
 
-6. The team requires two approvals before a pull request is merged. Do not merge your own pull request.
+6. The team requires two approvals before a pull request is merged. Only Fahad merges. Do not merge your own pull request, and do not merge a pull request that has fewer than two approvals.
 
 7. Keep the vault notes in the same pull request as the code they describe, so that the task notes, the thread and the code stay consistent.
 

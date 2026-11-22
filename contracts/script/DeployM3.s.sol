@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import {Script, console2} from "forge-std/Script.sol";
-import {IClaimIssuer} from "../src/identity/interfaces/IClaimIssuer.sol";
-import {IIdentity} from "../src/identity/interfaces/IIdentity.sol";
+import {IClaimIssuer} from "../src/vendor/onchain-id/interface/IClaimIssuer.sol";
+import {IIdentity} from "../src/vendor/onchain-id/interface/IIdentity.sol";
 import {KYC_TOPIC} from "../src/registry/ClaimTopics.sol";
 import {ClaimTopicsRegistry} from "../src/registry/ClaimTopicsRegistry.sol";
 import {TrustedIssuersRegistry} from "../src/registry/TrustedIssuersRegistry.sol";
@@ -234,7 +234,7 @@ contract DeployM3 is Script {
 
         uint256[] memory kyc = new uint256[](1);
         kyc[0] = KYC_TOPIC;
-        _ownerCall(c, address(d.claimTopicsRegistry), abi.encodeCall(ClaimTopicsRegistry.addClaimTopic, (KYC_TOPIC)));
+        // KYC_TOPIC is seeded permanently by the constructor (ADR 0029, Q24); no addClaimTopic call.
         _ownerCall(
             c,
             address(d.trustedIssuersRegistry),

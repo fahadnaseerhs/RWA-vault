@@ -46,3 +46,12 @@ updated: 2026-11-12
 ---
 
 Up: [[00 Dashboard - Project Command Center]] · Parent: [[All Modules]]
+
+## What broke after the PR #2 and PR #5 merge (2026-11-22), and its status
+- **Import paths:** fixed. Imports point to `src/vendor/onchain-id/interface/` (ADR 0031).
+- **Agent model (Q29):** decided. PR #5 agent roles on `IdentityRegistry`.
+- **Storage and issuer contracts:** decided (Q29 Option 1). PR #5 versions, with `InvalidOwner` kept as the named zero-owner error.
+- **Test fixes:** KYC topic is not re-added (ADR 0029). Topic limit is 5 (Q27). Zero-owner tests use the named errors.
+- **Stale submodule:** `contracts/lib/onchain-id` removed from the index, and stale compiler pins removed from `foundry.toml`.
+- **Still open:** commit, push, and close PR #2 and PR #5 with a note. Merge to `main` is not done.
+- **Repository branches (done 2026-11-22):** `feat/finance-modules` is the GitHub default branch. `codex/module-1` is deleted; its history is kept at tag `archive/codex-module-1`.

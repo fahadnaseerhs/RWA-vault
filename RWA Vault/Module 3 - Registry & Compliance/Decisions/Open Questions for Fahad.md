@@ -41,6 +41,7 @@ updated: 2026-11-12
 | [[Questions/Q20 - Push the local-only work to GitHub\|Q20]]               | Local-only work                | A — pushed on the vault PR; PDF and PNGs restored (2026-10-28)                            | none                                             |
 | [[Questions/Q21 - Accept the ADRs and settle the licence\|Q21]]           | ADR acceptance; licence        | Accept all 26 (0002–0027); GPL-3.0 (2026-10-28)                                           | `0001`                                           |
 | [[Questions/Q22 - Who runs the T6.2 unaided onboarding rehearsal\|Q22]]   | T6.2 tester                    | A — Hassan or Fawaz after T6.1a; outside tester for final MS1 run if time (2026-10-28)    | none                                             |
+| [[Questions/Q29 - Which IdentityRegistry agent model after the PR 5 merge\|Q29]] | IdentityRegistry agent model after the merge | **Open.** Recommendation A: keep PR #5's agent roles | `forge build`, merge to main |
 
 Cross-cutting custody decisions C1–C11: [[Open Questions - Custody & Tokenisation]]. All decisions in one place: [[Decisions Register]].
 

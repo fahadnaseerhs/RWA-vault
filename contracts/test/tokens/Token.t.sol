@@ -4,7 +4,7 @@ pragma solidity ^0.8.26;
 import {M3System} from "../helpers/M3System.sol";
 import {Token} from "../../src/tokens/Token.sol";
 import {IERC3643} from "../../src/tokens/interfaces/IERC3643.sol";
-import {IIdentity} from "../../src/identity/interfaces/IIdentity.sol";
+import {IIdentity} from "../../src/vendor/onchain-id/interface/IIdentity.sol";
 import {OwnerAgentRoles} from "../../src/access/OwnerAgentRoles.sol";
 import {ModularCompliance} from "../../src/compliance/ModularCompliance.sol";
 import {IModularCompliance} from "../../src/compliance/interfaces/IModularCompliance.sol";
