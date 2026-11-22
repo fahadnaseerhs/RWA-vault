@@ -116,6 +116,13 @@ pnpm --filter @rwa-vault/ops-console dev        # http://localhost:5173
 ```
 Connect with the **agent** key: a browser wallet, or on anvil only "Anvil dev key" with anvil key 1 (the owner key is refused). Then: **1 Asset** paste `contracts/script/input/gold-lot-002.json` (Next waits until the provider is KYC-verified) → **2 Attestation** load `contracts/.onboard/gold-lot-002.seq1.att.json` (the custodian signature is checked in the browser) → **3 Admit** "Register asset", then give the shown `to / data` to the owner multisig (on anvil: `cast send <to> <data> --rpc-url local --private-key $M3_OWNER_PK`) and press "Re-check", then "Submit attestation and admit" once clauses 1–4 are ticked → **4 Mint** → receipt with `supply ≤ reserve` ✅. The page can only register, submit an attestation, admit and mint.
 
+Where GitHub downloads are blocked, `pnpm pq:wasm` fails while wasm-pack tries to install `wasm-bindgen` itself. Install it yourself, then build without the auto-install (from `packages/pq-core`; the `wasm-opt` step is skipped, and the unoptimised package is fine for MS1):
+```bash
+cargo install wasm-bindgen-cli --version 0.2.127 --locked
+WASM32_UNKNOWN_UNKNOWN_CLANG=clang RUSTFLAGS="-C link-arg=--error-unresolved-symbols" \
+  wasm-pack build native --target web --out-dir ../pkg --release --locked --mode no-install
+```
+
 Tests: `pnpm --filter @rwa-vault/ops-console test` (component tests; the WASM clause-1 test runs when `pnpm pq:wasm` has been built).
 
 ## 8. The "bypass" demo (T6.3)

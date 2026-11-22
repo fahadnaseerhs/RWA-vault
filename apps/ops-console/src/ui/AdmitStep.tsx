@@ -1,6 +1,7 @@
 import { assetIdOf, metadataHash, type OnboardingInput } from "@rwa-vault/types";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import type { Hex } from "viem";
 import { ChainRevert, type OnboardingChain } from "../onboarding/chain.js";
 import {
   AssetState,
@@ -72,13 +73,11 @@ export function AdmitStep({
       <h2>3. Admit</h2>
       {branch.kind === "refuse" && <Problem>{branch.sentence}</Problem>}
       {branch.kind === "register" && (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => run(() => chain.register(assetId, metadataHash(input), input.assetId))}
-        >
-          Register asset
-        </button>
+        <RegisterPanel
+          input={input}
+          busy={busy}
+          onRegister={(hash) => run(() => chain.register(assetId, hash, input.assetId))}
+        />
       )}
       {branch.kind !== "register" &&
         branch.kind !== "refuse" &&
@@ -144,5 +143,62 @@ export function AdmitStep({
         Next
       </button>
     </section>
+  );
+}
+
+/**
+ * Shows exactly what `register` commits on chain (the slug, the eight hashed fields and the
+ * metadataHash) and needs an explicit confirm before the agent signs (T6.1b ruling 1).
+ */
+function RegisterPanel({
+  input,
+  busy,
+  onRegister,
+}: {
+  input: OnboardingInput;
+  busy: boolean;
+  onRegister: (hash: Hex) => void;
+}) {
+  const [confirmed, setConfirmed] = useState(false);
+  const vb = input.valuationBasis;
+  const hash = metadataHash(input);
+  const fields: [string, string][] = [
+    ["assetId (slug)", input.assetId],
+    ["description", input.description],
+    ["grossWeight", input.grossWeight],
+    ["fineness", String(input.fineness)],
+    ["valuationBasis.source", vb.source],
+    ["valuationBasis.currency", vb.currency],
+    ["valuationBasis.unitValue", vb.unitValue],
+    ["custodianId", input.custodianId],
+  ];
+  return (
+    <div className="register" aria-label="Register">
+      <p>
+        Registering commits these eight fields on chain as the metadataHash. They cannot be changed
+        later.
+      </p>
+      <dl>
+        {fields.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+        <dt>metadataHash</dt>
+        <dd>{hash}</dd>
+      </dl>
+      <label>
+        <input
+          type="checkbox"
+          checked={confirmed}
+          onChange={(e) => setConfirmed(e.target.checked)}
+        />{" "}
+        I have checked these fields against the custodian's documents
+      </label>
+      <button type="button" disabled={busy || !confirmed} onClick={() => onRegister(hash)}>
+        Register asset
+      </button>
+    </div>
   );
 }
