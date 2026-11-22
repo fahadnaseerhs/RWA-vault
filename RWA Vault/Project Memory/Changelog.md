@@ -12,7 +12,7 @@ updated: 2026-10-27
 ### 2026-11-22
 - **2026-11-22:** M1 Stage 3 remainder and Stage 4 assigned to Hassan Attique (ASS01 HAS), Stage 5 to Fawaz Asif (ASS01 FAW); T4 and T5 acceptance criteria logged. → [[Thread - T3 Runtime adapters]], [[T4 - Conformance]], [[T5 - Benchmarks]]
 - **2026-11-22:** GitHub default branch set to `feat/finance-modules`; `codex/module-1` deleted, history kept at tag `archive/codex-module-1`.
-- **2026-11-22:** Build of `feat/finance-modules` repaired: 285 of 285 contract tests pass. Q29 decided (PR #5 agent model and storage). Pending: commit, push, close PR #2 and PR #5.
+- **2026-11-22:** Build of `feat/finance-modules` repaired: 285 of 285 contract tests pass. Q29 decided (PR #5 agent model and storage). Pushed as 6a2c0ca and 137b640. PR #2 and PR #5 show as merged on GitHub. Merge to main still pending Fahad's approval.
 - **2026-11-22:** PR #2 and PR #5 merged into `feat/finance-modules` (feature branch wins conflicts, per Fahad). Build still fails on the M3 test imports (`src/identity/interfaces`); fix pending before any merge to `main`. Local merge commits `d908166`, `fbe9823`, not yet pushed.
 
 ### 2026-11-11

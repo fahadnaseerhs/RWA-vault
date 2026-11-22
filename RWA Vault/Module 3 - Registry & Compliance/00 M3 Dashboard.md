@@ -53,5 +53,6 @@ Up: [[00 Dashboard - Project Command Center]] · Parent: [[All Modules]]
 - **Storage and issuer contracts:** decided (Q29 Option 1). PR #5 versions, with `InvalidOwner` kept as the named zero-owner error.
 - **Test fixes:** KYC topic is not re-added (ADR 0029). Topic limit is 5 (Q27). Zero-owner tests use the named errors.
 - **Stale submodule:** `contracts/lib/onchain-id` removed from the index, and stale compiler pins removed from `foundry.toml`.
-- **Still open:** commit, push, and close PR #2 and PR #5 with a note. Merge to `main` is not done.
+- **Pull requests (done 2026-11-22):** PR #2 and PR #5 show as merged on GitHub, because their content is now in `feat/finance-modules` (commits `d908166`, `fbe9823`). The branch is pushed at `137b640`.
+- **Still open:** merge `feat/finance-modules` into `main`, only after Fahad approves.
 - **Repository branches (done 2026-11-22):** `feat/finance-modules` is the GitHub default branch. `codex/module-1` is deleted; its history is kept at tag `archive/codex-module-1`.
