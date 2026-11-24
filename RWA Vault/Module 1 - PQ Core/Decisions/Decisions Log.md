@@ -27,5 +27,6 @@ A running record of decisions made for M1. Open items live in [[Open Questions f
 |---|---|---|
 | [[Questions/Q01 - Where do the prebuilt addon binaries live\|Q01]] | D — no prebuilds for MS1; Rust mandatory; S3-05 descoped | 2026-11-22, Fahad Naseer |
 | [[Questions/Q02 - Does the contract test run in Node only\|Q02]] | A — contract-equivalence test runs in Node only | 2026-11-22, Fahad Naseer |
+| [[Questions/Q03 - SLH-DSA signing split across adapters\|Q03]] | B — keep native/WASM SLH-DSA sign split; S3-10 encodes it; fix deferred | 2026-11-24, Fahad Naseer |
 
 Up: [[Module 1 - PQ Core]] · Related: [[Open Questions for Fahad]], [[ADR Index]]
