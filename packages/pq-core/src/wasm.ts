@@ -14,6 +14,7 @@ import type {
   PqSignatureAlgorithm,
   PqSignatureMetadata,
 } from "./types.js";
+import { readFile } from "node:fs/promises";
 import { pqErrorFromCode } from "./errors.js";
 import { SIGNATURE_METADATA, KEM_METADATA } from "./metadata.js";
 
@@ -75,7 +76,11 @@ export function createWasmAdapter(): PqCoreApi {
   return {
     async init(): Promise<void> {
       const mod = await import("../pkg/rwa_vault_pq_core.js") as unknown as WasmModule;
-      await mod.default();
+      // Node has no fetch for file:// URLs, so read the wasm-pack web-target
+      // artifact from disk and hand the bytes to the initialiser directly.
+      const wasmUrl = new URL("../pkg/rwa_vault_pq_core_bg.wasm", import.meta.url);
+      const wasmBytes = await readFile(wasmUrl);
+      await mod.default(wasmBytes);
       mod.init();
       wasm = mod;
     },
