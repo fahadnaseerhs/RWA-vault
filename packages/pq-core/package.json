@@ -42,6 +42,7 @@
     "test:cavp": "echo \"[@rwa-vault/pq-core] no CAVP tests yet\""
   },
   "devDependencies": {
-    "@rwa-vault/config": "workspace:*"
+    "@rwa-vault/config": "workspace:*",
+    "@types/node": "^20.14.0"
   }
 }

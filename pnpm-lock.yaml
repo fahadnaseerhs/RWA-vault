@@ -119,6 +119,9 @@ importers:
       '@rwa-vault/config':
         specifier: workspace:*
         version: link:../config
+      '@types/node':
+        specifier: ^20.14.0
+        version: 20.19.43
 
   packages/types:
     dependencies:
