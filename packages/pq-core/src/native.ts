@@ -14,6 +14,7 @@ import type {
   PqSignatureAlgorithm,
   PqSignatureMetadata,
 } from "./types.js";
+import { createRequire } from "node:module";
 import { pqErrorFromCode } from "./errors.js";
 import { SIGNATURE_METADATA, KEM_METADATA } from "./metadata.js";
 
@@ -49,6 +50,10 @@ interface NapiAddon {
 
 let addon: NapiAddon | undefined;
 
+// ESM has no ambient `require`; build one bound to this module's URL so the
+// relative resolve to ../pq-core.node (packages/pq-core/pq-core.node) holds.
+const nodeRequire = createRequire(import.meta.url);
+
 function getAddon(): NapiAddon {
   if (!addon) {
     throw pqErrorFromCode("NOT_INITIALISED");
@@ -74,8 +79,7 @@ function toUint8Array(buffer: Buffer | Uint8Array): Uint8Array {
 export function createNativeAdapter(): PqCoreApi {
   return {
     async init(): Promise<void> {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      addon = require("../pq-core.node") as NapiAddon;
+      addon = nodeRequire("../pq-core.node") as NapiAddon;
     },
 
     async keygen(algorithm: PqSignatureAlgorithm): Promise<PqKeyPair> {
