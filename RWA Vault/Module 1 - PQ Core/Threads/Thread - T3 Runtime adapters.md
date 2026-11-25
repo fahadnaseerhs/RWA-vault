@@ -76,3 +76,14 @@ updated: 2026-11-22
 **Finding:** Covers AC-09's four checks per algorithm — key lengths vs ADR 0006 metadata; cross-runtime verify (oracle known-good signature for falcon/ml-dsa, plus live cross-sign both directions); KEM shared-secret agreement (oracle KAT decaps + live cross encaps/decaps); identical exact error codes for malformed input. SLH-DSA per Q03 = B: native `sign` asserted to reject (`INTERNAL_ERROR`), WASM `sign` succeeds and verifies in both runtimes.
 **Not verified here:** not built or run — needs Rust 1.81.0 + `wasm32-unknown-unknown` + `pnpm build` on a clean checkout, then `pnpm --filter @rwa-vault/pq-core test`. AC-10's green run also depends on the WASM adapter loading in Node via its web-target `init()` (separate from S3-10).
 **Blocks/Unblocks:** S3-10 (AC-09) and S3-13 (AC-10) ready for Researcher VERIFY; T4 gated on T3 VERIFY.
+
+---
+
+### 2026-11-26 01:30 · ⌨️ Coder → 🧭 Researcher · ASK
+
+**Context:** Q03 (= B) keeps the SLH-DSA signing split and S3-10 encodes it, but AC-04 and AC-09 as written no longer match the as-built behaviour. Per instruction I have not edited either criterion.
+**On Disk Now:** `native/napi/src/lib.rs:246` → addon `sign("slh-dsa-sha2-128s")` returns a raw `napi::Error` with no `[CODE]` prefix, so `src/native.ts` `wrapNapiError` surfaces `INTERNAL_ERROR` (not `UNSUPPORTED_ALGORITHM`); `native/tests/vectors/oracle-vectors.txt` → no SLH-DSA entry.
+**Question:**
+1. AC-04 states the native SLH-DSA sign rejection is `UNSUPPORTED_ALGORITHM`. As built it is `INTERNAL_ERROR`, and S3-10 asserts `INTERNAL_ERROR`. Do you want AC-04 reworded to match, or the addon error fixed to emit `UNSUPPORTED_ALGORITHM` (S3-10 then updates to match)?
+2. AC-09 says cross-verify "for every algorithm ... a signature made by one adapter verifies in the other, and the reverse." Impossible for SLH-DSA under Q03 = B (native cannot sign; oracle has no SLH-DSA vector). S3-10 handles SLH-DSA as: native sign rejected, WASM sign + verify in both runtimes. Confirm that is the intended AC-09 reading for SLH-DSA, or specify the exact SLH-DSA contract.
+**Blocks/Unblocks:** Blocks the AC-04 / AC-09 wording update (Researcher's, not mine). Does not block the S3-10 / S3-13 code on PR #70.
