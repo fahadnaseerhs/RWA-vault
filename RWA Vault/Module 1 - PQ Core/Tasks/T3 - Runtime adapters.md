@@ -3,16 +3,17 @@ type: task
 id: M1-T3
 module: M1
 stage: 3
-status: in-progress
+status: done
 agent: coder
 assignee: "Hassan Attique (ASS01 HAS) for S3-10 and S3-13"
-progress: 12/15
+progress: 15/15
 depends_on: [M1-T2]
 unblocked_by: []
 thread: "[[Threads/Thread - T3 Runtime adapters]]"
 spec: "[[Specs/M1 Task Breakdown]]"
 tags: [rwa-vault, m1, task]
-updated: 2026-11-22
+updated: 2026-11-28
+verified: 2026-11-28
 ---
 # 📋 T3 — Runtime adapters
 
@@ -37,15 +38,15 @@ updated: 2026-11-22
 - [x] **S3-07** `src/errors.ts`: error classes whose codes match Rust and the addon (shared fixture)
 - [x] **S3-08** `src/native.ts`: typed adapter over the addon
 - [x] **S3-09** `src/wasm.ts`: typed adapter and loader over `pkg/`, implementing the *same* interface
-- [ ] **S3-10** Contract-equivalence test: one suite run against both adapters
+- [x] **S3-10** Contract-equivalence test: one suite run against both adapters
 - [x] **S3-11** `src/index.ts` public exports; no PQClean detail leaks
 
 ### CLI and tooling
 - [x] **S3-12** `pqctl` CLI: offline root ceremony (SLH-DSA keygen/sign/verify over files); never linked into services
-- [ ] **S3-13** Replace the `"no tests yet"` placeholder with a real `pnpm test` *(script updated, test file pending)*
+- [x] **S3-13** Replace the `"no tests yet"` placeholder with a real `pnpm test`
 - [x] **S3-14** Package exports map, `.d.ts` check, ESLint — **typecheck and lint pass**
 - [x] **S3-15** Wire `build:wasm`, `build:native`, `build:addon`, `build:pqctl` to real commands
-- [ ] **S3-16** Fix `src/native.ts`: it calls `require(...)` in an ESM package, where `require` is undefined, so `createNativeAdapter` cannot load. Use `createRequire(import.meta.url)`. *(Found by the M3 Coder in T6.1a, 2026-10-28; M3 works around it in `scripts/onboard/lib.mjs`.)*
+- [x] **S3-16** Fix `src/native.ts`: uses `createRequire(import.meta.url)` for ESM-compatible addon loading
 
 ### Expanded WASM boundary
 The `wasm.rs` module was expanded from Falcon-only (Stage 1 slice) to all six primitives, matching the full `PqCoreApi` interface. The Stage 1 `FalconKeyPair` WASM struct was replaced by a generic `WasmKeyPair` and `WasmEncapsulation`.

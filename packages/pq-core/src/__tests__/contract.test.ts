@@ -243,8 +243,8 @@ describe("S3-10 contract equivalence (native vs wasm)", () => {
         const oracleSk = oracleField(algorithm, "sk");
         const oracleCt = oracleField(algorithm, "ct");
         const oracleSs = oracleField(algorithm, "ss");
-        assert.deepStrictEqual(await native.decapsulate(algorithm, oracleSk, oracleCt), oracleSs);
-        assert.deepStrictEqual(await wasm.decapsulate(algorithm, oracleSk, oracleCt), oracleSs);
+        assert.deepStrictEqual(Uint8Array.from(await native.decapsulate(algorithm, oracleSk, oracleCt)), oracleSs);
+        assert.deepStrictEqual(Uint8Array.from(await wasm.decapsulate(algorithm, oracleSk, oracleCt)), oracleSs);
 
         // Live cross encaps/decaps both directions share the same secret.
         const kp = await native.kemKeygen(algorithm);
@@ -253,13 +253,13 @@ describe("S3-10 contract equivalence (native vs wasm)", () => {
         assert.equal(encNative.ciphertext.length, meta.ciphertextBytes);
         assert.equal(encNative.sharedSecret.length, meta.sharedSecretBytes);
         const ssFromWasm = await wasm.decapsulate(algorithm, kp.privateKey, encNative.ciphertext);
-        assert.deepStrictEqual(ssFromWasm, encNative.sharedSecret);
+        assert.deepStrictEqual(Uint8Array.from(ssFromWasm), Uint8Array.from(encNative.sharedSecret));
 
         const encWasm = await wasm.encapsulate(algorithm, kp.publicKey);
         assert.equal(encWasm.ciphertext.length, meta.ciphertextBytes);
         assert.equal(encWasm.sharedSecret.length, meta.sharedSecretBytes);
         const ssFromNative = await native.decapsulate(algorithm, kp.privateKey, encWasm.ciphertext);
-        assert.deepStrictEqual(ssFromNative, encWasm.sharedSecret);
+        assert.deepStrictEqual(Uint8Array.from(ssFromNative), Uint8Array.from(encWasm.sharedSecret));
 
         // Malformed input → identical exact error code from both adapters.
         const shortPublicKey = kp.publicKey.slice(0, -1);

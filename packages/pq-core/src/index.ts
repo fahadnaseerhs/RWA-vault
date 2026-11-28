@@ -3,8 +3,8 @@
  * @description M1 — Post-quantum cryptographic core.
  *
  * Public API surface for consumers. Re-exports types, errors, metadata,
- * and the two runtime adapters. No PQClean or implementation detail leaks
- * past this boundary.
+ * and the two runtime adapters. No implementation detail leaks past this
+ * boundary.
  */
 
 // Types and algorithm unions
