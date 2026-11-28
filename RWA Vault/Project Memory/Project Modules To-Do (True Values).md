@@ -1,6 +1,6 @@
 ---
 tags: [rwa-vault, project-memory, roadmap, tasks, true-values]
-updated: 2026-11-12
+updated: 2026-11-28
 ---
 # 📊 Project Modules To-Do List — Verified True Values
 
@@ -13,7 +13,7 @@ updated: 2026-11-12
 ```
 [Phase 1: Foundation & Crypto Core (W1–W6)] ═══════════════► MS1 Gate: Gold lot tokenised with PQ attestation
   ├── M0 Foundation & Devnet       : 🟡 57% Done (4/7 tasks)
-  ├── M1 Post-Quantum Core         : 🔵 49% Done (50/102 tasks; Stages 0–2 complete, Stage 3 12/15)
+  ├── M1 Post-Quantum Core         : 🔵 52% Done (53/102 tasks; Stages 0–3 complete, Stage 4–5 unblocked)
   ├── M2 PQ-PKI & Envelope Codec   : 🟠 10% Skeleton (PqEnvelope type & condition list exist)
   ├── M3 Registry & Compliance     : 🔵 40% T1 Identity Layer Done (T0+T1 complete; 28 decisions locked)
   └── M4 Vault Accounting          : ⬜ 0% Not Started (Queued for Sprint 3)
@@ -51,12 +51,13 @@ updated: 2026-11-12
 ---
 
 ### M1 — Post-Quantum Core (`packages/pq-core`)
-- **True Status:** 🔵 In Progress — **50 / 102 tasks complete**
+- **True Status:** 🔵 In Progress — **53 / 102 tasks complete**
 - **Code Census:**
   - Rust crate: 4,374 lines of Rust across `native/src/` (`algorithms.rs`, `falcon.rs`, `mldsa.rs`, `mlkem.rs`, `slhdsa.rs`, `rng.rs`, `wasm.rs`, `wasm_shim.rs`, `kat.rs`, `error.rs`).
   - Native N-API bindings: `packages/pq-core/native/napi/src/lib.rs` (289 lines).
   - CLI: `packages/pq-core/native/pqctl/src/main.rs` (92 lines).
   - TypeScript wrappers: 690 lines across `src/index.ts`, `native.ts`, `wasm.ts`, `metadata.ts`, `errors.ts`.
+  - Contract-equivalence test: `src/__tests__/contract.test.ts` (286 lines, 6 tests covering all 6 primitives).
   - All 6 NIST algorithms functional: Falcon-512, ML-DSA-44, ML-DSA-65, SLH-DSA-SHA2-128s, ML-KEM-768, ML-KEM-1024.
 - **Stage Completion Table:**
   | Stage | Name | Total Tasks | Completed | Real Status |
@@ -64,15 +65,20 @@ updated: 2026-11-12
   | Stage 0 | Decision follow-through | 3 | **3** | ✅ 100% |
   | Stage 1 | Crate skeleton & Falcon slice | 18 | **18** | ✅ 100% (`afe574c`) |
   | Stage 2 | Full algorithm matrix | 17 | **17** | ✅ 100% (`e13b18a`) |
-  | Stage 3 | Runtime adapters (Node + WASM) | 15 | **12** | 🟡 80% (Core adapters merged `7eb5fc8`) |
-  | Stage 4 | NIST CAVP/ACVP Conformance | 18 | **0** | ⬜ Ready to start |
-  | Stage 5 | Benchmarks (Latency/Gas) | 12 | **0** | ⬜ Blocked on S4 |
+  | Stage 3 | Runtime adapters (Node + WASM) | 15 | **15** | ✅ 100% — VERIFY ✅ 2026-11-28 (PR #70 merged) |
+  | Stage 4 | NIST CAVP/ACVP Conformance | 18 | **0** | 🟢 Unblocked — assigned to Hassan Attique |
+  | Stage 5 | Benchmarks (Latency/Gas) | 12 | **0** | 🟢 Unblocked — assigned to Fawaz Asif |
   | Stage 6 | ETHFALCON Dispute Verifier | 10 | **0** | ⬜ Blocked on S4 |
   | Stage 7 | Release Gate & Packaging | 9 | **0** | ⬜ Final stage |
-- **Remaining Stage 3 Tasks (Immediate To-Do):**
-  - [ ] **S3-05:** Prebuild CI for Linux + Windows native N-API binaries.
-  - [ ] **S3-10:** Cross-adapter contract-equivalence test running identical suite against both WASM and native.
-  - [ ] **S3-13:** Implement `pnpm test` suite in `packages/pq-core` replacing placeholder.
+- **Stage 3 Closure Notes (2026-11-28):**
+  - [x] **S3-10:** Contract-equivalence test — 6 tests (4 sig + 2 KEM), cross-runtime, oracle vectors, exact error codes. PR #70.
+  - [x] **S3-13:** `pnpm test` wired to `node --test dist/__tests__/contract.test.js`. Placeholder removed.
+  - [x] **S3-16:** `createRequire(import.meta.url)` fix for ESM addon loading.
+  - [ ] **S3-05:** Prebuild CI — descoped from MS1 (Q01 = D: Rust mandatory, revisit at release).
+  - Q03 decided (B): SLH-DSA signing split kept (native rejects, WASM signs). Encoded in S3-10 test.
+- **Next Up:**
+  - Hassan: T4 Conformance (S4-01 to S4-18) — ACVP vectors, Falcon KATs, golden vectors, differential oracle, report emitter.
+  - Fawaz: T5 Benchmarks (S5-01 to S5-12) — criterion harness, browser harness, environment registration, thresholds.
 
 ---
 
